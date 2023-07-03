@@ -97,6 +97,54 @@ const chessBoard =(()=>{
             return allowVertical;
         }
     }
+    const diagonalChecker = (oldX, newX, oldY, newY) =>{
+        let allowDiagonal = true;
+        if(newX > oldX){
+            for (let n = 1; n<=(newX - oldX); n++){
+
+                if(newY<oldY){
+                    if(chessBoardData[oldY - n][oldX + n].isEmpty == false) allowDiagonal = false;
+                    
+                }
+                if(newY>oldY){
+                    if(chessBoardData[oldY + n][oldX + n].isEmpty == false) allowDiagonal = false;
+                }
+            }
+        }
+        if(newX < oldX){
+            for (let n = 1; n<=(oldX - newX); n++){
+                if(newY<oldY){
+                    if(chessBoardData[oldY - n][oldX - n].isEmpty == false) allowDiagonal = false;
+                }
+                if(newY>oldY){
+                    if(chessBoardData[oldY + n][oldX + n].isEmpty == false) allowDiagonal = false;
+                }
+            }
+        }
+        /*if(newX > oldX){
+            for (let n = 1; n<=(newX - oldX); n++){
+                if(newY>oldY){
+                    if(chessBoardData[oldY - n][oldX + n].isEmpty == false) allowDiagonal = false;
+                }
+                if(newY<oldY){
+                    if(chessBoardData[oldY + n][oldX + n].isEmpty == false) allowDiagonal = false;
+                }
+            }
+        }
+        if(newX < oldX){
+            for (let n = 1; n<=(oldX - newX); n++){
+                if(n == oldX) continue;
+                if(newY>oldY){
+                    if(chessBoardData[oldY - n][oldX - n].isEmpty == false) allowDiagonal = false;
+                }
+                if(newY<oldY){
+                    if(chessBoardData[oldY + n][oldX + n].isEmpty == false) allowDiagonal = false;
+                }
+            }
+        } */
+        return allowDiagonal;
+
+    }
     const getMoveData = (id, oldCoords, newCoords, color) =>{
         //move ranges console.log(id, oldCoords, newCoords);
         //moveX [left, right]
@@ -120,20 +168,29 @@ const chessBoard =(()=>{
                         allowMove = horizontalChecker(oldX, newX, oldY);
                     }
                     if((oldX == newX && oldY != newY)){
-                        allowMove = verticalChecker(oldY,newY,oldX);
+                        allowMove = verticalChecker(oldY, newY, oldX);
                     }
                 }
                 return allowMove;
             case 'bishop':
+                if(newX > oldX){
+                    for (let n = 1; n<=(newX - oldX); n++){
+                        if  (newX == oldX + n && newY == oldY - n) allowMove = diagonalChecker(oldX, newX, oldY, newY);
+                        if  (newX == oldX + n && newY == oldY + n) allowMove = diagonalChecker(oldX, newX, oldY, newY);
+                    }
+                }
+                if(newX < oldX){
+                    for (let n = 1; n<=(oldX - newX); n++){
+                        if  (newX == oldX - n && newY == oldY + n) allowMove = diagonalChecker(oldX, newX, oldY, newY);
+                        if  (newX == oldX - n && newY == oldY - n) allowMove = diagonalChecker(oldX, newX, oldY, newY);
+                    }
+                }
+                return allowMove;
+
                 default:
                     return allowMove;
 
             }
-        
-
-
-
-        
     }
     const movePiece = (oldCoords,newCoords,id) =>{
         pieceMaker(newCoords[0], newCoords[1], id);
@@ -143,7 +200,6 @@ const chessBoard =(()=>{
     const pieceUnmaker = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
         chessBoardData[y][x].isEmpty = true;
-        //gameBoardArrayData[y].childNodes[x].removeChild();
     }
     const pieceMaker = (x, y, id) =>{
         let piece = document.createElement('div');
@@ -158,6 +214,7 @@ const chessBoard =(()=>{
 ;
         piece.onclick=(e) =>{
             e.stopPropagation();
+            
             if (movingData.piece == null){
                 movingData.id = id;
                 movingData.piece = piece;
@@ -165,16 +222,32 @@ const chessBoard =(()=>{
                 movingData.y = pieceData.y;
             }else{
                 clearInfo();
-            }
+            }/*
+            movingData.id = id;
+            movingData.piece = piece;
+            movingData.x = pieceData.x;
+            movingData.y = pieceData.y;
 
+*/
         }
         chessBoardData[y][x].isEmpty = false;
         chessBoardData[y][x].tileLocation.append(piece);
     }
 
-    
-    return {makeBoard,pieceMaker};
+    const generateGame =()=>{
+        for (let x = 0; x<8;x++){
+            pieceMaker(x,6,'pawn');
+        }
+        pieceMaker(0,7,'rook');
+        pieceMaker(7,7,'rook');
+    }
+    return {makeBoard,pieceMaker,generateGame};
 })();
 chessBoard.makeBoard();
-chessBoard.pieceMaker(0,6,'rook');
-chessBoard.pieceMaker(3,6, 'pawn');
+
+chessBoard.pieceMaker(0,6,'bishop');
+chessBoard.pieceMaker(0,5,'bishop');
+chessBoard.pieceMaker(4,2,'rook');
+chessBoard.pieceMaker(2,4, 'pawn');
+/*
+chessBoard.generateGame();*/
