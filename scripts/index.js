@@ -4,11 +4,15 @@ const chessBoard =(()=>{
     let chessBoardData = [];
     let tempHolder = [];
     let isMoving = false;
+
     let movingData = {
+        id: null,
         piece: null,
         x: null,
         y: null
     };
+
+
     //creates board element
     const makeBoard = () =>{
         while (gameBoard.hasChildNodes()) {
@@ -31,9 +35,20 @@ const chessBoard =(()=>{
  
                 };
                 chessBoardTileDiv.onclick = ()=>{
-                    if(movingData.piece){ 
-                        movePiece(x,y);
+                    
+                    console.log(movingData.id);
+                    console.log('move from: '+movingData.x+':'+movingData.y);
+                    console.log('move to: '+x+':'+y);
+                    //(id, oldCoords, newCoords, color) <-false for black, true for white
+                    
+                    console.log(getMoveData(movingData.id, [movingData.x,movingData.y], [x,y],true));
+                    /**/
+                    if(getMoveData(movingData.id, [movingData.x,movingData.y], [x,y],true)){
+                        movePiece([movingData.x,movingData.y], [x,y], movingData.id);
+                    }else{
+                        clearInfo();
                     }
+                    
                 }
                 chessBoardTileContainer.append(chessBoardTileDiv);
                 chessBoardTileData.push(TileData);
@@ -42,41 +57,124 @@ const chessBoard =(()=>{
             chessBoardData.push(chessBoardTileData);
         }
     }
-    const movePiece = (x,y) =>{
-        if(movingData.x != x || movingData.y != y){
-            movingData.x = x;
-            movingData.y = y;
-            chessBoardData[y][x].tileLocation.append(movingData.piece);
-            chessBoardData[tempHolder[1]][tempHolder[0]].isEmpty = true;
-            chessBoardData[y][x].isEmpty = false;
-            console.log(chessBoardData);
-        }
-            movingData.piece = null;
-            movingData.x = null;
-            movingData.y = null;
+    const clearInfo = () =>{
+        movingData.id = null;
+        movingData.piece = null;
+        movingData.x = null;
+        movingData.y = null;
     }
-    const pieceMaker = (x,y,id) =>{
-        let gameBoardArrayData = gameBoard.querySelectorAll('.tile-container');
+    const horizontalChecker = (oldX, newX, y) =>{
+        let allowHorizontal = true;
+        if (oldX < newX){
+            for(let x = oldX; x <= newX; x++){
+                if(x == oldX) continue;
+                if(chessBoardData[y][x].isEmpty == false) allowHorizontal = false;
+            }
+            return allowHorizontal;
+        }
+        if (oldX > newX){
+            for(let x = oldX; x >= newX; x--){
+                if(x == oldX) continue;
+                if(chessBoardData[y][x].isEmpty == false) allowHorizontal = false;
+            }
+            return allowHorizontal;
+        }
+    }
+    const verticalChecker = (oldY, newY, x) => {
+        let allowVertical = true;
+        if (oldY < newY){
+            for(let y = oldY; y <= newY; y++){
+                if(y == oldY) continue;
+                if(chessBoardData[y][x].isEmpty == false) allowVertical = false;
+            }
+            return allowVertical;
+        }
+        if (oldY > newY){
+            for(let y = oldY; y >= newY; y--){
+                if(y == oldY) continue;
+                if(chessBoardData[y][x].isEmpty == false) allowVertical = false;
+            }
+            return allowVertical;
+        }
+    }
+    const getMoveData = (id, oldCoords, newCoords, color) =>{
+        //move ranges console.log(id, oldCoords, newCoords);
+        //moveX [left, right]
+        //moveY [up, down]
+        //allows for adding more flags
+        let allowMove = false;
+        let oldX = oldCoords[0], oldY = oldCoords[1];
+        let newX = newCoords[0], newY = newCoords[1];
+        switch (id){
+            case 'pawn':
+                //only move up OR down depending on the color of the piece
+                if(oldX == newX && (color?oldY-1:oldY+1) == newY){
+                    allowMove = verticalChecker(oldY,newY,oldX);
+                }
+                return allowMove;
+            case 'rook':
+                /*either vertical OR horizontal movement*/
+                if((oldX == newX && oldY != newY)||(oldX != newX && oldY == newY)){
+                    //check if something is blocking horizontal or vertical movement
+                    if((oldX != newX && oldY == newY)){
+                        allowMove = horizontalChecker(oldX, newX, oldY);
+                    }
+                    if((oldX == newX && oldY != newY)){
+                        allowMove = verticalChecker(oldY,newY,oldX);
+                    }
+                }
+                return allowMove;
+            case 'bishop':
+                default:
+                    return allowMove;
+
+            }
+        
+
+
+
+        
+    }
+    const movePiece = (oldCoords,newCoords,id) =>{
+        pieceMaker(newCoords[0], newCoords[1], id);
+        pieceUnmaker(oldCoords[0],oldCoords[1]);
+        clearInfo();
+    }
+    const pieceUnmaker = (x, y) =>{
+        chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
+        chessBoardData[y][x].isEmpty = true;
+        //gameBoardArrayData[y].childNodes[x].removeChild();
+    }
+    const pieceMaker = (x, y, id) =>{
         let piece = document.createElement('div');
         piece.classList.add('piece');
-        piece.textContent = 'piece';
+
         let pieceData = {
-            id:id,
+            id: id,
+            x: x,
+            y: y,
         }
+        piece.textContent = id
+;
         piece.onclick=(e) =>{
-            console.log(pieceData.id);
-            tempHolder = [x,y];
-            //IMPORTANT TO STOP PARENT FROM TRIGGERING NULL 
             e.stopPropagation();
-            movingData.piece = piece;
+            if (movingData.piece == null){
+                movingData.id = id;
+                movingData.piece = piece;
+                movingData.x = pieceData.x;
+                movingData.y = pieceData.y;
+            }else{
+                clearInfo();
+            }
+
         }
         chessBoardData[y][x].isEmpty = false;
-        gameBoardArrayData[y].childNodes[x].append(piece);
+        chessBoardData[y][x].tileLocation.append(piece);
     }
 
     
     return {makeBoard,pieceMaker};
 })();
 chessBoard.makeBoard();
-chessBoard.pieceMaker(0,6, 'rook');
-chessBoard.pieceMaker(1,6, 'pawn');
+chessBoard.pieceMaker(0,6,'rook');
+chessBoard.pieceMaker(3,6, 'pawn');
