@@ -177,6 +177,12 @@ const chessBoard =(()=>{
                     allowMove = true;
                     if(chessBoardData[newY][newX].isEmpty == false) allowMove = false;
                 }
+                if((oldX + 1 == newX || oldX - 1 == newX ) && (color?(oldY - 1 == newY):(oldY + 1 == newY))){
+                    if(eatChecker(newX,newY,color)){
+                        allowMove = true;
+                    }
+                    
+                }
                 if (!hasMoved){
                     if(oldX == newX && (color?oldY-2:oldY+2) == newY){
                         allowMove = true;
@@ -196,6 +202,7 @@ const chessBoard =(()=>{
                         
                     }
                 }
+                
                 return allowMove;
             case 'rook':
                 /*either vertical OR horizontal movement*/
@@ -299,11 +306,19 @@ const chessBoard =(()=>{
 
             }
     }
+    //some eat logic
+    const eatChecker = (x,y, color) =>{
+        if (chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
+    }
+    const eatMove = (x, y) =>{
+        chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
+    }
     const movePiece = (oldCoords,newCoords,id,color) =>{
         
         let oldX = oldCoords[0], oldY = oldCoords[1];
         let newX = newCoords[0], newY = newCoords[1];
-        if (chessBoardData[newY][newX].isEmpty == false && id != 'pawn') chessBoardData[newY][newX].tileLocation.removeChild(chessBoardData[newY][newX].tileLocation.lastChild);
+        if (eatChecker(newX, newY,color)) eatMove(newX, newY);
+
         pieceMaker(newX, newY, id, color, true);
         pieceUnmaker(oldX, oldY);
         clearInfo();
