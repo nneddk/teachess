@@ -36,8 +36,13 @@ const chessBoard =(()=>{
                     isEmpty: true,
                     tileLocation: chessBoardTileDiv,
                     pieceData:null,
+                    threatData: {
+                        whiteCheck: false,
+                        blackCheck: false,
+                    }
  
                 };
+                chessBoardTileDiv.textContent = TileData.threatData.isThreatened;
                 chessBoardTileDiv.onclick = ()=>{
                     console.log('click');
                     movingData.newCoords.x = x;
@@ -57,6 +62,7 @@ const chessBoard =(()=>{
         console.log(movingData.id);
         console.log('move from: '+oldX+':'+oldY);
         console.log('move to: '+newX+':'+newY);
+        console.log(chessBoardData[newY][newX]);
         
         //(id, oldCoords, newCoords, color) <-false for black, true for white
         console.log();
@@ -71,6 +77,7 @@ const chessBoard =(()=>{
         
         /**/
     }
+
     const clearInfo = () =>{
         movingData.id = null;
         movingData.piece = null;
@@ -78,7 +85,21 @@ const chessBoard =(()=>{
         movingData.oldCoords.y = null;
         movingData.newCoords.x = null;
         movingData.newCoords.y = null;
+        
     }
+   
+
+    
+  
+    //some eat logic
+    const eatChecker = (x,y, color) =>{
+        if (chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
+    }
+    const eatMove = (x, y) =>{
+        chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
+    }
+
+    //move logic
     const moveChecker = (()=>{
         const horizontalChecker = (oldX, newX, y) =>{
             let allowHorizontal = true;
@@ -162,7 +183,15 @@ const chessBoard =(()=>{
             kingChecker
         }
     })();
-
+    const movePiece = (oldCoords,newCoords,id,color) =>{
+        let oldX = oldCoords[0], oldY = oldCoords[1];
+        let newX = newCoords[0], newY = newCoords[1];
+        if (eatChecker(newX, newY,color)) eatMove(newX, newY);
+        pieceMaker(newX, newY, id, color, true);
+        pieceUnmaker(oldX, oldY);
+        refreshData();
+        clearInfo();
+    }
     const getMoveData = (id, oldCoords, newCoords, color) =>{
         //move ranges console.log(id, oldCoords, newCoords);
         //moveX [left, right]
@@ -309,22 +338,51 @@ const chessBoard =(()=>{
 
             }
     }
-    //some eat logic
-    const eatChecker = (x,y, color) =>{
-        if (chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
-    }
-    const eatMove = (x, y) =>{
-        chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
-    }
-    const movePiece = (oldCoords,newCoords,id,color) =>{
+    //could use a refactor, but for now works.
+    let activePieces = [];
+    const refreshData = () =>{
+        //its bad but it works :c
         
-        let oldX = oldCoords[0], oldY = oldCoords[1];
-        let newX = newCoords[0], newY = newCoords[1];
-        if (eatChecker(newX, newY,color)) eatMove(newX, newY);
+        for(let y = 0; y <8; y++){
+            for(let x = 0; x <8; x++){
+                chessBoardData[y][x].threatData.whiteCheck = false;
+                chessBoardData[y][x].threatData.blackCheck = false;
+                chessBoardData[y][x].tileLocation.style.border = 'none';
+                if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
+                    activePieces.push(chessBoardData[y][x].pieceData);
+                }
+                
+            }
+        } console.log(activePieces);
 
-        pieceMaker(newX, newY, id, color, true);
-        pieceUnmaker(oldX, oldY);
-        clearInfo();
+        for(let i = 0; i<activePieces.length; i++){
+            getThreatData(activePieces[i].id, activePieces[i].x, activePieces[i].y, activePieces[i].color);
+        }
+        activePieces = [];
+    }
+    const getThreatData = (id, x, y, color)=>{
+        switch(id){
+            
+            case 'queen':
+                //vertical threat data
+                for(let currentY = y; currentY<=7; currentY++){  
+                    
+                    if(color == true) chessBoardData[currentY][x].threatData.whiteCheck = true;
+                    if(color == false) chessBoardData[currentY][x].threatData.blackCheck = true;
+                    chessBoardData[currentY][x].tileLocation.style.border = 'solid';
+                    if(moveChecker.verticalChecker(currentY, y, x))break;
+
+                }
+                for(let currentY = y; currentY>=0; currentY--){  
+                    
+                    if(color == true) chessBoardData[currentY][x].threatData.whiteCheck = true;
+                    if(color == false) chessBoardData[currentY][x].threatData.blackCheck = true;
+                    chessBoardData[currentY][x].tileLocation.style.border = 'solid';
+                    if(moveChecker.verticalChecker(currentY, y, x))break;
+                }
+                //horizontal threat data
+                
+        }
     }
     const pieceUnmaker = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
@@ -368,9 +426,11 @@ const chessBoard =(()=>{
             movingData.color = pieceData.color;
             movingData.hasMoved = pieceData.hasMoved;
         }
+        getThreatData(id, x, y, color);
         chessBoardData[y][x].pieceData = pieceData;
         chessBoardData[y][x].isEmpty = false;
         chessBoardData[y][x].tileLocation.append(piece);
+        
     }
 
     const generateGame =()=>{
@@ -384,7 +444,9 @@ const chessBoard =(()=>{
 })();
 chessBoard.makeBoard();
 //x y pieceID
-chessBoard.pieceMaker(0,3,'rook',true);
+chessBoard.pieceMaker(3,3,'queen',true);
+chessBoard.pieceMaker(2,4,'queen',false);
+/*
 chessBoard.pieceMaker(0,5,'bishop',false);
 chessBoard.pieceMaker(0,6,'knight',false);
 chessBoard.pieceMaker(3,3,'pawn',false);
