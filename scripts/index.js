@@ -108,15 +108,16 @@ const chessBoard =(()=>{
                     if(x == oldX) continue;
                     if(chessBoardData[y][x].isEmpty == false) allowHorizontal = false;
                 }
-                return allowHorizontal;
+                
             }
             if (oldX > newX){
                 for(let x = oldX; x > newX; x--){
                     if(x == oldX) continue;
                     if(chessBoardData[y][x].isEmpty == false) allowHorizontal = false;
                 }
-                return allowHorizontal;
+                
             }
+            return allowHorizontal;
         }
         const verticalChecker = (oldY, newY, x) => {
             let allowVertical = true;
@@ -125,15 +126,16 @@ const chessBoard =(()=>{
                     if(y == oldY) continue;
                     if(chessBoardData[y][x].isEmpty == false) allowVertical = false;
                 }
-                return allowVertical;
+                
             }
             if (oldY > newY){
                 for(let y = oldY; y > newY; y--){
                     if(y == oldY) continue;
                     if(chessBoardData[y][x].isEmpty == false) allowVertical = false;
                 }
-                return allowVertical;
+                
             }
+            return allowVertical;
         }
         const diagonalChecker = (oldX, newX, oldY, newY) =>{
             let allowDiagonal = true;
@@ -362,25 +364,39 @@ const chessBoard =(()=>{
     }
     const getThreatData = (id, x, y, color)=>{
         switch(id){
-            
+            /*!IMPORTANT, +1/-1 MUST BE ADDED TO CHECKERS BCS I AM DUMB*/
             case 'queen':
+                
                 //vertical threat data
-                for(let currentY = y; currentY<=7; currentY++){  
-                    
+                for(let currentY = y; currentY<=7; currentY++){     
                     if(color == true) chessBoardData[currentY][x].threatData.whiteCheck = true;
                     if(color == false) chessBoardData[currentY][x].threatData.blackCheck = true;
                     chessBoardData[currentY][x].tileLocation.style.border = 'solid';
-                    if(moveChecker.verticalChecker(currentY, y, x))break;
-
+                    if(!moveChecker.verticalChecker(y, currentY + 1, x))break;
                 }
                 for(let currentY = y; currentY>=0; currentY--){  
                     
                     if(color == true) chessBoardData[currentY][x].threatData.whiteCheck = true;
                     if(color == false) chessBoardData[currentY][x].threatData.blackCheck = true;
                     chessBoardData[currentY][x].tileLocation.style.border = 'solid';
-                    if(moveChecker.verticalChecker(currentY, y, x))break;
+                    if(!moveChecker.verticalChecker(y, currentY - 1, x))break;
                 }
                 //horizontal threat data
+                for(let currentX = x; currentX<=7; currentX++){  
+                    
+                    if(color == true) chessBoardData[y][currentX].threatData.whiteCheck = true;
+                    if(color == false) chessBoardData[y][currentX].threatData.blackCheck = true;
+                    chessBoardData[y][currentX].tileLocation.style.border = 'solid';
+                    if(!moveChecker.horizontalChecker(x, currentX + 1, y))break;
+
+                }
+                for(let currentX = x; currentX>=0; currentX--){  
+                    
+                    if(color == true) chessBoardData[y][currentX].threatData.whiteCheck = true;
+                    if(color == false) chessBoardData[y][currentX].threatData.blackCheck = true;
+                    chessBoardData[y][currentX].tileLocation.style.border = 'solid';
+                    if(!moveChecker.horizontalChecker(x, currentX - 1, y))break;
+                }
                 
         }
     }
@@ -390,6 +406,7 @@ const chessBoard =(()=>{
         turnCheck = !turnCheck;
     }
     const pieceMaker = (x, y, id, color,hasMoved) =>{
+        
         let piece = document.createElement('div');
         piece.classList.add('piece');
 
@@ -430,7 +447,7 @@ const chessBoard =(()=>{
         chessBoardData[y][x].pieceData = pieceData;
         chessBoardData[y][x].isEmpty = false;
         chessBoardData[y][x].tileLocation.append(piece);
-        
+        refreshData();
     }
 
     const generateGame =()=>{
@@ -446,9 +463,8 @@ chessBoard.makeBoard();
 //x y pieceID
 chessBoard.pieceMaker(3,3,'queen',true);
 chessBoard.pieceMaker(2,4,'queen',false);
-/*
-chessBoard.pieceMaker(0,5,'bishop',false);
-chessBoard.pieceMaker(0,6,'knight',false);
+chessBoard.pieceMaker(2,6,'bishop',false);
+/*chessBoard.pieceMaker(0,6,'knight',false);
 chessBoard.pieceMaker(3,3,'pawn',false);
 chessBoard.pieceMaker(2,4, 'pawn',true);
 chessBoard.pieceMaker(3,7, 'queen',true);
