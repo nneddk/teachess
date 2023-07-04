@@ -141,9 +141,12 @@ const chessBoard =(()=>{
             return allowDiagonal;
     
         }
-        const horseChecker = (newX, newY) =>{
+        const horseChecker = (newX, newY,color) =>{
             let allowHorse = true;
-            if(chessBoardData[newY][newX].isEmpty == false) allowHorse = false;
+            if (eatChecker(newX,newY,color)) return true;
+            if(chessBoardData[newY][newX].isEmpty == false){
+                allowHorse = false;
+            }
             return allowHorse;
         }
         const kingChecker =(newX,newY) =>{
@@ -236,12 +239,12 @@ const chessBoard =(()=>{
             case 'knight':
                 if(oldY == newY + 2||oldY == newY - 2){
                     if(oldX == newX + 1||oldX == newX - 1){
-                        allowMove = moveChecker.horseChecker(newX,newY);
+                        allowMove = moveChecker.horseChecker(newX,newY,color);
                     }
                 }
                 if(oldX == newX + 2 ||oldX == newX - 2){
                     if(oldY == newY + 1||oldY == newY - 1){
-                        allowMove = moveChecker.horseChecker(newX,newY);
+                        allowMove = moveChecker.horseChecker(newX,newY,color);
                     }
                 }
                 return allowMove;
@@ -383,6 +386,7 @@ chessBoard.makeBoard();
 //x y pieceID
 chessBoard.pieceMaker(0,3,'rook',true);
 chessBoard.pieceMaker(0,5,'bishop',false);
+chessBoard.pieceMaker(0,6,'knight',false);
 chessBoard.pieceMaker(3,3,'pawn',false);
 chessBoard.pieceMaker(2,4, 'pawn',true);
 chessBoard.pieceMaker(3,7, 'queen',true);
