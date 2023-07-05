@@ -15,6 +15,10 @@ const chessBoard =(()=>{
         color: null,
         hasMoved: 0,
     };
+    let kingData = {
+        white: [],
+        black: [],
+    };
     //1 for white, 0 for black;
     let turnCheck = 1;
     //creates board element
@@ -34,6 +38,8 @@ const chessBoard =(()=>{
                 chessBoardTileDiv.style.backgroundColor = (((y+1) + (x+1))%2?'rgb(118,150,86)':'rgb(238,238,210');
                 //object for easier data manipulation
                 let TileData ={
+                    x:x,
+                    y:y,
                     isEmpty: true,
                     tileLocation: chessBoardTileDiv,
                     pieceData:null,
@@ -61,7 +67,7 @@ const chessBoard =(()=>{
             gameBoard.append(chessBoardTileContainer);
             chessBoardData.push(chessBoardTileData);
         }
-    }
+    };
     const clickTile =() =>{
         let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
         let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
@@ -80,7 +86,7 @@ const chessBoard =(()=>{
         }
         
         /**/
-    }
+    };
 
     const clearInfo = () =>{
         movingData.id = null;
@@ -93,12 +99,14 @@ const chessBoard =(()=>{
         movingData.hasMoved = null;
         movingData.inCheck = null;
         
-    }
+    };
     //could use a refactor, but for now works.
  
     const refreshData = () =>{
             //its bad but it works :c
             let activePieces = [];
+            kingData.white = [];
+            kingData.black = []; 
             for(let y = 0; y <8; y++){
                 for(let x = 0; x <8; x++){
                     chessBoardData[y][x].threatData.whiteCheck.counter = 0;
@@ -118,7 +126,8 @@ const chessBoard =(()=>{
             for(let i = 0; i<activePieces.length; i++){
                 getThreatData(activePieces[i].id, activePieces[i].x, activePieces[i].y, activePieces[i].color);
             }
-    }
+    };
+
     const getThreatData = (id, x, y, color)=>{
         const changeData = (boardData) =>{
             if(color){
@@ -131,23 +140,31 @@ const chessBoard =(()=>{
                 boardData.threatData.blackCheck.threats.push(chessBoardData[y][x]);
                 boardData.tileLocation.classList.add('black-check');
             }
+            if(id == 'king'){
+                if(color) kingData.white.push(boardData);
+                if(!color) kingData.black.push(boardData);
+            }
         }
             const verticalThreatData = (minY, maxY) =>{          
-                    for(let currentY = y; currentY<=maxY; currentY++){     
+                    for(let currentY = y; currentY<=maxY; currentY++){    
+                        if (currentY == y)continue;
                         changeData(chessBoardData[currentY][x]);    
                         if(!moveChecker.verticalChecker(y, currentY + 1, x))break;
                     }
-                    for(let currentY = y; currentY>=minY; currentY--){      
+                    for(let currentY = y; currentY>=minY; currentY--){  
+                        if (currentY == y)continue;    
                         changeData(chessBoardData[currentY][x]);
                         if(!moveChecker.verticalChecker(y, currentY - 1, x))break;
                     }
             }
             const horizontalThreatData = (minX, maxX) =>{
                 for(let currentX = x; currentX<=maxX; currentX++){  
+                    if (currentX == x) continue;
                     changeData(chessBoardData[y][currentX]);
                     if(!moveChecker.horizontalChecker(x, currentX + 1, y))break;
                 }
-                for(let currentX = x; currentX>=minX; currentX--){   
+                for(let currentX = x; currentX>=minX; currentX--){ 
+                    if (currentX == x) continue;  
                     changeData(chessBoardData[y][currentX]);
                     if(!moveChecker.horizontalChecker(x, currentX - 1, y))break;
                 }
@@ -160,19 +177,19 @@ const chessBoard =(()=>{
                     else if(x = y) limitMax = x;
                     return limitMax;
                 }
-                for (let n = 0; n <= findLimitMax((7-x),y); n++){
+                for (let n = 1; n <= findLimitMax((7-x),y); n++){
                     changeData(chessBoardData[y - n][x + n]);
                     if(!moveChecker.diagonalChecker(x, (x+n) + 1, y, (y-n) - 1))break;
                 }
-                for (let n = 0; n <= findLimitMax((7-x),(7 - y)); n++){
+                for (let n = 1; n <= findLimitMax((7-x),(7 - y)); n++){
                     changeData(chessBoardData[y + n][x + n]); 
                     if(!moveChecker.diagonalChecker(x, (x+n) + 1, y, (y+n) + 1))break;
                 }
-                for (let n = 0; n <= findLimitMax(x,(7 - y)); n++){
+                for (let n = 1; n <= findLimitMax(x,(7 - y)); n++){
                     changeData(chessBoardData[y + n][x - n]);
                     if(!moveChecker.diagonalChecker(x, (x-n) - 1, y, (y+n) + 1))break;
                 }
-                for (let n = 0; n <= findLimitMax(x, y); n++){
+                for (let n = 1; n <= findLimitMax(x, y); n++){
                     changeData(chessBoardData[y - n][x - n]);
                     if(!moveChecker.diagonalChecker(x, (x-n) - 1, y, (y-n) - 1))break;
                 }
@@ -344,7 +361,7 @@ const chessBoard =(()=>{
         turnCheck = !turnCheck;
         clearInfo();
     }
-    const isKingInCheck = () =>{
+    const isKingInCheck = (x,y) =>{
         for(let y = 0; y <8; y++){
             for(let x = 0; x <8; x++){
                 if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
@@ -353,14 +370,14 @@ const chessBoard =(()=>{
                             console.log('white king in check');
                             if (turnCheck) return true;
                             console.log('black has checked white');
-                            checkmateChecker(x,y);
+                            checkmateChecker(x,y, chessBoardData[y][x].pieceData.color);
                             
                         }
                         if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)){
                             console.log('black king in check');
                             if (!turnCheck) return true;
                             console.log('black has checked white');
-                            checkmateChecker(x,y);
+                            checkmateChecker(x,y, chessBoardData[y][x].pieceData.color);
                             
                         }
                         
@@ -373,8 +390,32 @@ const chessBoard =(()=>{
         }
         return false;
     }
-    const checkmateChecker = () =>{
-        console.log('checkmate has been flagged');
+    const checkmateChecker = (x, y, color) =>{
+        let safe = false;
+        let kingInCheck = color?kingData.white:kingData.black;
+        let currentThreat = color?chessBoardData[y][x].threatData.blackCheck.threats[0]:chessBoardData[y][x].threatData.whiteCheck.threats[0];
+        
+        console.log('king in '+x+':'+y+' is being checked for checkmate');
+        console.log('checked by: ');
+        console.log(currentThreat);
+            if(currentThreat.x < x && currentThreat.y == y) console.log('threat coming from left');
+            if(currentThreat.x > x && currentThreat.y == y) console.log('threat coming from right');
+            if(currentThreat.x == x && currentThreat.y > y ) console.log('threat coming from below');
+            if(currentThreat.x == x && currentThreat.y < y ) console.log('threat coming from above');
+
+            if(currentThreat.x < x && currentThreat.y < y) console.log('threat coming from left+above diagonally');
+            if(currentThreat.x > x && currentThreat.y < y) console.log('threat coming from right+above diagonally');
+            if(currentThreat.x > x && currentThreat.y > y) console.log('threat coming from right+below diagonally');
+            if(currentThreat.x < x && currentThreat.y > y) console.log('threat coming from left+below diagonally');
+        console.log(kingInCheck);
+        for (let n = 0; n <kingInCheck.length; n++){
+            let areaThreat = color?kingInCheck[n].threatData.blackCheck:kingInCheck[n].threatData.whiteCheck;
+            if(kingInCheck[n].isEmpty && areaThreat.counter == 0) return console.log('safe');
+            if( !kingInCheck[n].isEmpty && kingInCheck[n].pieceData.color == !color && areaThreat.counter < 1) return console.log('safe');
+            if( !kingInCheck[n].isEmpty && kingInCheck[n].pieceData.color == !color 
+                && kingInCheck[n].threatData.blackCheck.counter > 0 && areaThreat.counter < 1) return console.log('safe');
+        }
+
     }
     const getMoveData = (id, oldCoords, newCoords, color) =>{
 
@@ -591,14 +632,14 @@ const chessBoard =(()=>{
 })();
 chessBoard.makeBoard();
 //x y pieceID
-chessBoard.pieceMaker(3,3,'king',false);
-chessBoard.pieceMaker(7,7, 'king',true);
-chessBoard.pieceMaker(7,6, 'pawn',true);
-chessBoard.pieceMaker(6,6, 'pawn',true);
-chessBoard.pieceMaker(0,6,'queen',true);
-//chessBoard.pieceMaker(2,5,'knight',false);
-chessBoard.pieceMaker(2,4,'queen',false);
-//chessBoard.pieceMaker(2,6,'bishop',false);
+//chessBoard.pieceMaker(3,3,'king',false);
+chessBoard.pieceMaker(0,0, 'king',false);
+chessBoard.pieceMaker(1,1, 'pawn',false);
+chessBoard.pieceMaker(0,1, 'pawn',false);
+chessBoard.pieceMaker(5,4,'queen',true);
+chessBoard.pieceMaker(7,0,'rook',false);
+chessBoard.pieceMaker(2,3,'queen',false);
+chessBoard.pieceMaker(6,5,'bishop',true);
 /*chessBoard.pieceMaker(0,6,'knight',false);
 chessBoard.pieceMaker(3,3,'pawn',false);
 chessBoard.pieceMaker(2,4, 'pawn',true);
