@@ -38,8 +38,14 @@ const chessBoard =(()=>{
                     tileLocation: chessBoardTileDiv,
                     pieceData:null,
                     threatData: {
-                        whiteCheck: false,
-                        blackCheck: false,
+                        whiteCheck: {
+                            counter: 0,
+                            threats: [],
+                        },
+                        blackCheck: {
+                            counter: 0,
+                            threats: [],
+                        },
                     }
  
                 };
@@ -95,13 +101,14 @@ const chessBoard =(()=>{
             let activePieces = [];
             for(let y = 0; y <8; y++){
                 for(let x = 0; x <8; x++){
-                    chessBoardData[y][x].threatData.whiteCheck = false;
-                    chessBoardData[y][x].threatData.blackCheck = false;
+                    chessBoardData[y][x].threatData.whiteCheck.counter = 0;
+                    chessBoardData[y][x].threatData.whiteCheck.threats = [];
+                    chessBoardData[y][x].threatData.blackCheck.counter = 0;
+                    chessBoardData[y][x].threatData.blackCheck.threats = [];
                     chessBoardData[y][x].tileLocation.classList.remove('white-check');
                     chessBoardData[y][x].tileLocation.classList.remove('black-check');
                     if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                         activePieces.push(chessBoardData[y][x].pieceData);
-                        //if(chessBoardData[y][x].pieceData.id == 'king') kingPieces.push
                     }
 
                     
@@ -113,52 +120,35 @@ const chessBoard =(()=>{
             }
     }
     const getThreatData = (id, x, y, color)=>{
+        const changeData = (boardData) =>{
+            if(color){
+                boardData.threatData.whiteCheck.counter++;
+                boardData.threatData.whiteCheck.threats.push(chessBoardData[y][x]);
+                boardData.tileLocation.classList.add('white-check');
+            }
+            if(!color){
+                boardData.threatData.blackCheck.counter++;
+                boardData.threatData.blackCheck.threats.push(chessBoardData[y][x]);
+                boardData.tileLocation.classList.add('black-check');
+            }
+        }
             const verticalThreatData = (minY, maxY) =>{          
                     for(let currentY = y; currentY<=maxY; currentY++){     
-                        if(color){
-                            chessBoardData[currentY][x].threatData.whiteCheck = true;
-                            chessBoardData[currentY][x].tileLocation.classList.add('white-check');
-                        } 
-                        if(!color){
-                            chessBoardData[currentY][x].threatData.blackCheck = true;
-                            chessBoardData[currentY][x].tileLocation.classList.add('black-check');
-                        } 
+                        changeData(chessBoardData[currentY][x]);    
                         if(!moveChecker.verticalChecker(y, currentY + 1, x))break;
                     }
                     for(let currentY = y; currentY>=minY; currentY--){      
-                        if(color) {
-                            chessBoardData[currentY][x].threatData.whiteCheck = true;
-                            chessBoardData[currentY][x].tileLocation.classList.add('white-check');
-                        }
-                        if(!color){
-                            chessBoardData[currentY][x].threatData.blackCheck = true;
-                            chessBoardData[currentY][x].tileLocation.classList.add('black-check');
-                        } 
+                        changeData(chessBoardData[currentY][x]);
                         if(!moveChecker.verticalChecker(y, currentY - 1, x))break;
                     }
             }
             const horizontalThreatData = (minX, maxX) =>{
                 for(let currentX = x; currentX<=maxX; currentX++){  
-                    if(color){
-                        chessBoardData[y][currentX].threatData.whiteCheck = true;
-                        chessBoardData[y][currentX].tileLocation.classList.add('white-check');
-                    } 
-                    if(!color){
-                        chessBoardData[y][currentX].threatData.blackCheck = true;
-                        chessBoardData[y][currentX].tileLocation.classList.add('black-check');
-                    } 
+                    changeData(chessBoardData[y][currentX]);
                     if(!moveChecker.horizontalChecker(x, currentX + 1, y))break;
                 }
-                for(let currentX = x; currentX>=minX; currentX--){  
-                        
-                    if(color){
-                        chessBoardData[y][currentX].threatData.whiteCheck = true;
-                        chessBoardData[y][currentX].tileLocation.classList.add('white-check');
-                    } 
-                    if(!color){
-                        chessBoardData[y][currentX].threatData.blackCheck = true;
-                        chessBoardData[y][currentX].tileLocation.classList.add('black-check');
-                    } 
+                for(let currentX = x; currentX>=minX; currentX--){   
+                    changeData(chessBoardData[y][currentX]);
                     if(!moveChecker.horizontalChecker(x, currentX - 1, y))break;
                 }
             }
@@ -171,142 +161,48 @@ const chessBoard =(()=>{
                     return limitMax;
                 }
                 for (let n = 0; n <= findLimitMax((7-x),y); n++){
-                    if(color){
-                        chessBoardData[y - n][x + n].threatData.whiteCheck = true;
-                        chessBoardData[y - n][x + n].tileLocation.classList.add('white-check');
-                        
-                    }
-                    if(!color){
-                        chessBoardData[y - n][x + n].threatData.blackCheck = true;
-                        chessBoardData[y - n][x + n].tileLocation.classList.add('black-check');
-                    } 
+                    changeData(chessBoardData[y - n][x + n]);
                     if(!moveChecker.diagonalChecker(x, (x+n) + 1, y, (y-n) - 1))break;
                 }
                 for (let n = 0; n <= findLimitMax((7-x),(7 - y)); n++){
-                    if(color){
-                        chessBoardData[y + n][x + n].threatData.whiteCheck = true;
-                        chessBoardData[y + n][x + n].tileLocation.classList.add('white-check');
-                        
-                    }
-                    if(!color){
-                        chessBoardData[y + n][x + n].threatData.blackCheck = true;
-                        chessBoardData[y + n][x + n].tileLocation.classList.add('black-check');
-                    } 
+                    changeData(chessBoardData[y + n][x + n]); 
                     if(!moveChecker.diagonalChecker(x, (x+n) + 1, y, (y+n) + 1))break;
                 }
                 for (let n = 0; n <= findLimitMax(x,(7 - y)); n++){
-                    if(color){
-                        chessBoardData[y + n][x - n].threatData.whiteCheck = true;
-                        chessBoardData[y + n][x - n].tileLocation.classList.add('white-check');
-                        
-                    }
-                    if(!color){
-                        chessBoardData[y + n][x - n].threatData.blackCheck = true;
-                        chessBoardData[y + n][x - n].tileLocation.classList.add('black-check');
-                    } 
+                    changeData(chessBoardData[y + n][x - n]);
                     if(!moveChecker.diagonalChecker(x, (x-n) - 1, y, (y+n) + 1))break;
                 }
                 for (let n = 0; n <= findLimitMax(x, y); n++){
-                    if(color){
-                        chessBoardData[y - n][x - n].threatData.whiteCheck = true;
-                        chessBoardData[y - n][x - n].tileLocation.classList.add('white-check');
-                        
-                    }
-                    if(!color){
-                        chessBoardData[y - n][x - n].threatData.blackCheck = true;
-                        chessBoardData[y - n][x - n].tileLocation.classList.add('black-check');
-                    } 
+                    changeData(chessBoardData[y - n][x - n]);
                     if(!moveChecker.diagonalChecker(x, (x-n) - 1, y, (y-n) - 1))break;
                 }
             }
             const otherThreatData = (modX, modY) => {
                 if((x + modX) <= 7 && (y - modY) >= 0){
-                    if (color){
-                        chessBoardData[y - modY][x + modX].threatData.whiteCheck = true;    
-                        chessBoardData[y - modY][x + modX].tileLocation.classList.add('white-check');
-                    }
-                    if (!color && (id == 'knight' || id == 'king')){
-                        chessBoardData[y - modY][x + modX].threatData.blackCheck = true;    
-                        chessBoardData[y - modY][x + modX].tileLocation.classList.add('black-check');
-                    }
-                    
+                    if(color) changeData(chessBoardData[y - modY][x + modX]);
+                    if(!color && (id == 'knight' || id == 'king')) changeData(chessBoardData[y - modY][x + modX]);
                 }
                 if((x - modX) >=0 && (y + modY) <=7){
-                    if(color && (id == 'knight' || id == 'king')){
-                        chessBoardData[y + modY][x - modX].threatData.whiteCheck = true;   
-                        chessBoardData[y + modY][x - modX].tileLocation.classList.add('white-check');
-                    }
-                    if(!color){
-                        chessBoardData[y + modY][x - modX].threatData.blackCheck = true;   
-                        chessBoardData[y + modY][x - modX].tileLocation.classList.add('black-check');
-                    }
-    
-    
+                    if(!color) changeData(chessBoardData[y + modY][x - modX]);
+                    if(color && (id == 'knight' || id == 'king')) changeData(chessBoardData[y + modY][x - modX]);
                 }
                 if((x-modX)>= 0 && (y-modY)>=0){
-                    if (color){
-                        chessBoardData[y - modY][x - modX].threatData.whiteCheck = true;
-                        chessBoardData[y - modY][x - modX].tileLocation.classList.add('white-check');
-                    }
-                    if (!color && (id == 'knight' || id == 'king')){
-                        chessBoardData[y - modY][x - modX].threatData.blackCheck = true;
-                        chessBoardData[y - modY][x - modX].tileLocation.classList.add('black-check');
-                    }
+                    if(color)changeData(chessBoardData[y - modY][x - modX]);
+                    if(!color && (id == 'knight' || id == 'king')) changeData(chessBoardData[y - modY][x - modX]);
                 }
-    
                 if((x+modX)<=7 &&(y+modY)<=7){
-                    if(color && (id == 'knight' || id == 'king')){
-                        chessBoardData[y + modY][x + modX].threatData.whiteCheck = true;
-                        chessBoardData[y + modY][x + modX].tileLocation.classList.add('white-check');
-                    }
-                    if(!color){
-                        chessBoardData[y + modY][x + modX].threatData.blackCheck = true;
-                        chessBoardData[y + modY][x + modX].tileLocation.classList.add('black-check');
-                    }
+                    if(!color)changeData(chessBoardData[y + modY][x + modX]);
+                    if(color && (id == 'knight' || id == 'king')) changeData(chessBoardData[y + modY][x + modX]);
                     
                 }
-    
-                if((x+modY)<=7 && (y+modX)<=7){
-                    if(color && id == 'knight'){
-                        chessBoardData[y + modX][x + modY].threatData.whiteCheck = true;
-                        chessBoardData[y + modX][x + modY].tileLocation.classList.add('white-check');
-                    }
-                    if(!color &&id == 'knight'){
-                        chessBoardData[y + modX][x + modY].threatData.blackCheck = true;
-                        chessBoardData[y + modX][x + modY].tileLocation.classList.add('black-check');
-                    }
+                if(id =='knight'){
+                    if((x+modY)<=7 && (y+modX)<=7) changeData(chessBoardData[y + modX][x + modY]);
+                    if((x+modY)<=7 && (y-modX)>=0) changeData(chessBoardData[y - modX][x + modY]);
+                    if((x-modY)>=0 && (y-modX)>=0) changeData(chessBoardData[y - modX][x - modY]);
+                    if((x-modY)>=0 && (y+modX)<=7) changeData(chessBoardData[y + modX][x - modY]);
+        
                 }
-                if((x+modY)<=7 && (y-modX)>=0){
-                    if(color && id == 'knight'){
-                        chessBoardData[y - modX][x + modY].threatData.whiteCheck = true;
-                        chessBoardData[y - modX][x + modY].tileLocation.classList.add('white-check');
-                    }
-                    if(!color &&id == 'knight'){
-                        chessBoardData[y - modX][x + modY].threatData.blackCheck = true;
-                        chessBoardData[y - modX][x + modY].tileLocation.classList.add('black-check');
-                    }
-                }
-                if((x-modY)>=0 && (y-modX)>=0){
-                    if(color && id == 'knight'){
-                        chessBoardData[y - modX][x - modY].threatData.whiteCheck = true;
-                        chessBoardData[y - modX][x - modY].tileLocation.classList.add('white-check');
-                    }
-                    if(!color &&id == 'knight'){
-                        chessBoardData[y - modX][x - modY].threatData.blackCheck = true;
-                        chessBoardData[y - modX][x - modY].tileLocation.classList.add('black-check');
-                    }
-                }
-                if((x-modY)>=0 && (y+modX)<=7){
-                    if(color && id == 'knight'){
-                        chessBoardData[y + modX][x - modY].threatData.whiteCheck = true;
-                        chessBoardData[y + modX][x - modY].tileLocation.classList.add('white-check');
-                    }
-                    if(!color &&id == 'knight'){
-                        chessBoardData[y + modX][x - modY].threatData.blackCheck = true;
-                        chessBoardData[y + modX][x - modY].tileLocation.classList.add('black-check');
-                    }
-                }
-    
+                
                 
             }
     
@@ -339,7 +235,6 @@ const chessBoard =(()=>{
                     break;
             }
     }
-
     //move logic
     const moveChecker = (()=>{
         
@@ -430,14 +325,19 @@ const chessBoard =(()=>{
     })();
     const movePiece = (oldCoords,newCoords,id,color, hasMoved) =>{
         let oldX = oldCoords[0], oldY = oldCoords[1];
-        let newX = newCoords[0], newY = newCoords[1];
-        if (eatChecker(newX, newY,color)) eatMove(newX, newY);
-        pieceMaker(newX, newY, id, color, hasMoved++);
+        let newX = newCoords[0], newY = newCoords[1]; 
+        let storeEat;
+        if (eatChecker(newX, newY,color)){
+            storeEat =  chessBoardData[newY][newX].pieceData;
+            eatMove(newX, newY);
+        } 
+        pieceMaker(newX, newY, id, color, (hasMoved + 1));
         pieceUnmaker(oldX, oldY);
         refreshData();
         if (isKingInCheck()){
-            pieceMaker(oldX, oldY, id, color, hasMoved--);
+            pieceMaker(oldX, oldY, id, color, (hasMoved - 1));
             pieceUnmaker(newX, newY);
+            if(storeEat) pieceMaker(storeEat.x, storeEat.y, storeEat.id,storeEat.color, storeEat.hasMoved);
             refreshData();
             turnCheck = !turnCheck;
         }
@@ -449,14 +349,18 @@ const chessBoard =(()=>{
             for(let x = 0; x <8; x++){
                 if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                     if(chessBoardData[y][x].pieceData.id == 'king'){
-                        if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck)){
+                        if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck.counter)){
                             console.log('white king in check');
                             if (turnCheck) return true;
+                            console.log('black has checked white');
+                            checkmateChecker(x,y);
                             
                         }
-                        if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck)){
+                        if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)){
                             console.log('black king in check');
                             if (!turnCheck) return true;
+                            console.log('black has checked white');
+                            checkmateChecker(x,y);
                             
                         }
                         
@@ -469,8 +373,8 @@ const chessBoard =(()=>{
         }
         return false;
     }
-    const undoLastMove = (oldCoords, newCoords, id, color) =>{
-        
+    const checkmateChecker = () =>{
+        console.log('checkmate has been flagged');
     }
     const getMoveData = (id, oldCoords, newCoords, color) =>{
 
@@ -643,7 +547,7 @@ const chessBoard =(()=>{
             x: x,
             y: y,
             color: color,
-            hasMoved: hasMoved
+            hasMoved: hasMoved?hasMoved:0,
         }
         piece.textContent = id;
         piece.style.backgroundColor = color?'white':'black';
@@ -687,9 +591,11 @@ const chessBoard =(()=>{
 })();
 chessBoard.makeBoard();
 //x y pieceID
-chessBoard.pieceMaker(3,3,'rook',false);
-chessBoard.pieceMaker(4,7, 'king',true);
-chessBoard.pieceMaker(0,7,'rook',true);
+chessBoard.pieceMaker(3,3,'king',false);
+chessBoard.pieceMaker(7,7, 'king',true);
+chessBoard.pieceMaker(7,6, 'pawn',true);
+chessBoard.pieceMaker(6,6, 'pawn',true);
+chessBoard.pieceMaker(0,6,'queen',true);
 //chessBoard.pieceMaker(2,5,'knight',false);
 chessBoard.pieceMaker(2,4,'queen',false);
 //chessBoard.pieceMaker(2,6,'bishop',false);
