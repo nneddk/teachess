@@ -87,16 +87,255 @@ const chessBoard =(()=>{
         movingData.newCoords.y = null;
         
     }
-   
-
+    //could use a refactor, but for now works.
+    let activePieces = [];
+    const refreshData = () =>{
+            //its bad but it works :c
+            
+            for(let y = 0; y <8; y++){
+                for(let x = 0; x <8; x++){
+                    chessBoardData[y][x].threatData.whiteCheck = false;
+                    chessBoardData[y][x].threatData.blackCheck = false;
+                    chessBoardData[y][x].tileLocation.classList.remove('white-check');
+                    chessBoardData[y][x].tileLocation.classList.remove('black-check');
+                    if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
+                        activePieces.push(chessBoardData[y][x].pieceData);
+                    }
+                    
+                }
+            } console.log(activePieces);
     
-  
-    //some eat logic
-    const eatChecker = (x,y, color) =>{
-        if (chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
+            for(let i = 0; i<activePieces.length; i++){
+                getThreatData(activePieces[i].id, activePieces[i].x, activePieces[i].y, activePieces[i].color);
+            }
+            activePieces = [];
     }
-    const eatMove = (x, y) =>{
-        chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
+    const getThreatData = (id, x, y, color)=>{
+            const verticalThreatData = (minY, maxY) =>{          
+                    for(let currentY = y; currentY<=maxY; currentY++){     
+                        if(color){
+                            chessBoardData[currentY][x].threatData.whiteCheck = true;
+                            chessBoardData[currentY][x].tileLocation.classList.add('white-check');
+                        } 
+                        if(!color){
+                            chessBoardData[currentY][x].threatData.blackCheck = true;
+                            chessBoardData[currentY][x].tileLocation.classList.add('black-check');
+                        } 
+                        if(!moveChecker.verticalChecker(y, currentY + 1, x))break;
+                    }
+                    for(let currentY = y; currentY>=minY; currentY--){      
+                        if(color) {
+                            chessBoardData[currentY][x].threatData.whiteCheck = true;
+                            chessBoardData[currentY][x].tileLocation.classList.add('white-check');
+                        }
+                        if(!color){
+                            chessBoardData[currentY][x].threatData.blackCheck = true;
+                            chessBoardData[currentY][x].tileLocation.classList.add('black-check');
+                        } 
+                        if(!moveChecker.verticalChecker(y, currentY - 1, x))break;
+                    }
+            }
+            const horizontalThreatData = (minX, maxX) =>{
+                for(let currentX = x; currentX<=maxX; currentX++){  
+                    if(color){
+                        chessBoardData[y][currentX].threatData.whiteCheck = true;
+                        chessBoardData[y][currentX].tileLocation.classList.add('white-check');
+                    } 
+                    if(!color){
+                        chessBoardData[y][currentX].threatData.blackCheck = true;
+                        chessBoardData[y][currentX].tileLocation.classList.add('black-check');
+                    } 
+                    if(!moveChecker.horizontalChecker(x, currentX + 1, y))break;
+                }
+                for(let currentX = x; currentX>=minX; currentX--){  
+                        
+                    if(color){
+                        chessBoardData[y][currentX].threatData.whiteCheck = true;
+                        chessBoardData[y][currentX].tileLocation.classList.add('white-check');
+                    } 
+                    if(!color){
+                        chessBoardData[y][currentX].threatData.blackCheck = true;
+                        chessBoardData[y][currentX].tileLocation.classList.add('black-check');
+                    } 
+                    if(!moveChecker.horizontalChecker(x, currentX - 1, y))break;
+                }
+            }
+            const diagonalThreatData = ()=>{
+                const findLimitMax = (x, y) =>{
+                    let limitMax = 0;
+                    if(x < y) limitMax = x;
+                    else if (x >  y) limitMax = y;
+                    else if(x = y) limitMax = x;
+                    return limitMax;
+                }
+                for (let n = 0; n <= findLimitMax((7-x),y); n++){
+                    if(color){
+                        chessBoardData[y - n][x + n].threatData.whiteCheck = true;
+                        chessBoardData[y - n][x + n].tileLocation.classList.add('white-check');
+                        
+                    }
+                    if(!color){
+                        chessBoardData[y - n][x + n].threatData.blackCheck = true;
+                        chessBoardData[y - n][x + n].tileLocation.classList.add('black-check');
+                    } 
+                    if(!moveChecker.diagonalChecker(x, (x+n) + 1, y, (y-n) - 1))break;
+                }
+                for (let n = 0; n <= findLimitMax((7-x),(7 - y)); n++){
+                    if(color){
+                        chessBoardData[y + n][x + n].threatData.whiteCheck = true;
+                        chessBoardData[y + n][x + n].tileLocation.classList.add('white-check');
+                        
+                    }
+                    if(!color){
+                        chessBoardData[y + n][x + n].threatData.blackCheck = true;
+                        chessBoardData[y + n][x + n].tileLocation.classList.add('black-check');
+                    } 
+                    if(!moveChecker.diagonalChecker(x, (x+n) + 1, y, (y+n) + 1))break;
+                }
+                for (let n = 0; n <= findLimitMax(x,(7 - y)); n++){
+                    if(color){
+                        chessBoardData[y + n][x - n].threatData.whiteCheck = true;
+                        chessBoardData[y + n][x - n].tileLocation.classList.add('white-check');
+                        
+                    }
+                    if(!color){
+                        chessBoardData[y + n][x - n].threatData.blackCheck = true;
+                        chessBoardData[y + n][x - n].tileLocation.classList.add('black-check');
+                    } 
+                    if(!moveChecker.diagonalChecker(x, (x-n) - 1, y, (y+n) + 1))break;
+                }
+                for (let n = 0; n <= findLimitMax(x, y); n++){
+                    if(color){
+                        chessBoardData[y - n][x - n].threatData.whiteCheck = true;
+                        chessBoardData[y - n][x - n].tileLocation.classList.add('white-check');
+                        
+                    }
+                    if(!color){
+                        chessBoardData[y - n][x - n].threatData.blackCheck = true;
+                        chessBoardData[y - n][x - n].tileLocation.classList.add('black-check');
+                    } 
+                    if(!moveChecker.diagonalChecker(x, (x-n) - 1, y, (y-n) - 1))break;
+                }
+            }
+            const otherThreatData = (modX, modY) => {
+                if((x + modX) <= 7 && (y - modY) >= 0){
+                    if (color){
+                        chessBoardData[y - modY][x + modX].threatData.whiteCheck = true;    
+                        chessBoardData[y - modY][x + modX].tileLocation.classList.add('white-check');
+                    }
+                    if (!color && (id == 'knight' || id == 'king')){
+                        chessBoardData[y - modY][x + modX].threatData.blackCheck = true;    
+                        chessBoardData[y - modY][x + modX].tileLocation.classList.add('black-check');
+                    }
+                    
+                }
+                if((x - modX) >=0 && (y + modY) <=7){
+                    if(color && (id == 'knight' || id == 'king')){
+                        chessBoardData[y + modY][x - modX].threatData.whiteCheck = true;   
+                        chessBoardData[y + modY][x - modX].tileLocation.classList.add('white-check');
+                    }
+                    if(!color){
+                        chessBoardData[y + modY][x - modX].threatData.blackCheck = true;   
+                        chessBoardData[y + modY][x - modX].tileLocation.classList.add('black-check');
+                    }
+    
+    
+                }
+                if((x-modX)>= 0 && (y-modY)>=0){
+                    if (color){
+                        chessBoardData[y - modY][x - modX].threatData.whiteCheck = true;
+                        chessBoardData[y - modY][x - modX].tileLocation.classList.add('white-check');
+                    }
+                    if (!color && (id == 'knight' || id == 'king')){
+                        chessBoardData[y - modY][x - modX].threatData.blackCheck = true;
+                        chessBoardData[y - modY][x - modX].tileLocation.classList.add('black-check');
+                    }
+                }
+    
+                if((x+modX)<=7 &&(y+modY)<=7){
+                    if(color && (id == 'knight' || id == 'king')){
+                        chessBoardData[y + modY][x + modX].threatData.whiteCheck = true;
+                        chessBoardData[y + modY][x + modX].tileLocation.classList.add('white-check');
+                    }
+                    if(!color){
+                        chessBoardData[y + modY][x + modX].threatData.blackCheck = true;
+                        chessBoardData[y + modY][x + modX].tileLocation.classList.add('black-check');
+                    }
+                    
+                }
+    
+                if((x+modY)<=7 && (y+modX)<=7){
+                    if(color && id == 'knight'){
+                        chessBoardData[y + modX][x + modY].threatData.whiteCheck = true;
+                        chessBoardData[y + modX][x + modY].tileLocation.classList.add('white-check');
+                    }
+                    if(!color &&id == 'knight'){
+                        chessBoardData[y + modX][x + modY].threatData.blackCheck = true;
+                        chessBoardData[y + modX][x + modY].tileLocation.classList.add('black-check');
+                    }
+                }
+                if((x+modY)<=7 && (y-modX)>=0){
+                    if(color && id == 'knight'){
+                        chessBoardData[y - modX][x + modY].threatData.whiteCheck = true;
+                        chessBoardData[y - modX][x + modY].tileLocation.classList.add('white-check');
+                    }
+                    if(!color &&id == 'knight'){
+                        chessBoardData[y - modX][x + modY].threatData.blackCheck = true;
+                        chessBoardData[y - modX][x + modY].tileLocation.classList.add('black-check');
+                    }
+                }
+                if((x-modY)>=0 && (y-modX)>=0){
+                    if(color && id == 'knight'){
+                        chessBoardData[y - modX][x - modY].threatData.whiteCheck = true;
+                        chessBoardData[y - modX][x - modY].tileLocation.classList.add('white-check');
+                    }
+                    if(!color &&id == 'knight'){
+                        chessBoardData[y - modX][x - modY].threatData.blackCheck = true;
+                        chessBoardData[y - modX][x - modY].tileLocation.classList.add('black-check');
+                    }
+                }
+                if((x-modY)>=0 && (y+modX)<=7){
+                    if(color && id == 'knight'){
+                        chessBoardData[y + modX][x - modY].threatData.whiteCheck = true;
+                        chessBoardData[y + modX][x - modY].tileLocation.classList.add('white-check');
+                    }
+                    if(!color &&id == 'knight'){
+                        chessBoardData[y + modX][x - modY].threatData.blackCheck = true;
+                        chessBoardData[y + modX][x - modY].tileLocation.classList.add('black-check');
+                    }
+                }
+    
+                
+            }
+    
+            switch(id){
+                //SHOULD REALLY REFACTOR, BUT FOR NOW WORKS OK//
+                /*!IMPORTANT, +1/-1 MUST BE ADDED TO CHECKERS BCS I AM DUMB*/
+                case 'pawn':
+                    otherThreatData(1,1);
+                    break;    
+                case 'rook':
+                    verticalThreatData(0,7);
+                    horizontalThreatData(0,7);
+                    break;
+                case 'bishop':
+                    diagonalThreatData();
+                    break;
+                case 'queen':
+                    verticalThreatData(0,7);
+                    horizontalThreatData(0,7);
+                    diagonalThreatData();
+                    break;
+                case 'knight':
+                    otherThreatData(1,2);
+                    break;
+                case 'king':
+                    otherThreatData(1,1);
+                    verticalThreatData((y - 1 < 0?y:y - 1),(y + 1 > 7?y: y + 1));
+                    horizontalThreatData((x - 1 < 0?x:x - 1),(x + 1 > 7?x: x + 1));
+                    
+                    break;
+            }
     }
 
     //move logic
@@ -172,8 +411,9 @@ const chessBoard =(()=>{
             }
             return allowHorse;
         }
-        const kingChecker =(newX,newY) =>{
+        const kingChecker =(newX,newY,color) =>{
             let allowKing = true;
+            if (eatChecker(newX,newY,color)) return true;
             if(chessBoardData[newY][newX].isEmpty == false) allowKing = false;
             return allowKing;
         }
@@ -192,7 +432,14 @@ const chessBoard =(()=>{
         pieceMaker(newX, newY, id, color, true);
         pieceUnmaker(oldX, oldY);
         refreshData();
+        undoInfo(oldX, oldY, newX, newY, id, color);
         clearInfo();
+    }
+    const undoInfo = (oldX, oldY, newX, newY, id, color) =>{
+        console.log('Previous Coordinates: '+oldX+':'+oldY);
+        console.log('New Coordinates: '+newX+':'+newY);
+        console.log('id: '+id+' color :'+color);
+        console.log(!turnCheck);
     }
     const getMoveData = (id, oldCoords, newCoords, color) =>{
         //move ranges console.log(id, oldCoords, newCoords);
@@ -303,107 +550,61 @@ const chessBoard =(()=>{
                     }
                 }
                 return allowMove;
+                
             case 'king':
                 if((oldX == newX && (oldY == newY + 1||oldY == newY - 1))
                 ||((oldX == newX + 1 || oldX == newX - 1) && oldY == newY)){
-                    allowMove = moveChecker.kingChecker(newX,newY);
+                    allowMove = moveChecker.kingChecker(newX,newY,color);
                 }
                 if((oldX + 1 == newX && (oldY - 1 == newY || oldY + 1 == newY))
                 ||(oldX - 1 == newX && (oldY -1 == newY || oldY +1 == newY))){
-                    allowMove = moveChecker.kingChecker(newX,newY);
+                    allowMove = moveChecker.kingChecker(newX,newY,color);
                 }
                 //castling logic
-                if(!hasMoved && moveChecker.kingChecker(newX,newY) && moveChecker.horizontalChecker(oldX,newX,oldY)){
-                    let leftRook = chessBoardData[oldY][oldX - 4].pieceData;
-                    let rightRook = chessBoardData[oldY][oldX + 3].pieceData;
-                    if((newX == oldX + 2 && oldY == newY)
-                    &&(rightRook.id == 'rook')
-                    &&(rightRook.color == color)
-                    &&(rightRook.hasMoved == false)){
-                        movePiece([oldX,oldY],[newX,newY],id,color);
-                        movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color);
+                //could use a refactor
+                if(!hasMoved && moveChecker.kingChecker(newX,newY,color) && moveChecker.horizontalChecker(oldX,newX,oldY) &&
+                 ((newX == oldX + 2 && oldY == newY)||(newX == oldX - 2 && oldY == newY))){
+                    console.log('tick');
+
+                    if(chessBoardData[oldY][oldX + 3].pieceData != null &&chessBoardData[oldY][oldX + 3].pieceData.id == 'rook'){
+                        rightRook = chessBoardData[oldY][oldX + 3].pieceData;
+                        if((newX == oldX + 2 && oldY == newY)
+                        &&(rightRook.color == color)
+                        &&(rightRook.hasMoved == false)){
+                            movePiece([oldX,oldY],[newX,newY],id,color);
+                            movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color);
                         turnCheck = !turnCheck;
+                        }
                     }
-                    
-                    if((newX == oldX - 2 && oldY == newY)
-                    &&(leftRook.id == 'rook')
-                    &&(leftRook.color == color)
-                    &&(leftRook.hasMoved == false)){
+                    if(chessBoardData[oldY][oldX - 4].pieceData != null && chessBoardData[oldY][oldX - 4].pieceData.id == 'rook'){
+                        leftRook = chessBoardData[oldY][oldX - 4].pieceData;
+                        if((newX == oldX - 2 && oldY == newY)
+                        &&(leftRook.color == color)
+                        &&(leftRook.hasMoved == false)){
                         movePiece([oldX,oldY],[newX,newY],id,color);
-                        movePiece([oldX - 4, oldY],[oldX - 1, oldY], rightRook.id, rightRook.color);
+                        movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color);
                         turnCheck = !turnCheck;
-                    }
+                        }
+                    }   
                 }
+
                 return allowMove;
                 default:
                     return allowMove;
 
             }
     }
-    //could use a refactor, but for now works.
-    let activePieces = [];
-    const refreshData = () =>{
-        //its bad but it works :c
-        
-        for(let y = 0; y <8; y++){
-            for(let x = 0; x <8; x++){
-                chessBoardData[y][x].threatData.whiteCheck = false;
-                chessBoardData[y][x].threatData.blackCheck = false;
-                chessBoardData[y][x].tileLocation.style.border = 'none';
-                if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
-                    activePieces.push(chessBoardData[y][x].pieceData);
-                }
-                
-            }
-        } console.log(activePieces);
-
-        for(let i = 0; i<activePieces.length; i++){
-            getThreatData(activePieces[i].id, activePieces[i].x, activePieces[i].y, activePieces[i].color);
-        }
-        activePieces = [];
-    }
-    const getThreatData = (id, x, y, color)=>{
-        switch(id){
-            /*!IMPORTANT, +1/-1 MUST BE ADDED TO CHECKERS BCS I AM DUMB*/
-            case 'queen':
-                
-                //vertical threat data
-                for(let currentY = y; currentY<=7; currentY++){     
-                    if(color == true) chessBoardData[currentY][x].threatData.whiteCheck = true;
-                    if(color == false) chessBoardData[currentY][x].threatData.blackCheck = true;
-                    chessBoardData[currentY][x].tileLocation.style.border = 'solid';
-                    if(!moveChecker.verticalChecker(y, currentY + 1, x))break;
-                }
-                for(let currentY = y; currentY>=0; currentY--){  
-                    
-                    if(color == true) chessBoardData[currentY][x].threatData.whiteCheck = true;
-                    if(color == false) chessBoardData[currentY][x].threatData.blackCheck = true;
-                    chessBoardData[currentY][x].tileLocation.style.border = 'solid';
-                    if(!moveChecker.verticalChecker(y, currentY - 1, x))break;
-                }
-                //horizontal threat data
-                for(let currentX = x; currentX<=7; currentX++){  
-                    
-                    if(color == true) chessBoardData[y][currentX].threatData.whiteCheck = true;
-                    if(color == false) chessBoardData[y][currentX].threatData.blackCheck = true;
-                    chessBoardData[y][currentX].tileLocation.style.border = 'solid';
-                    if(!moveChecker.horizontalChecker(x, currentX + 1, y))break;
-
-                }
-                for(let currentX = x; currentX>=0; currentX--){  
-                    
-                    if(color == true) chessBoardData[y][currentX].threatData.whiteCheck = true;
-                    if(color == false) chessBoardData[y][currentX].threatData.blackCheck = true;
-                    chessBoardData[y][currentX].tileLocation.style.border = 'solid';
-                    if(!moveChecker.horizontalChecker(x, currentX - 1, y))break;
-                }
-                
-        }
-    }
     const pieceUnmaker = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
         chessBoardData[y][x].isEmpty = true;
         turnCheck = !turnCheck;
+    }
+    //some eat logic
+    const eatChecker = (x,y, color) =>{
+        if (chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
+    }
+    const eatMove = (x, y) =>{
+        chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
     }
     const pieceMaker = (x, y, id, color,hasMoved) =>{
         
@@ -452,23 +653,25 @@ const chessBoard =(()=>{
 
     const generateGame =()=>{
         for (let x = 0; x<8;x++){
-            pieceMaker(x,6,'pawn');
+            pieceMaker(x,6,'pawn',true);
+            pieceMaker(x,1,'pawn',false);
         }
-        pieceMaker(0,7,'rook');
-        pieceMaker(7,7,'rook');
     }
     return {makeBoard,pieceMaker,generateGame};
 })();
 chessBoard.makeBoard();
 //x y pieceID
-chessBoard.pieceMaker(3,3,'queen',true);
-chessBoard.pieceMaker(2,4,'queen',false);
-chessBoard.pieceMaker(2,6,'bishop',false);
+chessBoard.pieceMaker(3,3,'king',false);
+chessBoard.pieceMaker(4,7, 'king',true);
+//chessBoard.pieceMaker(0,7,'rook',true);
+//chessBoard.pieceMaker(2,5,'knight',false);
+//chessBoard.pieceMaker(2,4,'queen',false);
+//chessBoard.pieceMaker(2,6,'bishop',false);
 /*chessBoard.pieceMaker(0,6,'knight',false);
 chessBoard.pieceMaker(3,3,'pawn',false);
 chessBoard.pieceMaker(2,4, 'pawn',true);
 chessBoard.pieceMaker(3,7, 'queen',true);
-chessBoard.pieceMaker(7,7,'rook',true);
-chessBoard.pieceMaker(4,7, 'king',true);
-/*
-chessBoard.generateGame();*/
+
+
+*/
+//chessBoard.generateGame();
