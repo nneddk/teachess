@@ -13,8 +13,9 @@ const chessBoard =(()=>{
             y:null,
         },
         color: null,
-        hasMoved: null,
+        hasMoved: 0,
     };
+    //1 for white, 0 for black;
     let turnCheck = 1;
     //creates board element
     const makeBoard = () =>{
@@ -44,7 +45,6 @@ const chessBoard =(()=>{
                 };
                 chessBoardTileDiv.textContent = TileData.threatData.isThreatened;
                 chessBoardTileDiv.onclick = ()=>{
-                    console.log('click');
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
                     clickTile();
@@ -65,12 +65,10 @@ const chessBoard =(()=>{
         console.log(chessBoardData[newY][newX]);
         
         //(id, oldCoords, newCoords, color) <-false for black, true for white
-        console.log();
-        console.log('valid move: '+getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color));
         
         if(getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color)){
 
-            movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color);
+            movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
         }else{
             clearInfo();
         }
@@ -85,13 +83,16 @@ const chessBoard =(()=>{
         movingData.oldCoords.y = null;
         movingData.newCoords.x = null;
         movingData.newCoords.y = null;
+        movingData.color = null;
+        movingData.hasMoved = null;
+        movingData.inCheck = null;
         
     }
     //could use a refactor, but for now works.
-    let activePieces = [];
+ 
     const refreshData = () =>{
             //its bad but it works :c
-            
+            let activePieces = [];
             for(let y = 0; y <8; y++){
                 for(let x = 0; x <8; x++){
                     chessBoardData[y][x].threatData.whiteCheck = false;
@@ -100,15 +101,16 @@ const chessBoard =(()=>{
                     chessBoardData[y][x].tileLocation.classList.remove('black-check');
                     if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                         activePieces.push(chessBoardData[y][x].pieceData);
+                        //if(chessBoardData[y][x].pieceData.id == 'king') kingPieces.push
                     }
+
                     
                 }
-            } console.log(activePieces);
+            }
     
             for(let i = 0; i<activePieces.length; i++){
                 getThreatData(activePieces[i].id, activePieces[i].x, activePieces[i].y, activePieces[i].color);
             }
-            activePieces = [];
     }
     const getThreatData = (id, x, y, color)=>{
             const verticalThreatData = (minY, maxY) =>{          
@@ -340,6 +342,7 @@ const chessBoard =(()=>{
 
     //move logic
     const moveChecker = (()=>{
+        
         const horizontalChecker = (oldX, newX, y) =>{
             let allowHorizontal = true;
             if (oldX < newX){
@@ -425,24 +428,52 @@ const chessBoard =(()=>{
             kingChecker
         }
     })();
-    const movePiece = (oldCoords,newCoords,id,color) =>{
+    const movePiece = (oldCoords,newCoords,id,color, hasMoved) =>{
         let oldX = oldCoords[0], oldY = oldCoords[1];
         let newX = newCoords[0], newY = newCoords[1];
         if (eatChecker(newX, newY,color)) eatMove(newX, newY);
-        pieceMaker(newX, newY, id, color, true);
+        pieceMaker(newX, newY, id, color, hasMoved++);
         pieceUnmaker(oldX, oldY);
         refreshData();
-        undoInfo(oldX, oldY, newX, newY, id, color);
+        if (isKingInCheck()){
+            pieceMaker(oldX, oldY, id, color, hasMoved--);
+            pieceUnmaker(newX, newY);
+            refreshData();
+            turnCheck = !turnCheck;
+        }
+        turnCheck = !turnCheck;
         clearInfo();
     }
-    const undoInfo = (oldX, oldY, newX, newY, id, color) =>{
-        console.log('Previous Coordinates: '+oldX+':'+oldY);
-        console.log('New Coordinates: '+newX+':'+newY);
-        console.log('id: '+id+' color :'+color);
-        console.log(!turnCheck);
+    const isKingInCheck = () =>{
+        for(let y = 0; y <8; y++){
+            for(let x = 0; x <8; x++){
+                if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
+                    if(chessBoardData[y][x].pieceData.id == 'king'){
+                        if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck)){
+                            console.log('white king in check');
+                            if (turnCheck) return true;
+                            
+                        }
+                        if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck)){
+                            console.log('black king in check');
+                            if (!turnCheck) return true;
+                            
+                        }
+                        
+                    }
+                }
+
+                
+            }
+        
+        }
+        return false;
+    }
+    const undoLastMove = (oldCoords, newCoords, id, color) =>{
+        
     }
     const getMoveData = (id, oldCoords, newCoords, color) =>{
-        //move ranges console.log(id, oldCoords, newCoords);
+
         //moveX [left, right]
         //moveY [up, down]
         //allows for adding more flags
@@ -497,7 +528,6 @@ const chessBoard =(()=>{
                         allowMove = moveChecker.verticalChecker(oldY, newY, oldX);
                         
                     }
-                    console.log(newX,newY);
                 }
                 return allowMove;
             case 'bishop':
@@ -564,7 +594,6 @@ const chessBoard =(()=>{
                 //could use a refactor
                 if(!hasMoved && moveChecker.kingChecker(newX,newY,color) && moveChecker.horizontalChecker(oldX,newX,oldY) &&
                  ((newX == oldX + 2 && oldY == newY)||(newX == oldX - 2 && oldY == newY))){
-                    console.log('tick');
 
                     if(chessBoardData[oldY][oldX + 3].pieceData != null &&chessBoardData[oldY][oldX + 3].pieceData.id == 'rook'){
                         rightRook = chessBoardData[oldY][oldX + 3].pieceData;
@@ -597,7 +626,7 @@ const chessBoard =(()=>{
     const pieceUnmaker = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
         chessBoardData[y][x].isEmpty = true;
-        turnCheck = !turnCheck;
+        
     }
     //some eat logic
     const eatChecker = (x,y, color) =>{
@@ -606,27 +635,24 @@ const chessBoard =(()=>{
     const eatMove = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
     }
-    const pieceMaker = (x, y, id, color,hasMoved) =>{
-        
+    const pieceMaker = (x, y, id, color, hasMoved) =>{    
         let piece = document.createElement('div');
         piece.classList.add('piece');
-
         let pieceData = {
             id: id,
             x: x,
             y: y,
             color: color,
-            hasMoved: hasMoved?hasMoved:false,
+            hasMoved: hasMoved
         }
         piece.textContent = id;
         piece.style.backgroundColor = color?'white':'black';
         piece.style.color = !color?'white':'black';
-;
         piece.onclick=(e) =>{
+            console.log(chessBoardData[y][x]);
             if(chessBoardData[y][x].pieceData.color == turnCheck){
                 e.stopPropagation();  
                 if(movingData.piece == null){
-                    console.log(chessBoardData);
                     setData();
                 } else{
                     clearInfo();
@@ -661,11 +687,11 @@ const chessBoard =(()=>{
 })();
 chessBoard.makeBoard();
 //x y pieceID
-chessBoard.pieceMaker(3,3,'king',false);
+chessBoard.pieceMaker(3,3,'rook',false);
 chessBoard.pieceMaker(4,7, 'king',true);
-//chessBoard.pieceMaker(0,7,'rook',true);
+chessBoard.pieceMaker(0,7,'rook',true);
 //chessBoard.pieceMaker(2,5,'knight',false);
-//chessBoard.pieceMaker(2,4,'queen',false);
+chessBoard.pieceMaker(2,4,'queen',false);
 //chessBoard.pieceMaker(2,6,'bishop',false);
 /*chessBoard.pieceMaker(0,6,'knight',false);
 chessBoard.pieceMaker(3,3,'pawn',false);
