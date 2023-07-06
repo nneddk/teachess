@@ -15,10 +15,11 @@ const chessBoard =(()=>{
         color: null,
         hasMoved: 0,
     };
-    let kingData = {
+    let availableMoves = {
         white: [],
         black: [],
     };
+    let checkMate;
     //1 for white, 0 for black;
     let turnCheck = 1;
     //creates board element
@@ -71,15 +72,13 @@ const chessBoard =(()=>{
     const clickTile =() =>{
         let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
         let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
-        console.log(movingData.id);
-        console.log('move from: '+oldX+':'+oldY);
-        console.log('move to: '+newX+':'+newY);
+        /*
+        console.log(availableMoves);
         console.log(chessBoardData[newY][newX]);
-        
+        */
         //(id, oldCoords, newCoords, color) <-false for black, true for white
         
         if(getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color)){
-
             movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
         }else{
             clearInfo();
@@ -97,16 +96,13 @@ const chessBoard =(()=>{
         movingData.newCoords.y = null;
         movingData.color = null;
         movingData.hasMoved = null;
-        movingData.inCheck = null;
         
     };
-    //could use a refactor, but for now works.
- 
     const refreshData = () =>{
             //its bad but it works :c
             let activePieces = [];
-            kingData.white = [];
-            kingData.black = []; 
+            availableMoves.white = [];
+            availableMoves.black = []; 
             for(let y = 0; y <8; y++){
                 for(let x = 0; x <8; x++){
                     chessBoardData[y][x].threatData.whiteCheck.counter = 0;
@@ -140,10 +136,27 @@ const chessBoard =(()=>{
                 boardData.threatData.blackCheck.threats.push(chessBoardData[y][x]);
                 boardData.tileLocation.classList.add('black-check');
             }
-            if(id == 'king'){
-                if(color) kingData.white.push(boardData);
-                if(!color) kingData.black.push(boardData);
+            if(boardData.isEmpty  || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) ){
+                if(color && id !=null&& id != 'pawn') {
+                
+                    availableMoves.white.push({
+                        id:id,
+                        x:x,
+                        y:y,
+                        move : boardData,
+                    });
+    
+                }
+                if(!color && id != null && id != 'pawn'){
+                    availableMoves.black.push({
+                        id:id,
+                        x:x,
+                        y:y,
+                        move : boardData,
+                    });
+                }     
             }
+            
         }
             const verticalThreatData = (minY, maxY) =>{          
                     for(let currentY = y; currentY<=maxY; currentY++){    
@@ -348,37 +361,40 @@ const chessBoard =(()=>{
             storeEat =  chessBoardData[newY][newX].pieceData;
             eatMove(newX, newY);
         } 
+
         pieceMaker(newX, newY, id, color, (hasMoved + 1));
         pieceUnmaker(oldX, oldY);
         refreshData();
-        if (isKingInCheck()){
-            pieceMaker(oldX, oldY, id, color, (hasMoved - 1));
-            pieceUnmaker(newX, newY);
-            if(storeEat) pieceMaker(storeEat.x, storeEat.y, storeEat.id,storeEat.color, storeEat.hasMoved);
+
+        if (isKingInCheck() == true){
+            undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
             refreshData();
-            turnCheck = !turnCheck;
         }
-        turnCheck = !turnCheck;
         clearInfo();
+        turnCheck = !turnCheck;
+        if(isKingInCheck() && checkMate != true) checkmateChecker(isKingInCheck());
+        if(checkMate == true){
+            console.log(!turnCheck+' has won!');
+        }
     }
-    const isKingInCheck = (x,y) =>{
+    const undoLastMove = (oldX, oldY, newX, newY, id, color, hasMoved, storeEat) =>{
+        pieceMaker(oldX, oldY, id, color, (hasMoved - 1));
+        pieceUnmaker(newX, newY);
+        if(storeEat) pieceMaker(storeEat.x, storeEat.y, storeEat.id,storeEat.color, storeEat.hasMoved);;
+        turnCheck = !turnCheck;
+    }
+    const isKingInCheck = () =>{
         for(let y = 0; y <8; y++){
             for(let x = 0; x <8; x++){
                 if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                     if(chessBoardData[y][x].pieceData.id == 'king'){
                         if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck.counter)){
-                            console.log('white king in check');
-                            if (turnCheck) return true;
-                            console.log('black has checked white');
-                            checkmateChecker(x,y, chessBoardData[y][x].pieceData.color);
-                            
+                            if (turnCheck) return true; 
+                            return 'white';  
                         }
                         if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)){
-                            console.log('black king in check');
                             if (!turnCheck) return true;
-                            console.log('black has checked white');
-                            checkmateChecker(x,y, chessBoardData[y][x].pieceData.color);
-                            
+                            return 'black'
                         }
                         
                     }
@@ -390,37 +406,47 @@ const chessBoard =(()=>{
         }
         return false;
     }
-    const checkmateChecker = (x, y, color) =>{
-        let safe = false;
-        let kingInCheck = color?kingData.white:kingData.black;
-        let currentThreat = color?chessBoardData[y][x].threatData.blackCheck.threats[0]:chessBoardData[y][x].threatData.whiteCheck.threats[0];
+    const checkmateChecker = (piece) =>{
+        if(checkMate != true){
+            let possible = (piece == 'white')? availableMoves.white:availableMoves.black;
+        let color = (piece == 'white')?true:false;
+        console.log(possible);
         
-        console.log('king in '+x+':'+y+' is being checked for checkmate');
-        console.log('checked by: ');
-        console.log(currentThreat);
-            if(currentThreat.x < x && currentThreat.y == y) console.log('threat coming from left');
-            if(currentThreat.x > x && currentThreat.y == y) console.log('threat coming from right');
-            if(currentThreat.x == x && currentThreat.y > y ) console.log('threat coming from below');
-            if(currentThreat.x == x && currentThreat.y < y ) console.log('threat coming from above');
-
-            if(currentThreat.x < x && currentThreat.y < y) console.log('threat coming from left+above diagonally');
-            if(currentThreat.x > x && currentThreat.y < y) console.log('threat coming from right+above diagonally');
-            if(currentThreat.x > x && currentThreat.y > y) console.log('threat coming from right+below diagonally');
-            if(currentThreat.x < x && currentThreat.y > y) console.log('threat coming from left+below diagonally');
-        console.log(kingInCheck);
-        for (let n = 0; n <kingInCheck.length; n++){
-            let areaThreat = color?kingInCheck[n].threatData.blackCheck:kingInCheck[n].threatData.whiteCheck;
-            if(kingInCheck[n].isEmpty && areaThreat.counter == 0) return console.log('safe');
-            if( !kingInCheck[n].isEmpty && kingInCheck[n].pieceData.color == !color && areaThreat.counter < 1) return console.log('safe');
-            if( !kingInCheck[n].isEmpty && kingInCheck[n].pieceData.color == !color 
-                && kingInCheck[n].threatData.blackCheck.counter > 0 && areaThreat.counter < 1) return console.log('safe');
+        for(let n = 0; n < possible.length; n++){
+            
+            console.log('tick');
+            let oldX = possible[n].x, oldY = possible[n].y;
+            let newX = possible[n].move.x, newY = possible[n].move.y;
+            let storeEat;
+            if (chessBoardData[newY][newX].pieceData != null) storeEat =  chessBoardData[newY][newX].pieceData;
+            pieceMaker(newX, newY, possible[n].id, color, 0);
+            pieceUnmaker(oldX, oldY);
+            undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, 0, storeEat);
+            
+            /*
+            if (isKingInCheck() == false){
+                undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, 0, storeEat);
+                refreshData();
+                console.log('safe');
+                break;
+            }
+            if(isKingInCheck()){
+                
+            }
+            possible = (piece == 'white')? availableMoves.white:availableMoves.black;
+            if(n == possible.length -1){
+                undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, 0, storeEat);
+                checkMate = true;
+                console.log('checkmate');
+                refreshData();
+            } */
+            turnCheck = !turnCheck;
+        }   
         }
 
     }
     const getMoveData = (id, oldCoords, newCoords, color) =>{
 
-        //moveX [left, right]
-        //moveY [up, down]
         //allows for adding more flags
         let allowMove = false;
         let oldX = oldCoords[0], oldY = oldCoords[1];
@@ -524,8 +550,7 @@ const chessBoard =(()=>{
                         if  (newX == oldX - n && newY == oldY - n) allowMove = moveChecker.diagonalChecker(oldX, newX, oldY, newY);
                     }
                 }
-                return allowMove;
-                
+                return allowMove;              
             case 'king':
                 if((oldX == newX && (oldY == newY + 1||oldY == newY - 1))
                 ||((oldX == newX + 1 || oldX == newX - 1) && oldY == newY)){
@@ -580,6 +605,7 @@ const chessBoard =(()=>{
     const eatMove = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
     }
+
     const pieceMaker = (x, y, id, color, hasMoved) =>{    
         let piece = document.createElement('div');
         piece.classList.add('piece');
@@ -615,36 +641,56 @@ const chessBoard =(()=>{
             movingData.color = pieceData.color;
             movingData.hasMoved = pieceData.hasMoved;
         }
-        getThreatData(id, x, y, color);
         chessBoardData[y][x].pieceData = pieceData;
         chessBoardData[y][x].isEmpty = false;
         chessBoardData[y][x].tileLocation.append(piece);
-        refreshData();
     }
 
     const generateGame =()=>{
         for (let x = 0; x<8;x++){
             pieceMaker(x,6,'pawn',true);
             pieceMaker(x,1,'pawn',false);
+
+            
         }
+        pieceMaker(4,0,'king',false);
+        pieceMaker(4,7,'king',true);
+
+        pieceMaker(0,0,'rook',false);
+        pieceMaker(0,7,'rook',true);
+        pieceMaker(7,0,'rook',false);
+        pieceMaker(7,7,'rook',true);
+
+        pieceMaker(3,0,'queen',false);
+        pieceMaker(3,7,'queen',true);
+
+        pieceMaker(2,0,'bishop',false);
+        pieceMaker(2,7,'bishop',true);
+        pieceMaker(5,0,'bishop',false);
+        pieceMaker(5,7,'bishop',true);
+
+        pieceMaker(1,0,'knight',false);
+        pieceMaker(1,7,'knight',true);
+        pieceMaker(6,0,'knight',false);
+        pieceMaker(6,7,'knight',true);
     }
     return {makeBoard,pieceMaker,generateGame};
 })();
 chessBoard.makeBoard();
+
 //x y pieceID
-//chessBoard.pieceMaker(3,3,'king',false);
+/*chessBoard.pieceMaker(3,3,'king',false);
 chessBoard.pieceMaker(0,0, 'king',false);
 chessBoard.pieceMaker(1,1, 'pawn',false);
 chessBoard.pieceMaker(0,1, 'pawn',false);
 chessBoard.pieceMaker(5,4,'queen',true);
-chessBoard.pieceMaker(7,0,'rook',false);
 chessBoard.pieceMaker(2,3,'queen',false);
-chessBoard.pieceMaker(6,5,'bishop',true);
+chessBoard.pieceMaker(6,5,'bishop',true);*/
 /*chessBoard.pieceMaker(0,6,'knight',false);
 chessBoard.pieceMaker(3,3,'pawn',false);
 chessBoard.pieceMaker(2,4, 'pawn',true);
 chessBoard.pieceMaker(3,7, 'queen',true);
-
-
 */
+
+
 //chessBoard.generateGame();
