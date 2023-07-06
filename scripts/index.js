@@ -70,6 +70,7 @@ const chessBoard =(()=>{
         }
     };
     const clickTile =() =>{
+        console.log(enPassantData);
         let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
         let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
         if(getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color)){
@@ -447,6 +448,8 @@ const chessBoard =(()=>{
         } 
         clearInfo();
         turnCheck = !turnCheck;
+        //clears enPassant Data
+        enPassant(null, null, null, null ,enPassantData.color);
     }
     const undoLastMove = (oldX, oldY, newX, newY, id, color, hasMoved, storeEat) =>{
         pieceMaker(oldX, oldY, id, color, (hasMoved == 0?0:hasMoved - 1));
@@ -531,16 +534,22 @@ const chessBoard =(()=>{
                     if(eatChecker(newX,newY,color)){
                         allowMove = true;
                     }
+                    if(newX == enPassantData.x && newY == enPassantData.y){
+                        allowMove = true;
+                        eatMove(enPassantData.target.x, enPassantData.target.y);
+                    }
                     
                 }
                 if (!hasMoved){
                     if(oldX == newX && (color?oldY-2:oldY+2) == newY){
                         allowMove = true;
+
                         if (oldY < newY){
                             for(let y = oldY; y < newY; y++){
                                 if(y == oldY) continue;
                                 if(chessBoardData[y][newX].isEmpty == false) allowMove = false;
                             }
+                            enPassant(oldX, newX, oldY +1, newY ,color);
                             
                         }
                         if (oldY > newY){
@@ -548,6 +557,7 @@ const chessBoard =(()=>{
                                 if(y == oldY) continue;
                                 if(chessBoardData[y][newX].isEmpty == false) allowMove = false;
                             }
+                            enPassant(oldX, newX, oldY -1, newY ,color);
                         }
                         
                     }
@@ -633,7 +643,6 @@ const chessBoard =(()=>{
                  ((newX == oldX + 2 && oldY == newY)||(newX == oldX - 2 && oldY == newY)) 
                  && (color?chessBoardData[oldY][oldX].threatData.blackCheck.counter == 0:chessBoardData[oldY][oldX].threatData.whiteCheck.counter == 0)
                     &&(color?chessBoardData[newY][newX].threatData.blackCheck.counter == 0:chessBoardData[newY][newX].threatData.whiteCheck.counter == 0)){
-
                     if(chessBoardData[oldY][oldX + 3].pieceData != null &&chessBoardData[oldY][oldX + 3].pieceData.id == 'rook'
                     && (color?chessBoardData[oldY][oldX + 1].threatData.blackCheck.counter == 0:chessBoardData[oldY][oldX + 1].threatData.whiteCheck.counter == 0)){
                         rightRook = chessBoardData[oldY][oldX + 3].pieceData;
@@ -663,6 +672,32 @@ const chessBoard =(()=>{
                     return allowMove;
 
             }
+    }
+    let enPassantData = {
+        color:null,
+        x: null,
+        y: null,
+        target:{
+            x:null,
+            y:null,
+        },
+    }
+    const enPassant = (oldX, newX, oldY, newY ,color) =>{
+        if(turnCheck == color){
+            enPassantData = {
+                color:color,
+                x: oldX,
+                y: oldY,
+                target:{
+                    x:newX,
+                    y:newY,
+                },
+            } 
+        }
+        
+        console.log(color);
+        console.log(turnCheck);
+        console.log('enPassant available at '+enPassantData.x+':'+enPassantData.y);
     }
     const pieceUnmaker = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
@@ -720,12 +755,12 @@ const chessBoard =(()=>{
 
     const generateGame =()=>{
         for (let x = 0; x<8;x++){
-            /*
+            /**/
             pieceMaker(x,6,'pawn',true);
             pieceMaker(x,1,'pawn',false); 
-        */
-        }
         
+        }
+/*        
         pieceMaker(4,0,'king',false);
         pieceMaker(4,7,'king',true);
 
@@ -736,7 +771,7 @@ const chessBoard =(()=>{
 
         pieceMaker(3,0,'queen',false);
         pieceMaker(3,7,'queen',true);
-/*
+
         pieceMaker(2,0,'bishop',false);
         pieceMaker(2,7,'bishop',true);
         pieceMaker(5,0,'bishop',false);
