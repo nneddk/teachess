@@ -73,11 +73,10 @@ const chessBoard =(()=>{
         let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
         let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
         /*
-        console.log(availableMoves);
         console.log(chessBoardData[newY][newX]);
         */
         //(id, oldCoords, newCoords, color) <-false for black, true for white
-        
+        //console.log(availableMoves);
         if(getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color)){
             movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
         }else{
@@ -138,11 +137,11 @@ const chessBoard =(()=>{
             }
             if(boardData.isEmpty  || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) ){
                 if(color && id !=null&& id != 'pawn') {
-                
                     availableMoves.white.push({
                         id:id,
                         x:x,
                         y:y,
+                        hasMoved: chessBoardData[y][x].pieceData.hasMoved,
                         move : boardData,
                     });
     
@@ -152,10 +151,77 @@ const chessBoard =(()=>{
                         id:id,
                         x:x,
                         y:y,
+                        hasMoved: chessBoardData[y][x].pieceData.hasMoved,
                         move : boardData,
                     });
-                }     
+                }  
+                //pawn
             }
+            if ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color) && id == 'pawn'){
+                if(color) {
+                    availableMoves.white.push({
+                        id:id,
+                        x:x,
+                        y:y,
+                        hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                        move : boardData,
+                    });
+    
+                }
+                if(!color){
+                    availableMoves.black.push({
+                        id:id,
+                        x:x,
+                        y:y,
+                        hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                        move : boardData,
+                    });
+                }  
+            }
+            if (id == 'pawn'){
+                if(color){
+                    if((y - 1>=0)?chessBoardData[y - 1][x].isEmpty:false){
+                        availableMoves.white.push({
+                            id:id,
+                            x:x,
+                            y:y,
+                            hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                            move : chessBoardData[y-1][x].pieceData,
+                        });
+                        if((y - 2 >= 0)?(chessBoardData[y - 1][x].isEmpty && chessBoardData[y-2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
+                            availableMoves.white.push({
+                                id:id,
+                                x:x,
+                                y:y,
+                                hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                                move : chessBoardData[y-2][x],
+                            });
+                        }
+                    }
+                }
+                if(!color){
+                    if((y + 1 <=7)?chessBoardData[y + 1][x].isEmpty:false){
+                        availableMoves.black.push({
+                            id:id,
+                            x:x,
+                            y:y,
+                            hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                            move : chessBoardData[y+1][x],
+                        });
+                        if((y + 2 <=7)?(chessBoardData[y+1][x].isEmpty && chessBoardData[y+2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
+                            availableMoves.black.push({
+                                id:id,
+                                x:x,
+                                y:y,
+                                hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                                move : chessBoardData[y+2][x],
+                            });
+                        }
+                    }
+                }
+                
+            }
+            
             
         }
             const verticalThreatData = (minY, maxY) =>{          
@@ -368,20 +434,28 @@ const chessBoard =(()=>{
 
         if (isKingInCheck() == true){
             undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
-            refreshData();
+            turnCheck = !turnCheck;
         }
+        if(isKingInCheck()){
+            refreshData();
+            let possible;
+            if(isKingInCheck() == 'white'){
+                possible = availableMoves.white;
+                checkmateChecker(true, possible);
+            }
+            if(isKingInCheck() == 'black'){
+                possible = availableMoves.black;
+                checkmateChecker(false, possible);
+            }
+            
+        } 
         clearInfo();
         turnCheck = !turnCheck;
-        if(isKingInCheck() && checkMate != true) checkmateChecker(isKingInCheck());
-        if(checkMate == true){
-            console.log(!turnCheck+' has won!');
-        }
     }
     const undoLastMove = (oldX, oldY, newX, newY, id, color, hasMoved, storeEat) =>{
-        pieceMaker(oldX, oldY, id, color, (hasMoved - 1));
+        pieceMaker(oldX, oldY, id, color, (hasMoved == 0?0:hasMoved - 1));
         pieceUnmaker(newX, newY);
-        if(storeEat) pieceMaker(storeEat.x, storeEat.y, storeEat.id,storeEat.color, storeEat.hasMoved);;
-        turnCheck = !turnCheck;
+        if(storeEat)pieceMaker(storeEat.x, storeEat.y, storeEat.id,storeEat.color, storeEat.hasMoved);
     }
     const isKingInCheck = () =>{
         for(let y = 0; y <8; y++){
@@ -406,43 +480,41 @@ const chessBoard =(()=>{
         }
         return false;
     }
-    const checkmateChecker = (piece) =>{
-        if(checkMate != true){
-            let possible = (piece == 'white')? availableMoves.white:availableMoves.black;
-        let color = (piece == 'white')?true:false;
-        console.log(possible);
-        
+    const checkmateChecker = (color, possible) =>{
+        //turnCheck = !turnCheck;
+        console.log(color);
         for(let n = 0; n < possible.length; n++){
             
-            console.log('tick');
+            let hasMoved = possible[n].hasMoved;
             let oldX = possible[n].x, oldY = possible[n].y;
             let newX = possible[n].move.x, newY = possible[n].move.y;
             let storeEat;
-            if (chessBoardData[newY][newX].pieceData != null) storeEat =  chessBoardData[newY][newX].pieceData;
-            pieceMaker(newX, newY, possible[n].id, color, 0);
+            if (eatChecker(newX, newY,color)){
+                storeEat =  chessBoardData[newY][newX].pieceData;
+                eatMove(newX, newY);
+            }
+
+            pieceMaker(newX, newY, possible[n].id, color, (hasMoved + 1));
             pieceUnmaker(oldX, oldY);
-            undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, 0, storeEat);
-            
-            /*
+            refreshData();
             if (isKingInCheck() == false){
-                undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, 0, storeEat);
-                refreshData();
+                undoLastMove(oldX, oldY, newX, newY, possible[n].id, color,hasMoved, storeEat);
+                refreshData(); 
                 console.log('safe');
                 break;
             }
-            if(isKingInCheck()){
-                
-            }
-            possible = (piece == 'white')? availableMoves.white:availableMoves.black;
+            
             if(n == possible.length -1){
-                undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, 0, storeEat);
+                console.log('no here');
+                //undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, hasMoved, storeEat);
                 checkMate = true;
                 console.log('checkmate');
-                refreshData();
-            } */
-            turnCheck = !turnCheck;
+                //refreshData();
+            } 
+            undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, hasMoved, storeEat);
+            refreshData();
+            //turnCheck = !turnCheck;*/
         }   
-        }
 
     }
     const getMoveData = (id, oldCoords, newCoords, color) =>{
@@ -596,6 +668,8 @@ const chessBoard =(()=>{
     const pieceUnmaker = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
         chessBoardData[y][x].isEmpty = true;
+        chessBoardData[y][x].pieceData = null;
+
         
     }
     //some eat logic
@@ -684,13 +758,15 @@ chessBoard.pieceMaker(0,0, 'king',false);
 chessBoard.pieceMaker(1,1, 'pawn',false);
 chessBoard.pieceMaker(0,1, 'pawn',false);
 chessBoard.pieceMaker(5,4,'queen',true);
+chessBoard.pieceMaker(2,2,'pawn',true);
+chessBoard.pieceMaker(1 ,2,'pawn',true);
 chessBoard.pieceMaker(2,3,'queen',false);
-chessBoard.pieceMaker(6,5,'bishop',true);*/
-/*chessBoard.pieceMaker(0,6,'knight',false);
+chessBoard.pieceMaker(6,5,'bishop',true);
+chessBoard.pieceMaker(0,6,'knight',false);
 chessBoard.pieceMaker(3,3,'pawn',false);
 chessBoard.pieceMaker(2,4, 'pawn',true);
 chessBoard.pieceMaker(3,7, 'queen',true);
 */
 
 
-//chessBoard.generateGame();
+chessBoard.generateGame();
