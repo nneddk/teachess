@@ -70,18 +70,17 @@ const chessBoard =(()=>{
         }
     };
     const clickTile =() =>{
-        console.log(enPassantData);
         let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
         let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
         if(getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color)){
             movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
         }else{
             clearInfo();
+            refreshData();
         }
         
         /**/
     };
-
     const clearInfo = () =>{
         movingData.id = null;
         movingData.piece = null;
@@ -104,8 +103,12 @@ const chessBoard =(()=>{
                     chessBoardData[y][x].threatData.whiteCheck.threats = [];
                     chessBoardData[y][x].threatData.blackCheck.counter = 0;
                     chessBoardData[y][x].threatData.blackCheck.threats = [];
+                    /*
                     chessBoardData[y][x].tileLocation.classList.remove('white-check');
                     chessBoardData[y][x].tileLocation.classList.remove('black-check');
+                    */
+                    chessBoardData[y][x].tileLocation.classList.remove('highlighted');
+                    clearInfo();
                     if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                         activePieces.push(chessBoardData[y][x].pieceData);
                     }
@@ -118,62 +121,104 @@ const chessBoard =(()=>{
                 getThreatData(activePieces[i].id, activePieces[i].x, activePieces[i].y, activePieces[i].color);
             }
     };
+    const highlightMoves = (x, y,color) =>{
+        if(chessBoardData[y][x].isEmpty || chessBoardData[y][x].pieceData.color == !color){
+            chessBoardData[y][x].tileLocation.classList.add('highlighted');
+        }
+        
+    }
+    const getThreatData = (id, x, y, color, highlight)=>{
 
-    const getThreatData = (id, x, y, color)=>{
         const changeData = (boardData) =>{
-            if(color){
-                boardData.threatData.whiteCheck.counter++;
-                boardData.threatData.whiteCheck.threats.push(chessBoardData[y][x]);
-                boardData.tileLocation.classList.add('white-check');
-            }
-            if(!color){
-                boardData.threatData.blackCheck.counter++;
-                boardData.threatData.blackCheck.threats.push(chessBoardData[y][x]);
-                boardData.tileLocation.classList.add('black-check');
-            }
-            if(boardData.isEmpty  || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) ){
-                if(color && id !=null&& id != 'pawn') {
-                    availableMoves.white.push({
-                        id:id,
-                        x:x,
-                        y:y,
-                        hasMoved: chessBoardData[y][x].pieceData.hasMoved,
-                        move : boardData,
-                    });
-    
+            if(highlight){
+                if (id == 'pawn'){
+                    if(color){
+                        if((y - 1>=0)?chessBoardData[y - 1][x].isEmpty:false){
+                            highlightMoves(x, y - 1,color);
+                            if((y - 2 >= 0)?(chessBoardData[y - 1][x].isEmpty && chessBoardData[y-2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
+                                highlightMoves(x, y - 2,color);
+                            }
+                            if ((!boardData.isEmpty && boardData.pieceData.color == !color)){
+                                highlightMoves(boardData.x,boardData.y,color);
+                            }
+                            if((boardData.x == enPassantData.x) && (boardData.y == enPassantData.y)){
+                                highlightMoves(boardData.x, boardData.y, color);
+                            }
+                            
+                        }
+                        
+                    }
+                    if(!color){
+                        if((y + 1<=7)?chessBoardData[y + 1][x].isEmpty:false){
+                            highlightMoves(x, y + 1,color);
+                            if((y + 2 <= 8)?(chessBoardData[y + 1][x].isEmpty && chessBoardData[y+2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
+                                highlightMoves(x, y + 2,color);
+                            }
+                            if (!boardData.isEmpty && boardData.pieceData.color == !color){
+                                highlightMoves(boardData.x,boardData.y,color);
+                            }
+                        }
+                    }
+                    
+                    
+
+                }else{
+                    highlightMoves(boardData.x, boardData.y,color);
                 }
-                if(!color && id != null && id != 'pawn'){
-                    availableMoves.black.push({
-                        id:id,
-                        x:x,
-                        y:y,
-                        hasMoved: chessBoardData[y][x].pieceData.hasMoved,
-                        move : boardData,
-                    });
-                }  
-                //pawn
-            }
-            if ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color) && id == 'pawn'){
-                if(color) {
-                    availableMoves.white.push({
-                        id:id,
-                        x:x,
-                        y:y,
-                        hasMoved: chessBoardData[y][x].pieceData.hasMoved,
-                        move : boardData,
-                    });
-    
+                
+            }else{
+                if(color){
+                    boardData.threatData.whiteCheck.counter++;
+                    boardData.threatData.whiteCheck.threats.push(chessBoardData[y][x]);
                 }
                 if(!color){
-                    availableMoves.black.push({
-                        id:id,
-                        x:x,
-                        y:y,
-                        hasMoved: chessBoardData[y][x].pieceData.hasMoved,
-                        move : boardData,
-                    });
-                }  
-            }
+                    boardData.threatData.blackCheck.counter++;
+                    boardData.threatData.blackCheck.threats.push(chessBoardData[y][x]);
+                }
+                if(boardData.isEmpty  || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) ){
+                    if(color && id !=null&& id != 'pawn') {
+                        availableMoves.white.push({
+                            id:id,
+                            x:x,
+                            y:y,
+                            hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                            move : boardData,
+                        });
+        
+                    }
+                    if(!color && id != null && id != 'pawn'){
+                        availableMoves.black.push({
+                            id:id,
+                            x:x,
+                            y:y,
+                            hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                            move : boardData,
+                        });
+                    }  
+                    //pawn
+                }
+                if ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color) && id == 'pawn'){
+                    if(color) {
+                        availableMoves.white.push({
+                            id:id,
+                            x:x,
+                            y:y,
+                            hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                            move : boardData,
+                        });
+        
+                    }
+                    if(!color){
+                        availableMoves.black.push({
+                            id:id,
+                            x:x,
+                            y:y,
+                            hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                            move : boardData,
+                        });
+                    }  
+                }
+            }   
             if (id == 'pawn'){
                 if(color){
                     if((y - 1>=0)?chessBoardData[y - 1][x].isEmpty:false){
@@ -448,7 +493,6 @@ const chessBoard =(()=>{
         } 
         clearInfo();
         turnCheck = !turnCheck;
-        //clears enPassant Data
         enPassant(null, null, null, null ,enPassantData.color);
     }
     const undoLastMove = (oldX, oldY, newX, newY, id, color, hasMoved, storeEat) =>{
@@ -694,10 +738,6 @@ const chessBoard =(()=>{
                 },
             } 
         }
-        
-        console.log(color);
-        console.log(turnCheck);
-        console.log('enPassant available at '+enPassantData.x+':'+enPassantData.y);
     }
     const pieceUnmaker = (x, y) =>{
         chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
@@ -732,8 +772,9 @@ const chessBoard =(()=>{
                 e.stopPropagation();  
                 if(movingData.piece == null){
                     setData();
+                    getThreatData(id, pieceData.x, pieceData.y, pieceData.color,true);
                 } else{
-                    clearInfo();
+                    refreshData();
                 }
             }else{
                 console.log('not your turn');
@@ -755,12 +796,11 @@ const chessBoard =(()=>{
 
     const generateGame =()=>{
         for (let x = 0; x<8;x++){
-            /**/
             pieceMaker(x,6,'pawn',true);
             pieceMaker(x,1,'pawn',false); 
         
         }
-/*        
+        
         pieceMaker(4,0,'king',false);
         pieceMaker(4,7,'king',true);
 
@@ -781,7 +821,8 @@ const chessBoard =(()=>{
         pieceMaker(1,7,'knight',true);
         pieceMaker(6,0,'knight',false);
         pieceMaker(6,7,'knight',true);
-      */  
+        refreshData();
+      
     }
     return {makeBoard,pieceMaker,generateGame};
 })();
