@@ -4,7 +4,6 @@
     display:grid;
     grid-template-columns: repeat(1, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    gap:5px;
 
     z-index: 0;
 }
@@ -12,7 +11,6 @@
     display:grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(1,1fr);
-    gap:5px;
 }
 
 .piece{
@@ -22,8 +20,8 @@
     z-index: 2;
 }
 .white-check{
-    box-shadow: 0 0 0 5px yellow;
+    
 }
 .black-check{
-    outline: dashed 5px black;
+    
 }

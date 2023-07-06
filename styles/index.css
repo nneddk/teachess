@@ -1,6 +1,36 @@
-
 body, html{
     height: 100%;
     margin: 0;
     font-size: 15px;
+}
+.content{
+    height: 96vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: grey;
+}
+.footer{
+    height:4vh;
+    background-color: black;
+    display: flex;
+    text-align: justify;
+    align-items: center;
+
+}
+
+.footer a{
+    text-decoration: none;
+    color:white;
+    margin-left: 1vw;
+
+    display:block;
+    width: 3vh;
+    height: 3vh;
+
+    background-image: url('../assets/logos/GitHub-Mark-Light-64px.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size:3vh;
 }
