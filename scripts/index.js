@@ -72,11 +72,6 @@ const chessBoard =(()=>{
     const clickTile =() =>{
         let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
         let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
-        /*
-        console.log(chessBoardData[newY][newX]);
-        */
-        //(id, oldCoords, newCoords, color) <-false for black, true for white
-        //console.log(availableMoves);
         if(getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color)){
             movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
         }else{
@@ -186,7 +181,7 @@ const chessBoard =(()=>{
                             x:x,
                             y:y,
                             hasMoved: chessBoardData[y][x].pieceData.hasMoved,
-                            move : chessBoardData[y-1][x].pieceData,
+                            move : chessBoardData[y-1][x],
                         });
                         if((y - 2 >= 0)?(chessBoardData[y - 1][x].isEmpty && chessBoardData[y-2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
                             availableMoves.white.push({
@@ -434,6 +429,7 @@ const chessBoard =(()=>{
 
         if (isKingInCheck() == true){
             undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
+            refreshData();
             turnCheck = !turnCheck;
         }
         if(isKingInCheck()){
@@ -481,8 +477,7 @@ const chessBoard =(()=>{
         return false;
     }
     const checkmateChecker = (color, possible) =>{
-        //turnCheck = !turnCheck;
-        console.log(color);
+
         for(let n = 0; n < possible.length; n++){
             
             let hasMoved = possible[n].hasMoved;
@@ -635,9 +630,12 @@ const chessBoard =(()=>{
                 //castling logic
                 //could use a refactor
                 if(!hasMoved && moveChecker.kingChecker(newX,newY,color) && moveChecker.horizontalChecker(oldX,newX,oldY) &&
-                 ((newX == oldX + 2 && oldY == newY)||(newX == oldX - 2 && oldY == newY))){
+                 ((newX == oldX + 2 && oldY == newY)||(newX == oldX - 2 && oldY == newY)) 
+                 && (color?chessBoardData[oldY][oldX].threatData.blackCheck.counter == 0:chessBoardData[oldY][oldX].threatData.whiteCheck.counter == 0)
+                    &&(color?chessBoardData[newY][newX].threatData.blackCheck.counter == 0:chessBoardData[newY][newX].threatData.whiteCheck.counter == 0)){
 
-                    if(chessBoardData[oldY][oldX + 3].pieceData != null &&chessBoardData[oldY][oldX + 3].pieceData.id == 'rook'){
+                    if(chessBoardData[oldY][oldX + 3].pieceData != null &&chessBoardData[oldY][oldX + 3].pieceData.id == 'rook'
+                    && (color?chessBoardData[oldY][oldX + 1].threatData.blackCheck.counter == 0:chessBoardData[oldY][oldX + 1].threatData.whiteCheck.counter == 0)){
                         rightRook = chessBoardData[oldY][oldX + 3].pieceData;
                         if((newX == oldX + 2 && oldY == newY)
                         &&(rightRook.color == color)
@@ -647,7 +645,8 @@ const chessBoard =(()=>{
                         turnCheck = !turnCheck;
                         }
                     }
-                    if(chessBoardData[oldY][oldX - 4].pieceData != null && chessBoardData[oldY][oldX - 4].pieceData.id == 'rook'){
+                    if(chessBoardData[oldY][oldX - 4].pieceData != null && chessBoardData[oldY][oldX - 4].pieceData.id == 'rook'
+                    && (color?chessBoardData[oldY][oldX - 1].threatData.blackCheck.counter == 0:chessBoardData[oldY][oldX - 1].threatData.whiteCheck.counter == 0)){
                         leftRook = chessBoardData[oldY][oldX - 4].pieceData;
                         if((newX == oldX - 2 && oldY == newY)
                         &&(leftRook.color == color)
@@ -694,7 +693,6 @@ const chessBoard =(()=>{
         piece.style.backgroundColor = color?'white':'black';
         piece.style.color = !color?'white':'black';
         piece.onclick=(e) =>{
-            console.log(chessBoardData[y][x]);
             if(chessBoardData[y][x].pieceData.color == turnCheck){
                 e.stopPropagation();  
                 if(movingData.piece == null){
@@ -722,11 +720,12 @@ const chessBoard =(()=>{
 
     const generateGame =()=>{
         for (let x = 0; x<8;x++){
+            /*
             pieceMaker(x,6,'pawn',true);
-            pieceMaker(x,1,'pawn',false);
-
-            
+            pieceMaker(x,1,'pawn',false); 
+        */
         }
+        
         pieceMaker(4,0,'king',false);
         pieceMaker(4,7,'king',true);
 
@@ -737,7 +736,7 @@ const chessBoard =(()=>{
 
         pieceMaker(3,0,'queen',false);
         pieceMaker(3,7,'queen',true);
-
+/*
         pieceMaker(2,0,'bishop',false);
         pieceMaker(2,7,'bishop',true);
         pieceMaker(5,0,'bishop',false);
@@ -747,26 +746,28 @@ const chessBoard =(()=>{
         pieceMaker(1,7,'knight',true);
         pieceMaker(6,0,'knight',false);
         pieceMaker(6,7,'knight',true);
+      */  
     }
     return {makeBoard,pieceMaker,generateGame};
 })();
 chessBoard.makeBoard();
-
-//x y pieceID
-/*chessBoard.pieceMaker(3,3,'king',false);
-chessBoard.pieceMaker(0,0, 'king',false);
-chessBoard.pieceMaker(1,1, 'pawn',false);
-chessBoard.pieceMaker(0,1, 'pawn',false);
-chessBoard.pieceMaker(5,4,'queen',true);
-chessBoard.pieceMaker(2,2,'pawn',true);
-chessBoard.pieceMaker(1 ,2,'pawn',true);
-chessBoard.pieceMaker(2,3,'queen',false);
-chessBoard.pieceMaker(6,5,'bishop',true);
-chessBoard.pieceMaker(0,6,'knight',false);
-chessBoard.pieceMaker(3,3,'pawn',false);
-chessBoard.pieceMaker(2,4, 'pawn',true);
-chessBoard.pieceMaker(3,7, 'queen',true);
-*/
-
-
 chessBoard.generateGame();
+/*
+chessBoard.pieceMaker(1,5,'knight',false);
+
+chessBoard.pieceMaker(0,6,'pawn', true);
+chessBoard.pieceMaker(1,6,'pawn', true);
+chessBoard.pieceMaker(2,6,'pawn', true);
+chessBoard.pieceMaker(2,7,'pawn', true);
+
+chessBoard.pieceMaker(1,7,'king', true);
+
+
+chessBoard.pieceMaker(1,2,'knight',true);
+chessBoard.pieceMaker(0,1,'pawn', false);
+chessBoard.pieceMaker(1,1,'pawn', false);
+chessBoard.pieceMaker(2,1,'pawn', false);
+chessBoard.pieceMaker(2,0,'pawn', false);
+
+chessBoard.pieceMaker(1,0,'king', false);
+*/
