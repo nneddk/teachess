@@ -1,1 +1,3 @@
 # teachess
+## WIP
+### CURRENT WIP: EN PASSANT RULE & TIE LOGIC
