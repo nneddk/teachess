@@ -481,7 +481,6 @@ export const chessBoard =(()=>{
                 storeEat =  chessBoardData[newY][newX].pieceData;
                 eatMove(newX, newY);
             } 
-    
             pieceMaker(newX, newY, id, color, (hasMoved + 1));
             pieceUnmaker(oldX, oldY);
             refreshData();
@@ -489,6 +488,18 @@ export const chessBoard =(()=>{
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
                 turnCheck = !turnCheck;
+            }
+            if (id == 'pawn'){
+                if(color){
+                    if(newY == 0){
+                        console.log('Promote')
+                    }
+                }
+                if(!color){
+                    if(newY == 7){
+                        console.log('Promote')
+                    }
+                }
             }
             if(isKingInCheck()){
                 refreshData();
@@ -502,6 +513,7 @@ export const chessBoard =(()=>{
                     checkmateChecker(false, possible);
                 }
             } 
+            
             clearInfo();
             turnCheck = !turnCheck;
             enPassant(null, null, null, null ,enPassantData.color);
