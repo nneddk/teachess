@@ -45,6 +45,7 @@ export const chessBoard =(()=>{
             pieceDiv.style.backgroundColor = (color?"white":"black");
             pieceDiv.style.color = (!color?'white':"black");
             pieceDiv.onclick=(e) =>{
+                console.log(availableMoves);
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -512,10 +513,25 @@ export const chessBoard =(()=>{
                     possible = availableMoves.black;
                     checkmateChecker(false, possible);
                 }
-            } 
+            }
+            
+            //stalemate checker
+            
+            if(isKingInCheck() == false){
+                let possible;
+                if(color){
+                    possible = availableMoves.black;
+                    checkmateChecker(false, possible, true);
+                }
+                if(!color){
+                    possible = availableMoves.white;
+                    checkmateChecker(true, possible, true);
+                }
+            }
             
             clearInfo();
             turnCheck = !turnCheck;
+            
             enPassant(null, null, null, null ,enPassantData.color);
         }
         function undoLastMove (oldX, oldY, newX, newY, id, color, hasMoved, storeEat){
@@ -546,9 +562,9 @@ export const chessBoard =(()=>{
             }
             return false;
         }
-        function checkmateChecker(color, possible){
+        function checkmateChecker(color, possible, stalemate){
+            console.log(possible);
             for(let n = 0; n < possible.length; n++){
-                
                 let hasMoved = possible[n].hasMoved;
                 let oldX = possible[n].x, oldY = possible[n].y;
                 let newX = possible[n].move.x, newY = possible[n].move.y;
@@ -561,20 +577,26 @@ export const chessBoard =(()=>{
                 pieceUnmaker(oldX, oldY);
                 refreshData();
                 if (isKingInCheck() == false){
-                    undoLastMove(oldX, oldY, newX, newY, possible[n].id, color,hasMoved, storeEat);
+                    undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, hasMoved, storeEat);
                     refreshData(); 
                     console.log('safe');
                     break;
                 }
                 
-                if(n == possible.length -1){
-                    console.log('no here');
-                    checkMate = true;
-                    console.log('checkmate');
+                if(n == possible.length -1 && isKingInCheck()){
+                    if(stalemate != null) {
+                        console.log('stalemate')
+                    }else{
+                        console.log('checkmate');
+                    }
+                    
                 } 
                 undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, hasMoved, storeEat);
                 refreshData();
             }  
+        }
+        function staleMateChecker(){
+
         }
         const validateMove =(()=>{
             function horizontalChecker(oldX, newX, y){
@@ -742,6 +764,7 @@ export const chessBoard =(()=>{
             }
     }
     function generateGame(){
+        /*
         for (let x = 0; x<8;x++){
             piece.pieceMaker(x,6,'pawn',true);
             piece.pieceMaker(x,1,'pawn',false); 
@@ -767,6 +790,12 @@ export const chessBoard =(()=>{
         piece.pieceMaker(1,7,'knight',true);
         piece.pieceMaker(6,0,'knight',false);
         piece.pieceMaker(6,7,'knight',true);
+        */
+       piece.pieceMaker(4,4, 'king', true);
+       piece.pieceMaker(3,7, 'rook', false);
+       piece.pieceMaker(6,0, 'rook', false);
+       piece.pieceMaker(6,3, 'rook', false);
+       piece.pieceMaker(0,5, 'rook', false);
         refreshData();
     }
     return{makeBoard,generateGame}

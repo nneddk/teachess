@@ -1,8 +1,8 @@
 # teachess
 # WIP
 # TODO:
-- Pawn promotion logic
-- Tie logic
+- Pawn promotion logic - 50% DONE!
+- Tie logic - DONE!
 - Actual piece sprites
 - Better Highlighting (box-shadow?)
 - King check highlighting
