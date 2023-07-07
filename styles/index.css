@@ -4,7 +4,7 @@ body, html{
     font-size: 15px;
 }
 .content{
-    height: 96vh;
+    height: 95vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,22 +12,38 @@ body, html{
     background-color: grey;
 }
 .footer{
-    height:4vh;
+    height:5vh;
     background-color: black;
     display: flex;
     text-align: justify;
     align-items: center;
+    justify-content: space-between;
 
+}
+.footer-button-seperators{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-right: 1vw;
+    margin-left: 1vw;
+    height: 100%;
+    gap: 0.5vw;
+
+    align-items: center;
+}
+.footer-button-seperators>.btn{
+    width:40px;
+    height: 40px;
 }
 
 .footer a{
     text-decoration: none;
     color:white;
     margin-left: 1vw;
+    margin-right: 1vw;
 
     display:block;
     width: 3vh;
-    height: 3vh;
+    height: 100%;
 
     background-image: url('../assets/logos/GitHub-Mark-Light-64px.png');
     background-position: center;

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=swap');
+
 #game-board{
     height: 70vmin;
     width: 70vmin;
@@ -12,18 +14,10 @@
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(1,1fr);
 }
-
-.piece{
-    height:100%;
-    width:100%;
-    z-index: 2;
-}
-.white-check{
-    box-shadow: 0 0 0 5px yellow;
-}
-.black-check{
+.tile{
+    display: flex;
+    flex-direction:column;
+    font-family: sans-serif;
+    background-color: black;
     
-}
-.highlighted{
-    outline: dashed 5px black;
 }

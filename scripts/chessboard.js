@@ -1,4 +1,8 @@
+const gameBoard = document.getElementById("game-board");
+const undoBtn = document.getElementById("undo-btn");
 export const chessBoard =(()=>{
+    let numberOfMoves = 0;
+    let undoData = {};
     let availableMoves = {
         black:[],
         white:[]
@@ -18,7 +22,6 @@ export const chessBoard =(()=>{
         },
         piece: null
     };
-    let checkMate;
     //1 for white, 0 for black;
     let turnCheck = 1;
     const piece = (()=>{
@@ -34,6 +37,7 @@ export const chessBoard =(()=>{
         function pieceMaker(x, y, id, color, hasMoved){
             let pieceDiv = document.createElement("div");
             pieceDiv.classList.add("piece");
+            pieceDiv.classList.add((color?"white":"black")+"-"+id);
             let pieceData = {
                 color: color,
                 hasMoved: (hasMoved?hasMoved:0),
@@ -41,11 +45,8 @@ export const chessBoard =(()=>{
                 x:x,
                 y:y,  
             };
-            pieceDiv.textContent = id;
-            pieceDiv.style.backgroundColor = (color?"white":"black");
-            pieceDiv.style.color = (!color?'white':"black");
+            pieceDiv.style.color = (color?'white':"black");
             pieceDiv.onclick=(e) =>{
-                console.log(availableMoves);
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -474,7 +475,9 @@ export const chessBoard =(()=>{
             if(chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
         }
         const eatMove = (x, y) => chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
-        function movePiece(oldCoords,newCoords,id,color, hasMoved){     
+        function movePiece(oldCoords,newCoords,id,color, hasMoved){   
+            
+            if(color)numberOfMoves++;  
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
             let storeEat;
@@ -490,6 +493,7 @@ export const chessBoard =(()=>{
                 refreshData();
                 turnCheck = !turnCheck;
             }
+
             if (id == 'pawn'){
                 if(color){
                     if(newY == 0){
@@ -528,7 +532,7 @@ export const chessBoard =(()=>{
                     checkmateChecker(true, possible, true);
                 }
             }
-            
+            undoData = {oldX,oldY,newX,newY ,id,color, hasMoved, storeEat};
             clearInfo();
             turnCheck = !turnCheck;
             
@@ -563,7 +567,6 @@ export const chessBoard =(()=>{
             return false;
         }
         function checkmateChecker(color, possible, stalemate){
-            console.log(possible);
             for(let n = 0; n < possible.length; n++){
                 let hasMoved = possible[n].hasMoved;
                 let oldX = possible[n].x, oldY = possible[n].y;
@@ -579,24 +582,20 @@ export const chessBoard =(()=>{
                 if (isKingInCheck() == false){
                     undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, hasMoved, storeEat);
                     refreshData(); 
-                    console.log('safe');
                     break;
                 }
                 
                 if(n == possible.length -1 && isKingInCheck()){
                     if(stalemate != null) {
-                        console.log('stalemate')
+                        console.log('stalemate at '+numberOfMoves+' moves');
                     }else{
-                        console.log('checkmate');
+                        console.log('checkmate at '+numberOfMoves+' moves');
                     }
                     
                 } 
                 undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, hasMoved, storeEat);
                 refreshData();
             }  
-        }
-        function staleMateChecker(){
-
         }
         const validateMove =(()=>{
             function horizontalChecker(oldX, newX, y){
@@ -679,10 +678,20 @@ export const chessBoard =(()=>{
                 verticalChecker,
             };
         })();
+        undoBtn.onclick = ()=>{
+            if (numberOfMoves > 0){
+                undoLastMove(undoData.oldX, undoData.oldY, undoData.newX, undoData.newY, undoData.id, undoData.color, undoData.hasMoved, undoData.storeEat);
+                turnCheck = !turnCheck;
+                undoData = {};
+                if (!undoData.color){
+                    numberOfMoves--;
+                }
+                
+            }
+        }
         return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove};
     })();
     function makeBoard(){
-        const gameBoard = document.getElementById("game-board");
         while (gameBoard.hasChildNodes()) gameBoard.removeChild(gameBoard.lastChild);
         for(let y = 0; y < 8; y++){
             let chessBoardTileContainer = document.createElement('div');
@@ -694,6 +703,7 @@ export const chessBoard =(()=>{
                 chessBoardTileDiv.style.backgroundColor = (((y+1) + (x+1))%2?'rgb(118,150,86)':'rgb(238,238,210');
                 let TileData ={
                     isEmpty: true,
+                    notation: (String.fromCharCode(97+x))+(y+1),
                     pieceData:null,
                     tileLocation: chessBoardTileDiv,
                     threatData:{
@@ -709,7 +719,7 @@ export const chessBoard =(()=>{
                     x:x,
                     y:y
                 };
-                chessBoardTileDiv.textContent = TileData.threatData.isThreatened;
+                //chessBoardTileDiv.textContent = TileData.notation;
                 chessBoardTileDiv.onclick = () =>{
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
@@ -764,7 +774,6 @@ export const chessBoard =(()=>{
             }
     }
     function generateGame(){
-        /*
         for (let x = 0; x<8;x++){
             piece.pieceMaker(x,6,'pawn',true);
             piece.pieceMaker(x,1,'pawn',false); 
@@ -790,12 +799,12 @@ export const chessBoard =(()=>{
         piece.pieceMaker(1,7,'knight',true);
         piece.pieceMaker(6,0,'knight',false);
         piece.pieceMaker(6,7,'knight',true);
-        */
+        /*
        piece.pieceMaker(4,4, 'king', true);
        piece.pieceMaker(3,7, 'rook', false);
        piece.pieceMaker(6,0, 'rook', false);
        piece.pieceMaker(6,3, 'rook', false);
-       piece.pieceMaker(0,5, 'rook', false);
+       piece.pieceMaker(0,5, 'rook', false);*/
         refreshData();
     }
     return{makeBoard,generateGame}
