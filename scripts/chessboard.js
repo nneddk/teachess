@@ -1,8 +1,7 @@
 export const chessBoard =(()=>{
     let availableMoves = {
-        black: [],
-        white: []
-        
+        black:[],
+        white:[]
     };
     let chessBoardData = [];
     let movingData = {
@@ -11,7 +10,7 @@ export const chessBoard =(()=>{
         id: null,
         newCoords: {
             x:null,
-            y:null,
+            y:null
         },
         oldCoords: {
             x: null,
@@ -30,22 +29,22 @@ export const chessBoard =(()=>{
                 y:null
             },
             x: null,
-            y: null    
-        }
+            y: null
+        };
         function pieceMaker(x, y, id, color, hasMoved){
-            let piece = document.createElement('div');
-            piece.classList.add('piece');
+            let pieceDiv = document.createElement("div");
+            pieceDiv.classList.add("piece");
             let pieceData = {
-                id: id,
-                x: x,
-                y: y,
                 color: color,
-                hasMoved: hasMoved?hasMoved:0,
-            }
-            piece.textContent = id;
-            piece.style.backgroundColor = color?'white':'black';
-            piece.style.color = !color?'white':'black';
-            piece.onclick=(e) =>{
+                hasMoved: (hasMoved?hasMoved:0),
+                id:id,
+                x:x,
+                y:y,  
+            };
+            pieceDiv.textContent = id;
+            pieceDiv.style.backgroundColor = (color?"white":"black");
+            pieceDiv.style.color = (!color?'white':"black");
+            pieceDiv.onclick=(e) =>{
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -55,7 +54,7 @@ export const chessBoard =(()=>{
                         refreshData();
                     }
                 }else{
-                   
+                 console.log('switch side');  
                 }
             }
             function setData(){
@@ -66,98 +65,15 @@ export const chessBoard =(()=>{
                 movingData.color = pieceData.color;
                 movingData.hasMoved = pieceData.hasMoved;
             }
-
             chessBoardData[y][x].pieceData = pieceData;
             chessBoardData[y][x].isEmpty = false;
-            chessBoardData[y][x].tileLocation.append(piece);
+            chessBoardData[y][x].tileLocation.append(pieceDiv);
         }
         function pieceUnmaker(x, y){
             chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
             chessBoardData[y][x].isEmpty = true;
             chessBoardData[y][x].pieceData = null;
-        }
-        const validateMove =(()=>{
-            function horizontalChecker(oldX, newX, y){
-                let allowHorizontal = true;
-                if (oldX < newX){
-                    for(let x = oldX; x < newX; x++){
-                        if(x == oldX) continue;
-                        if(chessBoardData[y][x].isEmpty == false) allowHorizontal = false;
-                    }
-                }
-                if (oldX > newX){
-                    for(let x = oldX; x > newX; x--){
-                        if(x == oldX) continue;
-                        if(chessBoardData[y][x].isEmpty == false) allowHorizontal = false;
-                    }
-                    
-                }
-                return allowHorizontal;
-            }
-            function verticalChecker(oldY, newY, x){
-                let allowVertical = true;
-                if (oldY < newY){
-                    for(let y = oldY; y < newY; y++){
-                        if(y == oldY) continue;
-                        if(chessBoardData[y][x].isEmpty == false) allowVertical = false;
-                    } 
-                }
-                if (oldY > newY){
-                    for(let y = oldY; y > newY; y--){
-                        if(y == oldY) continue;
-                        if(chessBoardData[y][x].isEmpty == false) allowVertical = false;
-                    }
-                }
-                return allowVertical;
-            }
-            function diagonalChecker(oldX, newX, oldY, newY){
-                let allowDiagonal = true;
-                if(newX > oldX){
-                    for (let n = 1; n<(newX - oldX); n++){
-        
-                        if(newY<oldY){
-                            if(chessBoardData[oldY - n][oldX + n].isEmpty == false) allowDiagonal = false;
-                            
-                        }
-                        if(newY>oldY){
-                            if(chessBoardData[oldY + n][oldX + n].isEmpty == false) allowDiagonal = false;
-                        }
-                    }
-                }
-                if(newX < oldX){
-                    for (let n = 1; n<(oldX - newX); n++){
-                        if(newY<oldY){
-                            if(chessBoardData[oldY - n][oldX - n].isEmpty == false) allowDiagonal = false;
-                        }
-                        if(newY>oldY){
-                            if(chessBoardData[oldY + n][oldX - n].isEmpty == false) allowDiagonal = false;
-                        }
-                    }
-                }
-                return allowDiagonal;
-            }
-            function horseChecker(newX,newY, color){
-                let allowHorse = true;
-                if (eatChecker(newX,newY,color)) return true;
-                if(chessBoardData[newY][newX].isEmpty == false){
-                    allowHorse = false;
-                }
-                return allowHorse;
-            }
-            function kingChecker(newX, newY, color){
-                let allowKing = true;
-                if (eatChecker(newX,newY,color)) return true;
-                if(chessBoardData[newY][newX].isEmpty == false) allowKing = false;
-                return allowKing;
-            }
-            return{
-                horizontalChecker, 
-                verticalChecker, 
-                diagonalChecker,
-                horseChecker,
-                kingChecker
-            }
-        })();
+        } 
         function getMoveData (id, oldCoords, newCoords, color){
             let allowMove = false;
             let oldX = oldCoords[0], oldY = oldCoords[1];
@@ -168,12 +84,12 @@ export const chessBoard =(()=>{
                     //only move up OR down depending on the color of the piece
                     if(oldX == newX && (color?oldY-1:oldY+1) == newY){
                         allowMove = true;
-                        if(chessBoardData[newY][newX].isEmpty == false) allowMove = false;
+                        if(chessBoardData[newY][newX].isEmpty == false){
+                            allowMove = false;
+                        } 
                     }
                     if((oldX + 1 == newX || oldX - 1 == newX ) && (color?(oldY - 1 == newY):(oldY + 1 == newY))){
-                        if(eatChecker(newX,newY,color)){
-                            allowMove = true;
-                        }
+                        if(eatChecker(newX,newY,color)) allowMove = true;
                         if(newX == enPassantData.x && newY == enPassantData.y){
                             allowMove = true;
                             eatMove(enPassantData.target.x, enPassantData.target.y);
@@ -189,7 +105,6 @@ export const chessBoard =(()=>{
                                     if(chessBoardData[y][newX].isEmpty == false) allowMove = false;
                                 }
                                 enPassant(oldX, newX, oldY +1, newY ,color);
-                                
                             }
                             if (oldY > newY){
                                 for(let y = oldY; y > newY; y--){
@@ -202,12 +117,9 @@ export const chessBoard =(()=>{
                     }
                     return allowMove;
                 case 'rook':
-                    /*either vertical OR horizontal movement*/
                     if((oldX == newX && oldY != newY)||(oldX != newX && oldY == newY)){
-                        //check if something is blocking horizontal or vertical movement
                         if((oldX != newX && oldY == newY)){
                             allowMove = validateMove.horizontalChecker(oldX, newX, oldY);
-                            
                         }
                         if((oldX == newX && oldY != newY)){
                             allowMove = validateMove.verticalChecker(oldY, newY, oldX);  
@@ -230,26 +142,18 @@ export const chessBoard =(()=>{
                     return allowMove;
                 case 'knight':
                     if(oldY == newY + 2||oldY == newY - 2){
-                        if(oldX == newX + 1||oldX == newX - 1){
-                            allowMove = validateMove.horseChecker(newX,newY,color);
-                        }
+                        if(oldX == newX + 1||oldX == newX - 1) allowMove = validateMove.horseChecker(newX,newY,color);
                     }
                     if(oldX == newX + 2 ||oldX == newX - 2){
-                        if(oldY == newY + 1||oldY == newY - 1){
-                            allowMove = validateMove.horseChecker(newX,newY,color);
-                        }
+                        if(oldY == newY + 1||oldY == newY - 1) allowMove = validateMove.horseChecker(newX,newY,color);
                     }
                     return allowMove;
                 case 'queen':
                     /*either vertical OR horizontal movement*/
                     if((oldX == newX && oldY != newY)||(oldX != newX && oldY == newY)){
                         //check if something is blocking horizontal or vertical movement
-                        if((oldX != newX && oldY == newY)){
-                            allowMove = validateMove.horizontalChecker(oldX, newX, oldY);
-                        }
-                        if((oldX == newX && oldY != newY)){
-                            allowMove = validateMove.verticalChecker(oldY, newY, oldX);
-                        }
+                        if((oldX != newX && oldY == newY)) allowMove = validateMove.horizontalChecker(oldX, newX, oldY);
+                        if((oldX == newX && oldY != newY)) allowMove = validateMove.verticalChecker(oldY, newY, oldX);
                     }
                     if(newX > oldX){
                         for (let n = 1; n<=(newX - oldX); n++){
@@ -407,7 +311,6 @@ export const chessBoard =(()=>{
                                 move : boardData,
                             });
                         }  
-                        //pawn
                     }
                     if ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color) && id == 'pawn'){
                         if(color) {
@@ -570,9 +473,7 @@ export const chessBoard =(()=>{
             if(chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
         }
         const eatMove = (x, y) => chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
-        function movePiece(oldCoords,newCoords,id,color, hasMoved){
-            
-            
+        function movePiece(oldCoords,newCoords,id,color, hasMoved){     
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
             let storeEat;
@@ -600,7 +501,6 @@ export const chessBoard =(()=>{
                     possible = availableMoves.black;
                     checkmateChecker(false, possible);
                 }
-                
             } 
             clearInfo();
             turnCheck = !turnCheck;
@@ -664,7 +564,88 @@ export const chessBoard =(()=>{
                 refreshData();
             }  
         }
-        return {pieceMaker, validateMove, getThreatData, getMoveData, movePiece}
+        const validateMove =(()=>{
+            function horizontalChecker(oldX, newX, y){
+                let allowHorizontal = true;
+                if (oldX < newX){
+                    for(let x = oldX; x < newX; x++){
+                        if(x == oldX) continue;
+                        if(chessBoardData[y][x].isEmpty == false) allowHorizontal = false;
+                    }
+                }
+                if (oldX > newX){
+                    for(let x = oldX; x > newX; x--){
+                        if(x == oldX) continue;
+                        if(chessBoardData[y][x].isEmpty == false) allowHorizontal = false;
+                    }
+                    
+                }
+                return allowHorizontal;
+            }
+            function verticalChecker(oldY, newY, x){
+                let allowVertical = true;
+                if (oldY < newY){
+                    for(let y = oldY; y < newY; y++){
+                        if(y == oldY) continue;
+                        if(chessBoardData[y][x].isEmpty == false) allowVertical = false;
+                    } 
+                }
+                if (oldY > newY){
+                    for(let y = oldY; y > newY; y--){
+                        if(y == oldY) continue;
+                        if(chessBoardData[y][x].isEmpty == false) allowVertical = false;
+                    }
+                }
+                return allowVertical;
+            }
+            function diagonalChecker(oldX, newX, oldY, newY){
+                let allowDiagonal = true;
+                if(newX > oldX){
+                    for (let n = 1; n<(newX - oldX); n++){
+                        if(newY<oldY){
+                            if(chessBoardData[oldY - n][oldX + n].isEmpty == false) allowDiagonal = false;
+                            
+                        }
+                        if(newY>oldY){
+                            if(chessBoardData[oldY + n][oldX + n].isEmpty == false) allowDiagonal = false;
+                        }
+                    }
+                }
+                if(newX < oldX){
+                    for (let n = 1; n<(oldX - newX); n++){
+                        if(newY<oldY){
+                            if(chessBoardData[oldY - n][oldX - n].isEmpty == false) allowDiagonal = false;
+                        }
+                        if(newY>oldY){
+                            if(chessBoardData[oldY + n][oldX - n].isEmpty == false) allowDiagonal = false;
+                        }
+                    }
+                }
+                return allowDiagonal;
+            }
+            function horseChecker(newX,newY, color){
+                let allowHorse = true;
+                if (eatChecker(newX,newY,color)) return true;
+                if(chessBoardData[newY][newX].isEmpty == false){
+                    allowHorse = false;
+                }
+                return allowHorse;
+            }
+            function kingChecker(newX, newY, color){
+                let allowKing = true;
+                if (eatChecker(newX,newY,color)) return true;
+                if(chessBoardData[newY][newX].isEmpty == false) allowKing = false;
+                return allowKing;
+            }
+            return{
+                diagonalChecker,
+                horizontalChecker, 
+                horseChecker,
+                kingChecker,
+                verticalChecker,
+            };
+        })();
+        return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove};
     })();
     function makeBoard(){
         const gameBoard = document.getElementById("game-board");
@@ -678,21 +659,21 @@ export const chessBoard =(()=>{
                 chessBoardTileDiv.classList.add('tile');
                 chessBoardTileDiv.style.backgroundColor = (((y+1) + (x+1))%2?'rgb(118,150,86)':'rgb(238,238,210');
                 let TileData ={
-                    x:x,
-                    y:y,
                     isEmpty: true,
-                    tileLocation: chessBoardTileDiv,
                     pieceData:null,
-                    threatData: {
+                    tileLocation: chessBoardTileDiv,
+                    threatData:{
                         whiteCheck: {
-                            counter: 0,
-                            threats: [],
+                            counter:0,
+                            threats:[]
                         },
                         blackCheck: {
                             counter: 0,
-                            threats: [],
-                        },
-                    }
+                            threats:[]
+                        }
+                    },
+                    x:x,
+                    y:y
                 };
                 chessBoardTileDiv.textContent = TileData.threatData.isThreatened;
                 chessBoardTileDiv.onclick = () =>{
@@ -715,18 +696,17 @@ export const chessBoard =(()=>{
                 clearInfo();
                 refreshData();
             }
-        }
-        
+        }   
     }
     function clearInfo(){
-        movingData.id = null;
-        movingData.piece = null;
-        movingData.oldCoords.x = null;
-        movingData.oldCoords.y = null;
-        movingData.newCoords.x = null;
-        movingData.newCoords.y = null;
         movingData.color = null;
         movingData.hasMoved = null;
+        movingData.id = null;
+        movingData.newCoords.x = null;
+        movingData.newCoords.y = null;
+        movingData.oldCoords.x = null;
+        movingData.oldCoords.y = null;
+        movingData.piece = null;
     }
     function refreshData(){
         let activePieces = [];
