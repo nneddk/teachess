@@ -1,7 +1,7 @@
 .piece{
     position: absolute;
-    width: 8.50vmin;
-    height: 8.50vmin;
+    width: 10vmin;
+    height: 10vmin;
     justify-self: center;
     background-position: center;
     background-repeat: no-repeat;

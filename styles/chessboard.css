@@ -32,8 +32,8 @@
 }
 .piece-pic{
     position: absolute;
-    width: 9vmin;
-    height: 9vmin;
+    width: 10vmin;
+    height: 10vmin;
     background-color: transparent;
     background-position: center;
     background-repeat: no-repeat;
@@ -51,8 +51,8 @@
 .placement{
     background-image: url('../assets/board/placement.svg');
     position: absolute;
-    width: 9vmin;
-    height: 9vmin;
+    width: 10vmin;
+    height: 10vmin;
     background-color: transparent;
     background-position: center;
     background-repeat: no-repeat;
