@@ -741,7 +741,7 @@ export const chessBoard =(()=>{
             for(let x = 0; x < 8; x++){    
                 let chessBoardTileDiv = document.createElement('div');
                 chessBoardTileDiv.classList.add('tile');
-                chessBoardTileDiv.classList.add(((y+1) + (x+1))%2?'black-tile':'white-tile');
+                chessBoardTileDiv.classList.add(((y+1) + (x+1))%2?'white-tile':'black-tile');
                 let TileData ={
                     isEmpty: true,
                     notation: (String.fromCharCode(97+x))+(y+1),
