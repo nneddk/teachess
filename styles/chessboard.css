@@ -1,8 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&family=VT323&display=swap');
 
 #game-board{
-    height: 70vmin;
-    width: 70vmin;
+    background-color: grey;
+    height: 80vmin;
+    width: 80vmin;
     display:grid;
     grid-template-columns: repeat(1, 1fr);
     grid-template-rows: repeat(8, 1fr);
@@ -17,7 +18,50 @@
 .tile{
     display: flex;
     flex-direction:column;
-    font-family: sans-serif;
-    background-color: black;
+    align-items: center;
+    justify-content: center;
+    text-align: end;
+    font-family: 'VT323',monospace ;
+    font-size:2em;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 110%;
+    opacity: 1;
+    z-index: 1;
     
 }
+.piece-pic{
+    position: absolute;
+    width: 9vmin;
+    height: 9vmin;
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    opacity: 1;
+    z-index: 0;
+}
+
+.white-tile{
+    background-image: url('../assets/board/dark.svg');
+}
+.black-tile{
+    background-image: url('../assets/board/bright.svg');
+}
+.placement{
+    background-image: url('../assets/board/placement.svg');
+    position: absolute;
+    width: 9vmin;
+    height: 9vmin;
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    opacity: 0.4;
+}
+.highlighted{
+    z-index: 10;
+    box-shadow: 5px 5px rgb(0, 0, 0, 0.8);
+    transition: all 0.3s;
+}
+

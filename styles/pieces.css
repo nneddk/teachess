@@ -3,27 +3,36 @@
     width: 8.50vmin;
     height: 8.50vmin;
     justify-self: center;
-
-}
-.piece{
-    z-index: 3;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 95%;
+    background-size: 100%;
+    opacity: 1;
 }
-.highlighted{
-    outline: dashed 5px black;
+.white-king{
+    background-image: url(../assets/pieces/white-pieces/white-king.svg);  
+}
+.white-queen{
+    background-image: url(../assets/pieces/white-pieces/white-queen.svg);
+}
+.white-bishop{
+    background-image: url(../assets/pieces/white-pieces/white-bishop.svg);
+}
+.white-rook{
+    background-image: url(../assets/pieces/white-pieces/white-rook.svg);
+}
+.white-knight{
+    background-image: url(../assets/pieces/white-pieces/white-knight.svg);
+}
+.white-pawn{
+    background-image: url(../assets/pieces/white-pieces/white-pawn.svg);
 }
 
+
 .black-king{
-    background-image: url(../assets/pieces/black-pieces/black-king.svg);
-    
+    background-image: url(../assets/pieces/black-pieces/black-king.svg);    
 }
 .black-queen{
     background-image: url(../assets/pieces/black-pieces/black-queen.svg);
-}
-.black-bishop{
-    background-image: url(../assets/pieces/black-pieces/black-bishop.svg);
 }
 .black-bishop{
     background-image: url(../assets/pieces/black-pieces/black-bishop.svg);
