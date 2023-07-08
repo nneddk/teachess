@@ -813,7 +813,6 @@ export const chessBoard =(()=>{
             chessBoardData.push(chessBoardTileData);
         }
         function clickTile(){
-            console.log(movingData);
             let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
             let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
