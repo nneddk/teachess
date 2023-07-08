@@ -2,8 +2,8 @@
 
 #game-board{
     background-color: grey;
-    height: 80vmin;
-    width: 80vmin;
+    height: 90vmin;
+    width: 90vmin;
     display:grid;
     grid-template-columns: repeat(1, 1fr);
     grid-template-rows: repeat(8, 1fr);
