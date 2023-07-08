@@ -3,6 +3,9 @@ body, html{
     margin: 0;
     font-size: 15px;
 }
+img {
+    pointer-events: none;
+}
 .content{
     height: 93vh;
     display: flex;
