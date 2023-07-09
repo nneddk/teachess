@@ -105,7 +105,7 @@ img {
 }
 @media only screen and (max-width: 600px) {
     .content{
-        height: 93vh;
+        height: 100vh;
     }
     .footer{
         position: sticky;
