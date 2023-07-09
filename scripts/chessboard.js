@@ -603,10 +603,12 @@ export const chessBoard =(()=>{
                     if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                         if(chessBoardData[y][x].pieceData.id == 'king'){
                             if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck.counter)){
+                                indicator.textContent ='white king is in check!';
                                 if (turnCheck) return true; 
                                 return 'white';  
                             }
                             if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)){
+                                indicator.textContent ='black king is in check!';
                                 if (!turnCheck) return true;
                                 return 'black'
                             }
@@ -869,7 +871,7 @@ export const chessBoard =(()=>{
                 
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
             }else{
-                movingData.piece.style.opacity = '1';
+                if(movingData.piece!=null) movingData.piece.style.opacity = '1';
                 if(movingData.color != turnCheck){
                     indicator.textContent = "not your turn!"
                 }else{

@@ -8,6 +8,9 @@ At the moment, a chess UI built for educational purposes
 - Better mobile formatting
 - Notation on the sides and below the board
 
+- castling indication (move possible just not indicated)
+- en passant indication (same as above)
+
 !can leave for later
 - Tie logic - DONE!
 - Actual piece sprites - DONE!
