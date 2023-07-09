@@ -105,12 +105,12 @@ img {
 }
 @media only screen and (max-width: 600px) {
     .content{
-        height: 100vh;
+        height: 88vh;
     }
     .footer{
         position: sticky;
         bottom: 0;
-        height:7vh;
+        height:12vh;
         background-color: black;
         display: flex;
         text-align: justify;
