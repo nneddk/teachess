@@ -95,13 +95,15 @@ export const chessBoard =(()=>{
             }
 
             pieceDiv.onclick=(e) =>{
-                pieceDiv.style.opacity = '0.5'
+                
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
+                        pieceDiv.style.opacity = '0.5';
                         setData();
                         getThreatData(id, pieceData.x, pieceData.y, pieceData.color,true);
                     } else{
+                        pieceDiv.style.opacity = '1';
                         clearInfo();
                         refreshData();
                     }
@@ -863,6 +865,7 @@ export const chessBoard =(()=>{
                 
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
             }else{
+                movingData.piece.style.opacity = '1';
                 if(movingData.color != turnCheck){
                     indicator.textContent = "not your turn!"
                 }else{
