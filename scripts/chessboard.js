@@ -2,6 +2,7 @@ const gameBoard = document.getElementById("game-board");
 const undoBtn = document.getElementById("undo-btn");
 const indicator = document.getElementById("indicator");
 export const chessBoard =(()=>{
+    let gameOver = false;
     let notations = false;
     let numberOfMoves = 0;
     let undoData = {};
@@ -53,14 +54,14 @@ export const chessBoard =(()=>{
             pieceDiv.ondragstart = (e) =>{
                 e.dataTransfer.setDragImage(new Image(),0,0);
                 pieceDiv.style.opacity = '0.5';
-                if(chessBoardData[y][x].pieceData.color == turnCheck){
+                if(chessBoardData[y][x].pieceData != null && chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
                         setData();
                         getThreatData(id, pieceData.x, pieceData.y, pieceData.color,true);
                     }
                 }else{
-                    indicator.textContent = "not your turn!";
+                    if(!gameOver) indicator.textContent = "not your turn!";
                     pieceDiv.style.opacity = '1';
                 }
             } 
@@ -109,7 +110,7 @@ export const chessBoard =(()=>{
                         refreshData();
                     }
                 }else{
-                    indicator.textContent = "not your turn!";
+                    if(!gameOver) indicator.textContent = "not your turn!";
                     pieceDiv.style.opacity = '1';
                 }
             }
@@ -121,7 +122,7 @@ export const chessBoard =(()=>{
                 movingData.oldCoords.y = pieceData.y;
                 movingData.color = pieceData.color;
                 movingData.hasMoved = pieceData.hasMoved;
-                indicator.textContent = chessBoardData[pieceData.y][pieceData.x].notation+' '+id;
+                if(!gameOver) indicator.textContent = chessBoardData[pieceData.y][pieceData.x].notation+' '+id;
             }
             chessBoardData[y][x].pieceData = pieceData;
             chessBoardData[y][x].isEmpty = false;
@@ -542,7 +543,7 @@ export const chessBoard =(()=>{
             pieceUnmaker(oldX, oldY);
             refreshData();
             if (isKingInCheck() == true){
-                indicator.textContent =(color?"white":"black")+' king is in check!';
+                if(!gameOver) indicator.textContent =(color?"white":"black")+' king is in check!';
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
                 turnCheck = !turnCheck;
@@ -562,6 +563,7 @@ export const chessBoard =(()=>{
             }
             if(isKingInCheck()){
                 refreshData();
+                if(!gameOver) indicator.textContent =(color?"black's":"white's")+' king is in check!';
                 let possible;
                 if(isKingInCheck() == 'white'){
                     possible = availableMoves.white;
@@ -603,12 +605,10 @@ export const chessBoard =(()=>{
                     if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                         if(chessBoardData[y][x].pieceData.id == 'king'){
                             if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck.counter)){
-                                indicator.textContent ='white king is in check!';
                                 if (turnCheck) return true; 
                                 return 'white';  
                             }
                             if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)){
-                                indicator.textContent ='black king is in check!';
                                 if (!turnCheck) return true;
                                 return 'black'
                             }
@@ -647,6 +647,7 @@ export const chessBoard =(()=>{
                     }else{
                         indicator.textContent = (color?'black':'white')+" checkmate's at "+numberOfMoves+' moves';
                     }
+                    gameOver = true;
                     
                 } 
                 
@@ -834,7 +835,7 @@ export const chessBoard =(()=>{
                 chessBoardTileDiv.ondragenter = (e) =>{
                     e.preventDefault();
                     if(movingData.oldCoords.y && movingData.oldCoords.x != null){
-                        indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
+                        if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' > '+chessBoardData[y][x].notation;
                     }
                 }
@@ -849,7 +850,7 @@ export const chessBoard =(()=>{
                 
                 chessBoardTileDiv.onclick = () =>{
                     if(movingData.oldCoords.y && movingData.oldCoords.x != null){
-                        indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
+                        if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' > '+chessBoardData[y][x].notation;
                     }
                     movingData.newCoords.x = x;
@@ -873,9 +874,9 @@ export const chessBoard =(()=>{
             }else{
                 if(movingData.piece!=null) movingData.piece.style.opacity = '1';
                 if(movingData.color != turnCheck){
-                    indicator.textContent = "not your turn!"
+                    if(!gameOver) indicator.textContent = "not your turn!"
                 }else{
-                    indicator.textContent = 'invalid move';
+                    if(!gameOver) indicator.textContent = 'invalid move';
                 }
                 clearInfo();
                 refreshData();  

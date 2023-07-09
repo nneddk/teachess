@@ -4,12 +4,17 @@
 }
 #game-board{
     position: absolute;
-    background-color: grey;
+    background-image: url('../assets/board/board.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-color: black;
     height: 90vmin;
     width: 90vmin;
     display:grid;
     grid-template-columns: repeat(1, 1fr);
     grid-template-rows: repeat(8, 1fr);
+    gap: 1vmin;
 
     z-index: 0;
 }
@@ -29,10 +34,7 @@
     color:transparent;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 110%;
-    opacity: 1;
-    z-index: 1;
-    
+    background-size: 110%;   
 }
 .piece-pic{
     position: absolute;
@@ -45,13 +47,13 @@
     opacity: 1;
     z-index: 0;
 }
-
+/*
 .white-tile{
     background-image: url('../assets/board/dark.svg');
 }
 .black-tile{
     background-image: url('../assets/board/bright.svg');
-}
+}*/
 .placement{
     background-image: url('../assets/board/placement.svg');
     position: absolute;
@@ -60,13 +62,16 @@
     background-color: transparent;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 100%;
-    opacity: 0.4;
+    background-size: 70%;
+    opacity: 0.5;
 }
 .highlighted{
-    z-index: 10;
-    box-shadow: 5px 5px rgb(0, 0, 0, 0.8);
-    transition: all 0.3s;
+    background-image: url('../assets/board/placement.svg');
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 50%;
+    opacity: 0.5;
 }
 @media only screen and (max-width: 600px) {
     #game-board{
