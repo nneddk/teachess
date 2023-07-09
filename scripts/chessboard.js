@@ -61,6 +61,7 @@ export const chessBoard =(()=>{
                     }
                 }else{
                     indicator.textContent = "not your turn!";
+                    pieceDiv.style.opacity = '1';
                 }
             } 
             pieceDiv.onmouseenter = (e) =>{
@@ -107,6 +108,9 @@ export const chessBoard =(()=>{
                         clearInfo();
                         refreshData();
                     }
+                }else{
+                    indicator.textContent = "not your turn!";
+                    pieceDiv.style.opacity = '1';
                 }
             }
 
