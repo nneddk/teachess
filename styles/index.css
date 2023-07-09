@@ -116,6 +116,7 @@ img {
     }
     .footer{
         position: sticky;
+        bottom: 0;
         height:7vh;
         background-color: black;
         display: flex;
