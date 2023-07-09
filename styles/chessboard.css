@@ -3,6 +3,7 @@
     src: url(../assets/fonts/TooMuchInk.ttf);
 }
 #game-board{
+    position: absolute;
     background-color: grey;
     height: 90vmin;
     width: 90vmin;
