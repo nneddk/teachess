@@ -2,6 +2,13 @@ body, html{
     height: 100%;
     margin: 0;
     font-size: 15px;
+    overflow-x: hidden;
+}
+*{
+    -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+  user-zoom: false;
 }
 img {
     pointer-events: none;
@@ -25,6 +32,13 @@ img {
     align-items: center;
     justify-content: space-between;
 
+}
+#indicator{
+    color:white;
+    font-family: 'TooMuchInk',monospace ;
+    font-size:4vmin;
+    text-align: center;
+    text-justify: auto;
 }
 .footer-button-seperators{
     display:grid;

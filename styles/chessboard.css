@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&family=VT323&display=swap');
-
+@font-face {
+    font-family: TooMuchInk;
+    src: url(../assets/fonts/TooMuchInk.ttf);
+}
 #game-board{
     background-color: grey;
     height: 90vmin;
@@ -21,8 +23,9 @@
     align-items: center;
     justify-content: center;
     text-align: end;
-    font-family: 'VT323',monospace ;
-    font-size:2em;
+    font-family: 'TooMuchInk',monospace ;
+    font-size:4vmin;
+    color:transparent;
     background-position: center;
     background-repeat: no-repeat;
     background-size: 110%;
