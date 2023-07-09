@@ -3,7 +3,7 @@ body, html{
     margin: 0;
     font-size: 15px;
     overflow-x: hidden;
-    overflow-y: hidden;
+    overflow-y:hidden
 }
 *{
     -webkit-user-select: none; /* Safari */
@@ -105,14 +105,7 @@ img {
 }
 @media only screen and (max-width: 600px) {
     .content{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    
-        background-image: url('../assets/board/bg.svg');
-        background-color: lightyellow;
-        background-position: center;
-        background-size: 150%;
+        height: 100vh;
     }
     .footer{
         position: sticky;

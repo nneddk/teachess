@@ -68,4 +68,17 @@
     box-shadow: 5px 5px rgb(0, 0, 0, 0.8);
     transition: all 0.3s;
 }
+@media only screen and (max-width: 600px) {
+    #game-board{
+        position: absolute;
+        background-color: grey;
+        height: 95vmin;
+        width: 95vmin;
+        display:grid;
+        grid-template-columns: repeat(1, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+    
+        z-index: 0;
+    }
+  }
 
