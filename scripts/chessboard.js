@@ -53,7 +53,6 @@ export const chessBoard =(()=>{
            
             pieceDiv.ondragstart = (e) =>{
                 e.dataTransfer.setDragImage(new Image(),0,0);
-                pieceDiv.style.opacity = '0.5';
                 if(chessBoardData[y][x].pieceData != null && chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -62,38 +61,37 @@ export const chessBoard =(()=>{
                     }
                 }else{
                     if(!gameOver) indicator.textContent = "not your turn!";
-                    pieceDiv.style.opacity = '1';
+  
                 }
             } 
             pieceDiv.onmouseenter = (e) =>{
                 e.preventDefault();
                 if((!chessBoardData[y][x].isEmpty) && turnCheck != color && movingData.id != null){
-                    pieceDiv.style.opacity = '0.5'
                 }
             }
             pieceDiv.onmouseleave = (e) =>{
                 e.preventDefault();
                 if((!chessBoardData[y][x].isEmpty) && turnCheck != color && movingData.id != null){
-                    pieceDiv.style.opacity = '1'
+
                 }
             }
             pieceDiv.ondragenter = (e) =>{
                 e.preventDefault();
                 if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
-                    pieceDiv.style.opacity = '0.5'
+
                 }
             }
             pieceDiv.ondragleave = (e) =>{
                 e.preventDefault();
                 if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
-                    pieceDiv.style.opacity = '1'
+
                     
                 }
                 
             }
             pieceDiv.ondragend = (e) =>{
                 e.preventDefault;
-                pieceDiv.style.opacity = '1';
+
             }
 
             pieceDiv.onclick=(e) =>{
@@ -101,17 +99,16 @@ export const chessBoard =(()=>{
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
-                        pieceDiv.style.opacity = '0.5';
                         setData();
                         getThreatData(id, pieceData.x, pieceData.y, pieceData.color,true);
                     } else{
-                        pieceDiv.style.opacity = '1';
+
                         clearInfo();
                         refreshData();
                     }
                 }else{
                     if(!gameOver) indicator.textContent = "not your turn!";
-                    pieceDiv.style.opacity = '1';
+
                 }
             }
 
@@ -124,6 +121,7 @@ export const chessBoard =(()=>{
                 movingData.hasMoved = pieceData.hasMoved;
                 if(!gameOver) indicator.textContent = chessBoardData[pieceData.y][pieceData.x].notation+' '+id;
             }
+            chessBoardData[y][x].pieceDom = pieceDiv;
             chessBoardData[y][x].pieceData = pieceData;
             chessBoardData[y][x].isEmpty = false;
             chessBoardData[y][x].tileLocation.append(pieceDiv);
@@ -771,6 +769,7 @@ export const chessBoard =(()=>{
                 let TileData ={
                     isEmpty: true,
                     notation: (String.fromCharCode(97+x))+(y+1),
+                    pieceDom:null,
                     pieceData:null,
                     tileLocation: chessBoardTileDiv,
                     threatData:{
@@ -794,10 +793,7 @@ export const chessBoard =(()=>{
                 }
                 piecePic.ondragenter = (e) =>{
                     e.preventDefault();
-                    if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
-                        piecePic.style.opacity = '0.5'
-                    }
-                    
+
                     piecePic.classList.add("placement");
                 }
                 piecePic.ondragleave = (e) =>{
@@ -810,18 +806,13 @@ export const chessBoard =(()=>{
                 }
                 piecePic.onmouseenter = (e) =>{
                     e.preventDefault();
-                    if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
-                        piecePic.style.opacity = '0.5'
-                    }
                     if(movingData.id != null){
                         piecePic.classList.add("placement");
                     }
                 }
                 piecePic.onmouseleave = (e) =>{
                     e.preventDefault();
-                    if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
-                        piecePic.style.opacity = '0.5'
-                    }
+
                     if(movingData.id != null){
                         piecePic.classList.remove("placement");
                     }   
@@ -842,7 +833,6 @@ export const chessBoard =(()=>{
 
                 chessBoardTileDiv.ondrop = (e) =>{
                     e.preventDefault();
-                    chessBoardTileDiv.style.opacity = '1';
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
                     clickTile();
@@ -871,8 +861,7 @@ export const chessBoard =(()=>{
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
                 
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
-            }else{
-                if(movingData.piece!=null) movingData.piece.style.opacity = '1';
+            }else{;
                 if(movingData.color != turnCheck){
                     if(!gameOver) indicator.textContent = "not your turn!"
                 }else{
