@@ -1,7 +1,8 @@
 const gameBoard = document.getElementById("game-board");
 const undoBtn = document.getElementById("undo-btn");
+const indicator = document.getElementById("indicator");
 export const chessBoard =(()=>{
-    let dragPiece = false;
+    let notations = false;
     let numberOfMoves = 0;
     let undoData = {};
     let availableMoves = {
@@ -57,14 +58,23 @@ export const chessBoard =(()=>{
                     if(movingData.piece == null){
                         setData();
                         getThreatData(id, pieceData.x, pieceData.y, pieceData.color,true);
-                    } else{  
-                        clearInfo();
-                        refreshData();
                     }
                 }else{
-                console.log('switch side'); 
+                    indicator.textContent = "not your turn!";
                 }
             } 
+            pieceDiv.onmouseenter = (e) =>{
+                e.preventDefault();
+                if((!chessBoardData[y][x].isEmpty) && turnCheck != color && movingData.id != null){
+                    pieceDiv.style.opacity = '0.5'
+                }
+            }
+            pieceDiv.onmouseleave = (e) =>{
+                e.preventDefault();
+                if((!chessBoardData[y][x].isEmpty) && turnCheck != color && movingData.id != null){
+                    pieceDiv.style.opacity = '1'
+                }
+            }
             pieceDiv.ondragenter = (e) =>{
                 e.preventDefault();
                 if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
@@ -77,6 +87,7 @@ export const chessBoard =(()=>{
                     pieceDiv.style.opacity = '1'
                     
                 }
+                
             }
             pieceDiv.ondragend = (e) =>{
                 e.preventDefault;
@@ -84,6 +95,7 @@ export const chessBoard =(()=>{
             }
 
             pieceDiv.onclick=(e) =>{
+                pieceDiv.style.opacity = '0.5'
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -93,9 +105,6 @@ export const chessBoard =(()=>{
                         clearInfo();
                         refreshData();
                     }
-                }else{
-                 console.log('switch side'); 
-                
                 }
             }
 
@@ -106,6 +115,7 @@ export const chessBoard =(()=>{
                 movingData.oldCoords.y = pieceData.y;
                 movingData.color = pieceData.color;
                 movingData.hasMoved = pieceData.hasMoved;
+                indicator.textContent = chessBoardData[pieceData.y][pieceData.x].notation+' '+id;
             }
             chessBoardData[y][x].pieceData = pieceData;
             chessBoardData[y][x].isEmpty = false;
@@ -190,9 +200,7 @@ export const chessBoard =(()=>{
                     }
                     return allowMove;
                 case 'queen':
-                    /*either vertical OR horizontal movement*/
                     if((oldX == newX && oldY != newY)||(oldX != newX && oldY == newY)){
-                        //check if something is blocking horizontal or vertical movement
                         if((oldX != newX && oldY == newY)) allowMove = validateMove.horizontalChecker(oldX, newX, oldY);
                         if((oldX == newX && oldY != newY)) allowMove = validateMove.verticalChecker(oldY, newY, oldX);
                     }
@@ -528,6 +536,7 @@ export const chessBoard =(()=>{
             pieceUnmaker(oldX, oldY);
             refreshData();
             if (isKingInCheck() == true){
+                indicator.textContent =(color?"white":"black")+' king is in check!';
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
                 turnCheck = !turnCheck;
@@ -624,12 +633,11 @@ export const chessBoard =(()=>{
                     refreshData(); 
                     break;
                 }
-                
                 if(n == possible.length -1 && isKingInCheck()){
                     if(stalemate != null) {
-                        console.log('stalemate at '+numberOfMoves+' moves');
+                        indicator.textContent =' stalemate at '+numberOfMoves+' moves';
                     }else{
-                        console.log('checkmate at '+numberOfMoves+' moves');
+                        indicator.textContent = (color?'black':'white')+" checkmate's at "+numberOfMoves+' moves';
                     }
                     
                 } 
@@ -733,6 +741,15 @@ export const chessBoard =(()=>{
         return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove};
     })();
     function makeBoard(){
+        numberOfMoves = 0;
+        undoData = {};
+        availableMoves = {
+            black:[],
+            white:[]
+        };
+        turnCheck = 1;
+        clearInfo();
+        chessBoardData = [];
         while (gameBoard.hasChildNodes()) gameBoard.removeChild(gameBoard.lastChild);
         for(let y = 0; y < 8; y++){
             let chessBoardTileContainer = document.createElement('div');
@@ -760,6 +777,7 @@ export const chessBoard =(()=>{
                     x:x,
                     y:y
                 };
+                chessBoardTileDiv.textContent = TileData.notation;
                 let piecePic = document.createElement("div");
                 piecePic.classList.add('piece-pic');
                 piecePic.ondragover = (e) =>{
@@ -775,20 +793,42 @@ export const chessBoard =(()=>{
                 }
                 piecePic.ondragleave = (e) =>{
                     e.preventDefault();
-                    piecePic.classList.remove("placement");         
+                    piecePic.classList.remove("placement");
                 }
                 piecePic.ondrop =(e)=>{
                     e.preventDefault();
                     piecePic.classList.remove("placement");
                 }
-
+                piecePic.onmouseenter = (e) =>{
+                    e.preventDefault();
+                    if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
+                        piecePic.style.opacity = '0.5'
+                    }
+                    if(movingData.id != null){
+                        piecePic.classList.add("placement");
+                    }
+                }
+                piecePic.onmouseleave = (e) =>{
+                    e.preventDefault();
+                    if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
+                        piecePic.style.opacity = '0.5'
+                    }
+                    if(movingData.id != null){
+                        piecePic.classList.remove("placement");
+                    }   
+                }
+                chessBoardTileDiv.onmouseenter = (e) =>{
+                    e.preventDefault();
+                }
                 chessBoardTileDiv.ondragover = (e) =>{
                     e.preventDefault();
                 }
                 chessBoardTileDiv.ondragenter = (e) =>{
                     e.preventDefault();
-                    
-                    //chessBoardTileDiv.classList.add("placement");
+                    if(movingData.oldCoords.y && movingData.oldCoords.x != null){
+                        indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
+                        movingData.id+' '+' > '+chessBoardData[y][x].notation;
+                    }
                 }
 
                 chessBoardTileDiv.ondrop = (e) =>{
@@ -797,13 +837,17 @@ export const chessBoard =(()=>{
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
                     clickTile();
-                    chessBoardTileDiv.classList.remove("placement");
                 }
+                
                 chessBoardTileDiv.onclick = () =>{
-                    
+                    if(movingData.oldCoords.y && movingData.oldCoords.x != null){
+                        indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
+                        movingData.id+' '+' > '+chessBoardData[y][x].notation;
+                    }
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
                     clickTile();
+                    piecePic.classList.remove("placement");
                 }
                 chessBoardTileDiv.append(piecePic);
                 chessBoardTileContainer.append(chessBoardTileDiv);
@@ -816,10 +860,16 @@ export const chessBoard =(()=>{
             let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
             let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
+                
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
             }else{
+                if(movingData.color != turnCheck){
+                    indicator.textContent = "not your turn!"
+                }else{
+                    indicator.textContent = 'invalid move';
+                }
                 clearInfo();
-                refreshData();
+                refreshData();  
             }
         }   
 
@@ -848,7 +898,8 @@ export const chessBoard =(()=>{
                 clearInfo();
                 if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                     activePieces.push(chessBoardData[y][x].pieceData);
-                }   
+                }
+                chessBoardData[y][x].tileLocation.style.color = (notations?"black":"transparent"); 
                 }
             }
             for(let i = 0; i<activePieces.length; i++){
@@ -881,6 +932,11 @@ export const chessBoard =(()=>{
         piece.pieceMaker(1,7,'knight',true,0);
         piece.pieceMaker(6,0,'knight',false,0);
         piece.pieceMaker(6,7,'knight',true,0);
+        refreshData();
+    }
+    const notationBtn = document.getElementById('notation-btn');
+    notationBtn.onclick = () =>{
+        notations = !notations;
         refreshData();
     }
     return{makeBoard,generateGame}
