@@ -21,9 +21,9 @@ At the moment, a chess UI built for educational purposes
 - Whole game undo?
 
 ## Assets Used
-Sprites:
+### Sprites:
     Made by me.
     www.pixilart.com
-TooMuchInkFont:
+### TooMuchInkFont:
     Made by K Guillory
     https://www.dafont.com/toomuchink.font
