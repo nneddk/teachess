@@ -2,6 +2,7 @@ const gameBoard = document.getElementById("game-board");
 const undoBtn = document.getElementById("undo-btn");
 const indicator = document.getElementById("indicator");
 export const chessBoard =(()=>{
+    let moveHistory = [];
     let gameOver = false;
     let notations = false;
     let numberOfMoves = 0;
@@ -25,6 +26,16 @@ export const chessBoard =(()=>{
         },
         piece: null
     };
+    let moveDetail = {
+        eat: false,
+        castle: false,
+        enpass: false,
+        checking: false,
+        mate: false,
+        promote: false,
+        piece: null,
+        move: [],
+    }
     //1 for white, 0 for black;
     let turnCheck = 1;
     const piece = (()=>{
@@ -243,10 +254,15 @@ export const chessBoard =(()=>{
                             if((newX == oldX + 2 && oldY == newY)
                             &&(rightRook.color == color)
                             &&(rightRook.hasMoved == 0)){
+                                moveDetail.castle = true;
+                                moveHistory.push(moveDetail)
                                 movePiece([oldX,oldY],[newX,newY],id,color);
+                                moveDetail.castle = true;
                                 movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color);
-                                if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
-                        movingData.id+' '+' > '+chessBoardData[y][x].notation;
+                                if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
+                                 'king'+' '+' > '+chessBoardData[oldY][oldX+2].notation;
+                            
+
                             turnCheck = !turnCheck;
                             }
                         }
@@ -256,10 +272,13 @@ export const chessBoard =(()=>{
                             if((newX == oldX - 2 && oldY == newY)
                             &&(leftRook.color == color)
                             &&(leftRook.hasMoved == 0)){
+                            moveDetail.castle = true;
                             movePiece([oldX,oldY],[newX,newY],id,color);
+                            moveDetail.castle = true;
                             movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color);
-                            if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
-                        movingData.id+' '+' > '+chessBoardData[y][x].notation;
+                            if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
+                            'king'+' '+' > '+chessBoardData[oldY][oldX-2].notation;
+                        
                             turnCheck = !turnCheck;
                             }
                         }   
@@ -626,16 +645,20 @@ export const chessBoard =(()=>{
             if(chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
         }
         const eatMove = (x, y) => chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
-
-        function movePiece(oldCoords,newCoords,id,color, hasMoved){      
+        
+        function movePiece(oldCoords,newCoords,id,color, hasMoved){    
+            
             if(color)numberOfMoves++;  
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
             let storeEat;
             if (eatChecker(newX, newY,color)){
+                moveDetail.eat = true;
                 storeEat =  chessBoardData[newY][newX].pieceData;
                 eatMove(newX, newY);
             }else if((enPassantData.x == newX) && (enPassantData.y == newY)){
+                moveDetail.eat = true;
+                moveDetail.enpass = true
                 storeEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
                 eatMove(enPassantData.target.x, enPassantData.target.y);
             }
@@ -647,6 +670,9 @@ export const chessBoard =(()=>{
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
                 turnCheck = !turnCheck;
+                if(moveDetail.eat) moveDetail.eat = false;
+                if(moveDetail.enpass) moveDetail.enpass = false;
+                
             }
             kingCheck(color);
             //promotion logic
@@ -654,15 +680,23 @@ export const chessBoard =(()=>{
                 if(color){
                     if(newY == 0){
                         getPromotionDiv(newX, newY, color, (hasMoved + 1));
+                        return true;
                     }
                 }
                 if(!color){
                     if(newY == 7){
                         getPromotionDiv(newX, newY, color, (hasMoved + 1));
+                        return true;
                     }
                 }
                 
             }
+            //moveHistory
+            moveDetail.piece = id;
+            moveDetail.move = chessBoardData[newY][newX].notation;
+            
+            if(!moveDetail.castle) moveHistory.push(moveDetail);
+            clearMoveDetail();
             clearInfo();
             turnCheck = !turnCheck;
             enPassant(null, null, null, null ,enPassantData.color);
@@ -670,8 +704,8 @@ export const chessBoard =(()=>{
         function kingCheck(color){
             if(isKingInCheck()){
                 refreshData();
-                console.log('tick');
                 if(!gameOver) indicator.textContent = (isKingInCheck()?"white":"black")+"'s king is in check!";
+                moveDetail.checking = true;
                 let possible;
                 if(isKingInCheck() == 'white'){
                     possible = availableMoves.white;
@@ -744,13 +778,15 @@ export const chessBoard =(()=>{
                     break;
                 }
                 if(n == possible.length -1 && isKingInCheck()){
-                    console.log(isKingInCheck());
                     if(stalemate != null) {
                         indicator.textContent =' stalemate at '+numberOfMoves+' moves';
                     }else{
                         indicator.textContent = (color?'black':'white')+" checkmate's at "+numberOfMoves+' moves';
                     }
+                    moveDetail.mate = true;
                     gameOver = true;
+
+                    console.log(moveHistory);
                     
                 } 
                 
@@ -871,6 +907,13 @@ export const chessBoard =(()=>{
                 turnCheck = !turnCheck;
                 refreshData();
                 kingCheck(color);
+                moveDetail.piece = 'pawn';
+                moveDetail.move = chessBoardData[newY][newX].notation;
+                moveDetail.promote = 'queen';
+                moveHistory.push(moveDetail);
+                clearInfo();
+                clearMoveDetail();
+                turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
                 promotionQueen.classList.remove((color?'white':'black')+'-queen');
                 promotionRook.classList.remove((color?'white':'black')+'-rook');
@@ -885,6 +928,13 @@ export const chessBoard =(()=>{
                 turnCheck = !turnCheck;
                 refreshData();
                 kingCheck(color);
+                moveDetail.piece = 'pawn';
+                moveDetail.move = chessBoardData[newY][newX].notation;
+                moveDetail.promote = 'rook';
+                moveHistory.push(moveDetail);
+                clearInfo();
+                clearMoveDetail();
+                turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
                 promotionQueen.classList.remove((color?'white':'black')+'-queen');
                 promotionRook.classList.remove((color?'white':'black')+'-rook');
@@ -899,6 +949,13 @@ export const chessBoard =(()=>{
                 turnCheck = !turnCheck;
                 refreshData();
                 kingCheck(color);
+                moveDetail.piece = 'pawn';
+                moveDetail.move = chessBoardData[newY][newX].notation;
+                moveDetail.promote = 'knight';
+                moveHistory.push(moveDetail);
+                clearInfo();
+                clearMoveDetail();
+                turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
                 promotionQueen.classList.remove((color?'white':'black')+'-queen');
                 promotionRook.classList.remove((color?'white':'black')+'-rook');
@@ -913,6 +970,13 @@ export const chessBoard =(()=>{
                 turnCheck = !turnCheck;
                 refreshData();
                 kingCheck(color);
+                moveDetail.piece = 'pawn';
+                moveDetail.move = chessBoardData[newY][newX].notation;
+                moveDetail.promote = 'bishop';
+                moveHistory.push(moveDetail);
+                clearInfo();
+                clearMoveDetail();
+                turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
                 promotionQueen.classList.remove((color?'white':'black')+'-queen');
                 promotionRook.classList.remove((color?'white':'black')+'-rook');
@@ -923,9 +987,22 @@ export const chessBoard =(()=>{
             
 
         }
+        function clearMoveDetail(){
+            moveDetail = {
+                eat: false,
+                castle: false,
+                enpass: false,
+                checking: false,
+                mate: false,
+                promote: false,
+                piece: null,
+                move: [],
+            }
+        }
         return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove};
     })();
     function makeBoard(){
+        moveHistory = [];
         numberOfMoves = 0;
         undoData = {};
         availableMoves = {
@@ -1017,7 +1094,7 @@ export const chessBoard =(()=>{
                 }
                 
                 chessBoardTileDiv.onclick = () =>{
-                    console.log(chessBoardData[y][x]);
+                    console.log(moveHistory);
                     if(movingData.oldCoords.y && movingData.oldCoords.x != null){
                         if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' > '+chessBoardData[y][x].notation;
@@ -1025,6 +1102,7 @@ export const chessBoard =(()=>{
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
                     clickTile();
+                    
                     piecePic.classList.remove("placement");
                 }
                 chessBoardTileDiv.append(piecePic);
@@ -1062,6 +1140,7 @@ export const chessBoard =(()=>{
         movingData.piece = null;
     }
     function refreshData(){
+        
         let activePieces = [];
         availableMoves.white = [];
         availableMoves.black = []; 
