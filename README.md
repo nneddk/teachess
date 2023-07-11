@@ -6,9 +6,8 @@ At the moment, a chess UI built for educational purposes
 - Pawn promotion logic - 50% DONE!
 - PGN generator and parser
 - Better mobile formatting
-- Notation on the sides and below the board
 
-- castling indication (move possible just not indicated)
+- castling indication (move possible just not indicated) - DONE
 - en passant indication (same as above)
 
 !can leave for later
