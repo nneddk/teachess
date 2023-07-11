@@ -1,14 +1,18 @@
 # teachess
 # WIP
 At the moment, a chess UI built for educational purposes
+### currently working at:
+- PGN parser
+- UNDO
+- Game summary
 # TODO:
 !important TODOs
-- Pawn promotion logic - 50% DONE!
+- Pawn promotion logic - DONE!
 - PGN generator and parser
-- Better mobile formatting
+- Better mobile formatting - DONE-ish? Feedback needed
 
 - castling indication (move possible just not indicated) - DONE
-- en passant indication (same as above)
+- en passant indication (same as above) - DONE
 
 !can leave for later
 - Tie logic - DONE!
