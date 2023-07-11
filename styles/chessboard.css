@@ -2,6 +2,41 @@
     font-family: TooMuchInk;
     src: url(../assets/fonts/TooMuchInk.ttf);
 }
+#promotion-wrapper{
+    color:white;
+    font-family: 'TooMuchInk',monospace ;
+    font-size:4vmin;
+    text-align: center;
+    text-justify: auto;
+    background-color: rgb(0,0,0,0.9);
+    position: absolute;
+    z-index: -10; 
+    height:100vh;
+    width:100vw;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.btn-wrapper{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:1vmin;
+    width:50vmin;
+    height:15vmin;
+}
+.btn-wrapper>.btn{
+    border: none;
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 90%;
+    
+}
+.btn-wrapper>.btn:hover{
+    transform: scale(1.1);
+    
+}
 #game-board{
     position: absolute;
     background-image: url('../assets/board/board.png');
@@ -13,7 +48,6 @@
     display:grid;
     grid-template-columns: repeat(1, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    gap: 1vmin;
 
     z-index: 0;
 }
@@ -23,13 +57,10 @@
     grid-template-rows: repeat(1,1fr);
 }
 .tile{
+    margin: 5px;
     display: flex;
-    flex-direction:column;
-    align-items: center;
-    justify-content: center;
-    text-align: end;
     font-family: 'TooMuchInk',monospace ;
-    font-size:4vmin;
+    font-size:3vmin;
     color:transparent;
     background-position: center;
     background-repeat: no-repeat;
@@ -52,7 +83,8 @@
 }
 .black-tile{
     background-image: url('../assets/board/bright.svg');
-}*/
+}
+*/
 .placement{
     background-image: url('../assets/board/placement.svg');
     position: absolute;

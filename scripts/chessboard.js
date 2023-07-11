@@ -48,7 +48,6 @@ export const chessBoard =(()=>{
                 x:x,
                 y:y,  
             };
-            
             pieceDiv.setAttribute('draggable', true);
            
             pieceDiv.ondragstart = (e) =>{
@@ -78,13 +77,13 @@ export const chessBoard =(()=>{
             pieceDiv.ondragenter = (e) =>{
                 e.preventDefault();
                 if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
-
+                    pieceDiv.style.opacity = '0.8';
                 }
             }
             pieceDiv.ondragleave = (e) =>{
                 e.preventDefault();
                 if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.color == !movingData.color){
-
+                    pieceDiv.style.opacity = '1';
                     
                 }
                 
@@ -95,7 +94,6 @@ export const chessBoard =(()=>{
             }
 
             pieceDiv.onclick=(e) =>{
-                
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -149,6 +147,7 @@ export const chessBoard =(()=>{
                         if(newX == enPassantData.x && newY == enPassantData.y){
                             allowMove = true;
                             eatMove(enPassantData.target.x, enPassantData.target.y);
+                            //refreshData();
                         }
                     }
                     if (hasMoved == 0){
@@ -161,6 +160,7 @@ export const chessBoard =(()=>{
                                     if(chessBoardData[y][newX].isEmpty == false) allowMove = false;
                                 }
                                 enPassant(oldX, newX, oldY +1, newY ,color);
+                                
                             }
                             if (oldY > newY){
                                 for(let y = oldY; y > newY; y--){
@@ -245,6 +245,8 @@ export const chessBoard =(()=>{
                             &&(rightRook.hasMoved == 0)){
                                 movePiece([oldX,oldY],[newX,newY],id,color);
                                 movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color);
+                                if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
+                        movingData.id+' '+' > '+chessBoardData[y][x].notation;
                             turnCheck = !turnCheck;
                             }
                         }
@@ -256,6 +258,8 @@ export const chessBoard =(()=>{
                             &&(leftRook.hasMoved == 0)){
                             movePiece([oldX,oldY],[newX,newY],id,color);
                             movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color);
+                            if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
+                        movingData.id+' '+' > '+chessBoardData[y][x].notation;
                             turnCheck = !turnCheck;
                             }
                         }   
@@ -321,7 +325,7 @@ export const chessBoard =(()=>{
                         if(!color){
                             if((y + 1<=7)?chessBoardData[y + 1][x].isEmpty:false){
                                 highlightMoves(x, y + 1,color);
-                                if((y + 2 <= 8)?(chessBoardData[y + 1][x].isEmpty && chessBoardData[y+2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
+                                if((y + 2 <= 7)?(chessBoardData[y + 1][x].isEmpty && chessBoardData[y+2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
                                     highlightMoves(x, y + 2,color);
                                 }
                                 if (!boardData.isEmpty && boardData.pieceData.color == !color){
@@ -334,6 +338,35 @@ export const chessBoard =(()=>{
         
                     }else{
                         highlightMoves(boardData.x, boardData.y,color);
+                        if(id == 'king'){
+                            if(x + 3 < 7){
+                                if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
+                                    if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
+                                        if((color?chessBoardData[y][x+1].threatData.blackCheck.counter == 0:chessBoardData[y][x+1].threatData.whiteCheck.counter == 0 )
+                                            && (color?chessBoardData[y][x+2].threatData.blackCheck.counter == 0:chessBoardData[y][x+2].threatData.whiteCheck.counter == 0)){
+                                                if(chessBoardData[y][x+1].isEmpty && chessBoardData[y][x+2].isEmpty){
+                                                    highlightMoves((x + 2), y, color);
+                                                }
+                                            
+                                            }
+                                    }
+                                }
+                            }
+                            if(x - 4 > 0){
+                                if(!chessBoardData[y][x-4].isEmpty && chessBoardData[y][x - 4].pieceData.hasMoved == 0){
+                                    if(chessBoardData[y][x -4].pieceData.id == 'rook' && chessBoardData[y][x - 4].pieceData.color == color){
+                                        if((color?chessBoardData[y][x-1].threatData.blackCheck.counter == 0:chessBoardData[y][x-1].threatData.whiteCheck.counter == 0 )
+                                            && (color?chessBoardData[y][x-2].threatData.blackCheck.counter == 0:chessBoardData[y][x-2].threatData.whiteCheck.counter == 0)){
+                                                if(chessBoardData[y][x-1].isEmpty && chessBoardData[y][x-2].isEmpty && chessBoardData[y][x-3].isEmpty){
+                                                    highlightMoves((x - 2), y, color);
+                                                }
+                                            
+                                            }
+                                    }
+        
+                                }
+                            }
+                        }
                     }
                     
                 }else{
@@ -424,12 +457,78 @@ export const chessBoard =(()=>{
                                     x:x,
                                     y:y,
                                     hasMoved: chessBoardData[y][x].pieceData.hasMoved,
-                                    move : chessBoardData[y+2][x],
+                                    move : chessBoardData[y+2][x]
                                 });
                             }
                         }
                     }    
                 }
+                
+                //possible for castling
+                if(id == 'king'){
+                    if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
+                        if(x + 3 < 7){
+                            if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
+                                if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
+                                    if((color?chessBoardData[y][x+1].threatData.blackCheck.counter == 0:chessBoardData[y][x+1].threatData.whiteCheck.counter == 0 )
+                                        && (color?chessBoardData[y][x+2].threatData.blackCheck.counter == 0:chessBoardData[y][x+2].threatData.whiteCheck.counter == 0)){
+                                            if(chessBoardData[y][x+1].isEmpty && chessBoardData[y][x+2].isEmpty){
+                                                if(color){
+                                                    availableMoves.white.push({
+                                                        id:id,
+                                                        x:x,
+                                                        y,y,
+                                                        hasMoved:chessBoardData[y][x].pieceData.hasMoved,
+                                                        move: chessBoardData[y][x+2]
+                                                    });
+                                                }if(!color){
+                                                    availableMoves.black.push({
+                                                        id:id,
+                                                        x:x,
+                                                        y,y,
+                                                        hasMoved:chessBoardData[y][x].pieceData.hasMoved,
+                                                        move: chessBoardData[y][x+2]
+                                                    });
+                                                }
+                                            }
+                                        
+                                        }
+                                }
+                            }
+                        }
+                        if(x - 4 > 0){
+                            if(!chessBoardData[y][x-4].isEmpty && chessBoardData[y][x - 4].pieceData.hasMoved == 0){
+                                if(chessBoardData[y][x -4].pieceData.id == 'rook' && chessBoardData[y][x - 4].pieceData.color == color){
+                                    if((color?chessBoardData[y][x-1].threatData.blackCheck.counter == 0:chessBoardData[y][x-1].threatData.whiteCheck.counter == 0 )
+                                        && (color?chessBoardData[y][x-2].threatData.blackCheck.counter == 0:chessBoardData[y][x-2].threatData.whiteCheck.counter == 0)){
+                                            if(chessBoardData[y][x-1].isEmpty && chessBoardData[y][x-2].isEmpty && chessBoardData[y][x-3].isEmpty){
+                                                if(color){
+                                                    availableMoves.white.push({
+                                                        id:id,
+                                                        x:x,
+                                                        y,y,
+                                                        hasMoved:chessBoardData[y][x].pieceData.hasMoved,
+                                                        move: chessBoardData[y][x-2]
+                                                    });
+                                                }if(!color){
+                                                    availableMoves.black.push({
+                                                        id:id,
+                                                        x:x,
+                                                        y,y,
+                                                        hasMoved:chessBoardData[y][x].pieceData.hasMoved,
+                                                        move: chessBoardData[y][x-2]
+                                                    });
+                                                }
+                                            }
+                                        
+                                        }
+                                }
+    
+                            }
+                        }
+                    }
+                }
+
         
             }
             function verticalThreatData(minY, maxY){
@@ -527,8 +626,7 @@ export const chessBoard =(()=>{
             if(chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
         }
         const eatMove = (x, y) => chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
-        function movePiece(oldCoords,newCoords,id,color, hasMoved){   
-            
+        function movePiece(oldCoords,newCoords,id,color, hasMoved){      
             if(color)numberOfMoves++;  
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
@@ -541,27 +639,33 @@ export const chessBoard =(()=>{
             pieceUnmaker(oldX, oldY);
             refreshData();
             if (isKingInCheck() == true){
-                if(!gameOver) indicator.textContent =(color?"white":"black")+' king is in check!';
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
                 turnCheck = !turnCheck;
             }
-
-            if (id == 'pawn'){
+            kingCheck(color);
+            //promotion logic
+            if (id == 'pawn' && (!isKingInCheck() == true)){
                 if(color){
                     if(newY == 0){
-                        console.log('Promote')
+                        getPromotionDiv(newX, newY, color, (hasMoved + 1));
                     }
                 }
                 if(!color){
                     if(newY == 7){
-                        console.log('Promote')
+                        getPromotionDiv(newX, newY, color, (hasMoved + 1));
                     }
                 }
+                
             }
+            clearInfo();
+            turnCheck = !turnCheck;
+            enPassant(null, null, null, null ,enPassantData.color);
+        }
+        function kingCheck(color){
             if(isKingInCheck()){
                 refreshData();
-                if(!gameOver) indicator.textContent =(color?"black's":"white's")+' king is in check!';
+                if(!gameOver) indicator.textContent = (isKingInCheck())+"'s king is in check!";
                 let possible;
                 if(isKingInCheck() == 'white'){
                     possible = availableMoves.white;
@@ -585,12 +689,6 @@ export const chessBoard =(()=>{
                     checkmateChecker(true, possible, true);
                 }
             }
-            hasMoved++;
-            undoData = {oldX,oldY,newX,newY ,id,color, hasMoved, storeEat};
-            clearInfo();
-            turnCheck = !turnCheck;
-            
-            enPassant(null, null, null, null ,enPassantData.color);
         }
         function undoLastMove (oldX, oldY, newX, newY, id, color, hasMoved, storeEat){
             pieceMaker(oldX, oldY, id, color, (hasMoved - 1));
@@ -745,6 +843,75 @@ export const chessBoard =(()=>{
                 
             }
         }
+        function getPromotionDiv(newX, newY, color, hasMoved){
+            turnCheck = !turnCheck
+            const promotionQueen = document.getElementById('promote-queen');
+            const promotionRook = document.getElementById('promote-rook');
+            const promotionBishop = document.getElementById('promote-bishop');
+            const promotionKnight = document.getElementById('promote-knight');
+            promotionRook.classList.add((color?'white':'black')+'-rook');
+            promotionBishop.classList.add((color?'white':'black')+'-bishop');
+            promotionQueen.classList.add((color?'white':'black')+'-queen');
+            promotionKnight.classList.add((color?'white':'black')+'-knight');
+            const promotionWrapper = document.getElementById('promotion-wrapper');
+            promotionWrapper.style.zIndex = '30';
+            promotionWrapper.style.height = '100vh';
+            
+            promotionQueen.onclick = () =>{
+                pieceUnmaker(newX, newY);
+                pieceMaker(newX, newY, 'queen', color, hasMoved);
+                promotionWrapper.style.zIndex ='-10';
+                kingCheck(color);
+                turnCheck = !turnCheck;
+                enPassant(null, null, null, null ,enPassantData.color);
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionRook.classList.remove((color?'white':'black')+'-rook');
+                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionKnight.classList.remove((color?'white':'black')+'-knight');
+            }
+            promotionRook.onclick = () =>{
+                pieceUnmaker(newX, newY);
+                pieceMaker(newX, newY, 'rook', color, hasMoved);
+                promotionWrapper.style.zIndex ='-10';
+                kingCheck(color);
+                turnCheck = !turnCheck;
+                enPassant(null, null, null, null ,enPassantData.color);
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionRook.classList.remove((color?'white':'black')+'-rook');
+                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionKnight.classList.remove((color?'white':'black')+'-knight');
+            }
+            promotionKnight.onclick = () =>{
+                pieceUnmaker(newX, newY);
+                pieceMaker(newX, newY, 'knight', color, hasMoved);
+                promotionWrapper.style.zIndex ='-10';
+                kingCheck(color);
+                turnCheck = !turnCheck;
+                enPassant(null, null, null, null ,enPassantData.color);
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionRook.classList.remove((color?'white':'black')+'-rook');
+                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionKnight.classList.remove((color?'white':'black')+'-knight');
+            }
+            promotionBishop.onclick = () =>{
+                pieceUnmaker(newX, newY);
+                pieceMaker(newX, newY, 'bishop', color, hasMoved);
+                promotionWrapper.style.zIndex ='-10';
+                kingCheck(color);
+                turnCheck = !turnCheck;
+                enPassant(null, null, null, null ,enPassantData.color);
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionRook.classList.remove((color?'white':'black')+'-rook');
+                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionKnight.classList.remove((color?'white':'black')+'-knight');
+            }
+            
+
+        }
         return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove};
     })();
     function makeBoard(){
@@ -859,9 +1026,8 @@ export const chessBoard =(()=>{
             let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
             let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
-                
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
-            }else{;
+            }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
                 if(movingData.color != turnCheck){
                     if(!gameOver) indicator.textContent = "not your turn!"
                 }else{
