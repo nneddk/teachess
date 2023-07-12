@@ -43,7 +43,7 @@ img {
 }
 .footer-button-seperators{
     display:grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     margin-right: 1vw;
     margin-left: 1vw;
     height: 100%;
@@ -56,7 +56,7 @@ img {
     height: 40px;
 }
 
-.footer a{
+.github-link{
     text-decoration: none;
     color:white;
     margin-left: 1vw;
@@ -88,6 +88,9 @@ img {
 }
 #undo-btn:hover{
     transform: scale(1.3);
+}
+#download-btn{
+    color:white;
 }
 
 #reset-btn{
