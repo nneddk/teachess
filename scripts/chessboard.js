@@ -28,7 +28,10 @@ export const chessBoard =(()=>{
     };
     let moveDetail = {
         piece: null,
-        moveNotation: null,
+        moveNotation: {
+            new:null,
+            old:null,
+        },
         oldCoords: [],
         newCoords:[],
         action: {
@@ -656,6 +659,8 @@ export const chessBoard =(()=>{
             let newX = newCoords[0], newY = newCoords[1]; 
             let storeEat;
             moveDetail.oldCoords = [oldX, oldY];
+            moveDetail.moveNotation.old = (String.fromCharCode(97+oldX));
+            //chessBoardData[oldY][oldX].notation;
             if (eatChecker(newX, newY,color)){
                 
                 storeEat =  chessBoardData[newY][newX].pieceData;
@@ -674,38 +679,39 @@ export const chessBoard =(()=>{
                 if(!gameOver) indicator.textContent = "king is in check!";
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
-                turnCheck = !turnCheck;
                 if(moveDetail.action.eat) moveDetail.action.eat = false;
                 if(moveDetail.action.enpass) moveDetail.action.enpass = false;
                 
-            }
-            kingCheck(color);
-            //promotion logic
-            if (id == 'pawn' && (!isKingInCheck() == true)){
-                if(color){
-                    if(newY == 0){
-                        getPromotionDiv(newX, newY, color, (hasMoved + 1));
-                        return true;
+            }else{
+                kingCheck(color);
+                //promotion logic
+                if (id == 'pawn' && (!isKingInCheck() == true)){
+                    if(color){
+                        if(newY == 0){
+                            getPromotionDiv(newX, newY, color, (hasMoved + 1));
+                            return true;
+                        }
                     }
-                }
-                if(!color){
-                    if(newY == 7){
-                        getPromotionDiv(newX, newY, color, (hasMoved + 1));
-                        return true;
+                    if(!color){
+                        if(newY == 7){
+                            getPromotionDiv(newX, newY, color, (hasMoved + 1));
+                            return true;
+                        }
                     }
+                    
                 }
+                //moveHistory
+                moveDetail.piece = id;
+                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
+                moveDetail.newCoords = [newX, newY];
                 
+                if(!moveDetail.action.castle) moveHistory.push(moveDetail);
+                clearMoveDetail();
+                clearInfo();
+                turnCheck = !turnCheck;
+                enPassant(null, null, null, null ,enPassantData.color);
             }
-            //moveHistory
-            moveDetail.piece = id;
-            moveDetail.moveNotation = chessBoardData[newY][newX].notation;
-            moveDetail.newCoords = [newX, newY];
             
-            if(!moveDetail.action.castle) moveHistory.push(moveDetail);
-            clearMoveDetail();
-            clearInfo();
-            turnCheck = !turnCheck;
-            enPassant(null, null, null, null ,enPassantData.color);
         }
         function kingCheck(color){
             if(isKingInCheck()){
@@ -737,7 +743,7 @@ export const chessBoard =(()=>{
             }
         }
         function undoLastMove (oldX, oldY, newX, newY, id, color, hasMoved, storeEat){
-            pieceMaker(oldX, oldY, id, color, (hasMoved - 1));
+            pieceMaker(oldX, oldY, id, color, hasMoved);
             pieceUnmaker(newX, newY);
             if(storeEat)pieceMaker(storeEat.x, storeEat.y, storeEat.id,storeEat.color, storeEat.hasMoved);
         }
@@ -882,15 +888,8 @@ export const chessBoard =(()=>{
             };
         })();
         undoBtn.onclick = ()=>{
-            if (numberOfMoves > 0){
-                undoLastMove(undoData.oldX, undoData.oldY, undoData.newX, undoData.newY, undoData.id, undoData.color, undoData.hasMoved, undoData.storeEat);
-                turnCheck = !turnCheck;
-                undoData = {};
-                if (!undoData.color){
-                    numberOfMoves--;
-                }
-                
-            }
+            console.log(moveHistory);
+            alert('WIP');
         }
         function getPromotionDiv(newX, newY, color, hasMoved){
             turnCheck = !turnCheck
@@ -914,7 +913,7 @@ export const chessBoard =(()=>{
                 refreshData();
                 kingCheck(color);
                 moveDetail.id.piece = 'pawn';
-                moveDetail.moveNotation = chessBoardData[newY][newX].notation;
+                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'queen';
                 moveHistory.push(moveDetail);
@@ -936,7 +935,7 @@ export const chessBoard =(()=>{
                 refreshData();
                 kingCheck(color);
                 moveDetail.piece = 'pawn';
-                moveDetail.moveNotation = chessBoardData[newY][newX].notation;
+                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'rook';
                 moveHistory.push(moveDetail);
@@ -958,7 +957,7 @@ export const chessBoard =(()=>{
                 refreshData();
                 kingCheck(color);
                 moveDetail.piece = 'pawn';
-                moveDetail.moveNotation = chessBoardData[newY][newX].notation;
+                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'knight';
                 moveHistory.push(moveDetail);
@@ -980,7 +979,7 @@ export const chessBoard =(()=>{
                 refreshData();
                 kingCheck(color);
                 moveDetail.piece = 'pawn';
-                moveDetail.moveNotation = chessBoardData[newY][newX].notation;
+                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'bishop';
                 moveHistory.push(moveDetail);
@@ -1000,7 +999,10 @@ export const chessBoard =(()=>{
         function clearMoveDetail(){
             moveDetail = {
             piece: null,
-            moveNotation: null,
+            moveNotation: {
+                new:null,
+                old:null,
+            },
             oldCoords: [],
             newCoords:[],
             action: {
@@ -1211,8 +1213,13 @@ export const chessBoard =(()=>{
     }
     //pgn generator
     function generatePgn(data){
+        let pgnTags = [
+            '[Event: "'
+        ];
+            
         let pgnString = '';
         let moveNumber = 0;
+        let chLimit = 1;
         for(let i = 0; i < data.length; i++){
             let abbreviation = '';
             switch (data[i].piece){
@@ -1233,7 +1240,12 @@ export const chessBoard =(()=>{
                     break;
             }
             if (i%2 == 0) moveNumber++;
-            pgnString =pgnString+' '+(i%2 == 0?moveNumber+'. ':'')+abbreviation+data[i].moveNotation;
+            pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+data[i].moveNotation.old+abbreviation+data[i].moveNotation.new+' ';
+            if(pgnString.length >= (10 * chLimit)){
+                pgnString = pgnString+'\n';
+                chLimit++;
+            }
+            console.log(pgnString.length );
         }
         return pgnString;
     }
@@ -1251,6 +1263,7 @@ export const chessBoard =(()=>{
                     
     downloadBtn.onclick = () =>{
         console.log(generatePgn(moveHistory));
+        console.log(chessBoardData);
         //downloadBtn.setAttribute("href",downloadPgn(generatePgn(moveHistory)));
     }
     return{makeBoard,generateGame}
