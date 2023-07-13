@@ -1,7 +1,8 @@
 # teachess
-# WIP
 At the moment, a chess UI built for educational purposes
-### currently working at:
+## Notes
+- for PGN pawn capture, use notation instead of empty space.
+### currently working on:
 - PGN parser
 - UNDO
 - Game summary
