@@ -858,7 +858,7 @@ export const chessBoard =(()=>{
                     
                 } 
                 
-                undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, hasMoved, storeEat);
+                undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
                 refreshData();
             }  
         }
@@ -1289,11 +1289,11 @@ export const chessBoard =(()=>{
                 case 'king':
                     abbreviation='K';
                     break;
-                case 'pawn':
-                    if(data[i].action.eat) abbreviation = data[i].moveNotation.old[0];
-                    break;
                 case 'rook':
                     abbreviation = 'R';
+                    break;
+                case 'pawn':
+                    if(data[i].action.eat) abbreviation = data[i].moveNotation.old[0];
                     break;
                 default:
                     abbreviation='';
