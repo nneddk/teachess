@@ -27,6 +27,7 @@ export const chessBoard =(()=>{
         piece: null
     };
     let moveDetail = {
+        color: null,
         piece: null,
         moveNotation: {
             new:null,
@@ -449,11 +450,11 @@ export const chessBoard =(()=>{
                 }else{
                     if(color){
                         boardData.threatData.whiteCheck.counter++;
-                        boardData.threatData.whiteCheck.threats.push(chessBoardData[y][x]);
+                        boardData.threatData.whiteCheck.threats.push(chessBoardData[y][x].pieceData.id);
                     }
                     if(!color){
                         boardData.threatData.blackCheck.counter++;
-                        boardData.threatData.blackCheck.threats.push(chessBoardData[y][x]);
+                        boardData.threatData.blackCheck.threats.push(chessBoardData[y][x].pieceData.id);
                     }
                     if(boardData.isEmpty  || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) ){
                         if(color && id !=null&& id != 'pawn') {
@@ -715,6 +716,7 @@ export const chessBoard =(()=>{
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
             let storeEat;
+            moveDetail.color = color;
             moveDetail.oldCoords = [oldX, oldY];
             moveDetail.moveNotation.old = [(String.fromCharCode(97+oldX)), (8-oldY)];
             //chessBoardData[oldY][oldX].notation
@@ -854,8 +856,6 @@ export const chessBoard =(()=>{
                     moveDetail.action.mate = true;
                     gameOver = true;
 
-                    console.log(moveHistory);
-                    
                 } 
                 
                 undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
@@ -1273,24 +1273,42 @@ export const chessBoard =(()=>{
         let moveNumber = 0;
         let chLimit = 1;
         let pgnResult = '*';
+        
+        function redundantChecker(data){
+            if(data.color){
+                if (chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.whiteCheck.threats.includes(data.piece,0)){
+                    return true;
+                }
+            }
+            if (!data.color){
+                if (chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.blackCheck.threats.includes(data.piece,0)){
+                    return true;
+                }
+            }
+            
+        }
         for(let i = 0; i < data.length; i++){
             let abbreviation = '';
             let action = '';
             switch (data[i].piece){
                 case 'knight':
                     abbreviation = 'N';
+                    if(data[i].action.eat && redundantChecker(data[i])) abbreviation = abbreviation+data[i].moveNotation.old[0];
                     break;
                 case 'bishop':
                     abbreviation = 'B';
+                    if(data[i].action.eat && redundantChecker(data[i])) abbreviation = abbreviation+data[i].moveNotation.old[0];
                     break;
                 case 'queen':
                     abbreviation= 'Q';
+                    if(data[i].action.eat && redundantChecker(data[i])) abbreviation = abbreviation+data[i].moveNotation.old[0];
                     break;
                 case 'king':
                     abbreviation='K';
                     break;
                 case 'rook':
                     abbreviation = 'R';
+                    if(data[i].action.eat && redundantChecker(data[i])) abbreviation = abbreviation+data[i].moveNotation.old[0];
                     break;
                 case 'pawn':
                     if(data[i].action.eat) abbreviation = data[i].moveNotation.old[0];
@@ -1349,6 +1367,7 @@ export const chessBoard =(()=>{
         navigator.clipboard.writeText(generatePgn(moveHistory));
         indicator.textContent = 'PGN copied to your clipboard!';
         console.log(generatePgn(moveHistory));
+        console.log(chessBoardData);
         //downloadBtn.setAttribute("href",downloadPgn(generatePgn(moveHistory)));
     }
     return{makeBoard,generateGame}
