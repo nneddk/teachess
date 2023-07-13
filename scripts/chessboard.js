@@ -1341,8 +1341,9 @@ export const chessBoard =(()=>{
     }
                     
     downloadBtn.onclick = () =>{
-        console.log(generatePgn(moveHistory));
-        console.log(moveHistory);
+        navigator.clipboard.writeText(generatePgn(moveHistory));
+        indicator.textContent = 'PGN copied to your clipboard!';
+        //console.log(moveHistory);
         //downloadBtn.setAttribute("href",downloadPgn(generatePgn(moveHistory)));
     }
     return{makeBoard,generateGame}
