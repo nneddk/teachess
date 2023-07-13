@@ -384,29 +384,36 @@ export const chessBoard =(()=>{
                 if(highlight){
                     if (id == 'pawn'){
                         if(color){
-                            if((y - 1>=0)?chessBoardData[y - 1][x].isEmpty:false){
-                                highlightMoves(x, y - 1,color);
-                                if((y - 2 >= 0)?(chessBoardData[y - 1][x].isEmpty && chessBoardData[y-2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
-                                    highlightMoves(x, y - 2,color);
+                            if((y - 1)>=0){
+                                if(chessBoardData[y-1][x].isEmpty){
+                                    highlightMoves(x, y - 1,color);
+                                    if(((y - 2) >= 0) && chessBoardData[y-2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
+                                        highlightMoves(x, y - 2,color);
+                                    }
                                 }
                                 if ((!boardData.isEmpty && boardData.pieceData.color == !color)){
                                     highlightMoves(boardData.x,boardData.y,color);
                                 }
                                 if((boardData.x == enPassantData.x) && (boardData.y == enPassantData.y)){
                                     highlightMoves(boardData.x, boardData.y, color);
+                                    //highlightMoves(enPassantData.target.x, enPassantData.target.y, color);
                                 }
-                                
-                            }
-                            
+                            }  
                         }
                         if(!color){
-                            if((y + 1<=7)?chessBoardData[y + 1][x].isEmpty:false){
-                                highlightMoves(x, y + 1,color);
-                                if((y + 2 <= 7)?(chessBoardData[y + 1][x].isEmpty && chessBoardData[y+2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0):false){
-                                    highlightMoves(x, y + 2,color);
+                            if((y + 1)<=7){
+                                if(chessBoardData[y+1][x].isEmpty){
+                                    highlightMoves(x, y + 1,color);
+                                    if(((y + 2) >= 0) && chessBoardData[y+2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
+                                        highlightMoves(x, y + 2,color);
+                                    }
                                 }
-                                if (!boardData.isEmpty && boardData.pieceData.color == !color){
+                                if ((!boardData.isEmpty && boardData.pieceData.color == !color)){
                                     highlightMoves(boardData.x,boardData.y,color);
+                                }
+                                if((boardData.x == enPassantData.x) && (boardData.y == enPassantData.y)){
+                                    highlightMoves(boardData.x, boardData.y, color);
+                                    //highlightMoves(enPassantData.target.x, enPassantData.target.y, color);
                                 }
                             }
                         }
