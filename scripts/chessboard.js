@@ -112,6 +112,7 @@ export const chessBoard =(()=>{
             }
 
             pieceDiv.onclick=(e) =>{
+                console.log(chessBoardData[y][x])
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -414,8 +415,9 @@ export const chessBoard =(()=>{
                     }else{
                         highlightMoves(boardData.x, boardData.y,color);
                         if(id == 'king'){
-                            if(x + 3 < 7){
+                            if(x + 3 <= 7){   
                                 if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
+                                    
                                     if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
                                         if((color?chessBoardData[y][x+1].threatData.blackCheck.counter == 0:chessBoardData[y][x+1].threatData.whiteCheck.counter == 0 )
                                             && (color?chessBoardData[y][x+2].threatData.blackCheck.counter == 0:chessBoardData[y][x+2].threatData.whiteCheck.counter == 0)){
@@ -427,7 +429,7 @@ export const chessBoard =(()=>{
                                     }
                                 }
                             }
-                            if(x - 4 > 0){
+                            if(x - 4 >= 0){
                                 if(!chessBoardData[y][x-4].isEmpty && chessBoardData[y][x - 4].pieceData.hasMoved == 0){
                                     if(chessBoardData[y][x -4].pieceData.id == 'rook' && chessBoardData[y][x - 4].pieceData.color == color){
                                         if((color?chessBoardData[y][x-1].threatData.blackCheck.counter == 0:chessBoardData[y][x-1].threatData.whiteCheck.counter == 0 )
@@ -542,7 +544,7 @@ export const chessBoard =(()=>{
                 //possible for castling
                 if(id == 'king'){
                     if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
-                        if(x + 3 < 7){
+                        if(x + 3 <= 7){
                             if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
                                 if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
                                     if((color?chessBoardData[y][x+1].threatData.blackCheck.counter == 0:chessBoardData[y][x+1].threatData.whiteCheck.counter == 0 )
@@ -571,7 +573,7 @@ export const chessBoard =(()=>{
                                 }
                             }
                         }
-                        if(x - 4 > 0){
+                        if(x - 4 >= 0){
                             if(!chessBoardData[y][x-4].isEmpty && chessBoardData[y][x - 4].pieceData.hasMoved == 0){
                                 if(chessBoardData[y][x -4].pieceData.id == 'rook' && chessBoardData[y][x - 4].pieceData.color == color){
                                     if((color?chessBoardData[y][x-1].threatData.blackCheck.counter == 0:chessBoardData[y][x-1].threatData.whiteCheck.counter == 0 )
@@ -839,7 +841,7 @@ export const chessBoard =(()=>{
                 pieceUnmaker(oldX, oldY);
                 refreshData();
                 if (isKingInCheck() == false){
-                    undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, hasMoved, storeEat);
+                    undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
                     refreshData(); 
                     break;
                 }
@@ -1290,6 +1292,9 @@ export const chessBoard =(()=>{
                 case 'pawn':
                     if(data[i].action.eat) abbreviation = data[i].moveNotation.old[0];
                     break;
+                case 'rook':
+                    abbreviation = 'R';
+                    break;
                 default:
                     abbreviation='';
                     break;
@@ -1343,7 +1348,7 @@ export const chessBoard =(()=>{
     downloadBtn.onclick = () =>{
         navigator.clipboard.writeText(generatePgn(moveHistory));
         indicator.textContent = 'PGN copied to your clipboard!';
-        //console.log(moveHistory);
+        console.log(generatePgn(moveHistory));
         //downloadBtn.setAttribute("href",downloadPgn(generatePgn(moveHistory)));
     }
     return{makeBoard,generateGame}
