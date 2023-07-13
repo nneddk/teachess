@@ -27,7 +27,6 @@ export const chessBoard =(()=>{
         piece: null
     };
     let moveDetail = {
-        boardHistory:null,
         color: null,
         piece: null,
         moveNotation: {
@@ -724,7 +723,6 @@ export const chessBoard =(()=>{
             moveDetail.color = color;
             moveDetail.oldCoords = [oldX, oldY];
             moveDetail.moveNotation.old = [(String.fromCharCode(97+oldX)), (8-oldY)];
-            moveDetail.boardHistory = chessBoardData.threatData;
             //chessBoardData[oldY][oldX].notation
             if (eatChecker(newX, newY,color)){
                 storeEat =  chessBoardData[newY][newX].pieceData;
@@ -1060,7 +1058,6 @@ export const chessBoard =(()=>{
         }
         function clearMoveDetail(){
             moveDetail = {
-            boardHistory:null,
             color: null,
             piece: null,
             moveNotation: {
@@ -1363,9 +1360,17 @@ export const chessBoard =(()=>{
                 action = action+'#'
                 pgnResult = (i%2 == 0?'1-0':'0-1');
             }
-
+            function castle (oldX, newX){
+                if (oldX<newX) return 'O-O';
+                if (oldX>newX) return 'O-O-O';
+            }
             if (i%2 == 0) moveNumber++;
-            pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+abbreviation+(data[i].action.eat?'x':'')+data[i].moveNotation.new+action+' ';
+            if(!data[i].action.castle){
+                pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+abbreviation+(data[i].action.eat?'x':'')+data[i].moveNotation.new+action+' ';
+            }else{
+                pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+castle((data[i].oldCoords[0]),(data[i].newCoords[0]))+' ';
+            }
+            
             
             if(pgnString.length >= (70 * chLimit)){
                 pgnString = pgnString+'\n';
