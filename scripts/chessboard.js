@@ -192,24 +192,47 @@ export const chessBoard =(()=>{
                 case 'rook':
                     if((oldX == newX && oldY != newY)||(oldX != newX && oldY == newY)){
                         if((oldX != newX && oldY == newY)){
-                            allowMove = validateMove.horizontalChecker(oldX, newX, oldY);
+                            if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                allowMove = validateMove.horizontalChecker(oldX, newX, oldY);
+                            }
+                            
                         }
                         if((oldX == newX && oldY != newY)){
-                            allowMove = validateMove.verticalChecker(oldY, newY, oldX);  
+                            if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                allowMove = validateMove.verticalChecker(oldY, newY, oldX);  
+                            }
+                            
                         }
                     }
                     return allowMove;
                 case 'bishop':
                     if(newX > oldX){
                         for (let n = 1; n<=(newX - oldX); n++){
-                            if  (newX == oldX + n && newY == oldY - n) allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
-                            if  (newX == oldX + n && newY == oldY + n) allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                            if  (newX == oldX + n && newY == oldY - n) {
+                                if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                    allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                                }
+                            }
+                            if  (newX == oldX + n && newY == oldY + n){
+                                if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                    allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                                }
+                                
+                            } 
                         }
                     }
                     if(newX < oldX){
                         for (let n = 1; n<=(oldX - newX); n++){
-                            if  (newX == oldX - n && newY == oldY + n) allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
-                            if  (newX == oldX - n && newY == oldY - n) allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                            if  (newX == oldX - n && newY == oldY + n) {
+                                if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                    allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                                }
+                            }
+                            if  (newX == oldX - n && newY == oldY - n){
+                                if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                    allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                                }
+                            } 
                         }
                     }
                     return allowMove;
@@ -223,19 +246,46 @@ export const chessBoard =(()=>{
                     return allowMove;
                 case 'queen':
                     if((oldX == newX && oldY != newY)||(oldX != newX && oldY == newY)){
-                        if((oldX != newX && oldY == newY)) allowMove = validateMove.horizontalChecker(oldX, newX, oldY);
-                        if((oldX == newX && oldY != newY)) allowMove = validateMove.verticalChecker(oldY, newY, oldX);
+                        if((oldX != newX && oldY == newY)){
+                            if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                allowMove = validateMove.horizontalChecker(oldX, newX, oldY);
+                            }
+                            
+                        }
+                        if((oldX == newX && oldY != newY)){
+                            if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                allowMove = validateMove.verticalChecker(oldY, newY, oldX);  
+                            }
+                            
+                        }
                     }
                     if(newX > oldX){
                         for (let n = 1; n<=(newX - oldX); n++){
-                            if  (newX == oldX + n && newY == oldY - n) allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
-                            if  (newX == oldX + n && newY == oldY + n) allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                            if  (newX == oldX + n && newY == oldY - n) {
+                                if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                    allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                                }
+                            }
+                            if  (newX == oldX + n && newY == oldY + n){
+                                if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                    allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                                }
+                                
+                            } 
                         }
                     }
                     if(newX < oldX){
                         for (let n = 1; n<=(oldX - newX); n++){
-                            if  (newX == oldX - n && newY == oldY + n) allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
-                            if  (newX == oldX - n && newY == oldY - n) allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                            if  (newX == oldX - n && newY == oldY + n) {
+                                if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                    allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                                }
+                            }
+                            if  (newX == oldX - n && newY == oldY - n){
+                                if(chessBoardData[newY][newX].isEmpty || eatChecker(newX, newY, color)){
+                                    allowMove = validateMove.diagonalChecker(oldX, newX, oldY, newY);
+                                }
+                            } 
                         }
                     }
                     return allowMove;              
@@ -650,7 +700,12 @@ export const chessBoard =(()=>{
         function eatChecker(x,y, color){
             if(chessBoardData[y][x].isEmpty == false) return chessBoardData[y][x].pieceData.color == !color;
         }
-        const eatMove = (x, y) => chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
+        function eatMove(x, y){
+            chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
+            chessBoardData[y][x].pieceData = null;
+            chessBoardData[y][x].pieceDom = null;
+            chessBoardData[y][x].isEmpty = true;
+        } 
         
         function movePiece(oldCoords,newCoords,id,color, hasMoved){    
             
@@ -659,10 +714,9 @@ export const chessBoard =(()=>{
             let newX = newCoords[0], newY = newCoords[1]; 
             let storeEat;
             moveDetail.oldCoords = [oldX, oldY];
-            moveDetail.moveNotation.old = (String.fromCharCode(97+oldX));
-            //chessBoardData[oldY][oldX].notation;
+            moveDetail.moveNotation.old = [(String.fromCharCode(97+oldX)), (8-oldY)];
+            //chessBoardData[oldY][oldX].notation
             if (eatChecker(newX, newY,color)){
-                
                 storeEat =  chessBoardData[newY][newX].pieceData;
                 moveDetail.action.eat = storeEat;
                 eatMove(newX, newY);
@@ -912,10 +966,10 @@ export const chessBoard =(()=>{
                 turnCheck = !turnCheck;
                 refreshData();
                 kingCheck(color);
-                moveDetail.id.piece = 'pawn';
+                moveDetail. piece = 'pawn';
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
-                moveDetail.action.promote = 'queen';
+                moveDetail.action.promote = 'Q';
                 moveHistory.push(moveDetail);
                 clearInfo();
                 clearMoveDetail();
@@ -937,7 +991,7 @@ export const chessBoard =(()=>{
                 moveDetail.piece = 'pawn';
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
-                moveDetail.action.promote = 'rook';
+                moveDetail.action.promote = 'R';
                 moveHistory.push(moveDetail);
                 clearInfo();
                 clearMoveDetail();
@@ -959,7 +1013,7 @@ export const chessBoard =(()=>{
                 moveDetail.piece = 'pawn';
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
-                moveDetail.action.promote = 'knight';
+                moveDetail.action.promote = 'K';
                 moveHistory.push(moveDetail);
                 clearInfo();
                 clearMoveDetail();
@@ -981,7 +1035,7 @@ export const chessBoard =(()=>{
                 moveDetail.piece = 'pawn';
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
-                moveDetail.action.promote = 'bishop';
+                moveDetail.action.promote = 'B';
                 moveHistory.push(moveDetail);
                 clearInfo();
                 clearMoveDetail();
@@ -1096,7 +1150,7 @@ export const chessBoard =(()=>{
                 }
                 chessBoardTileDiv.ondragenter = (e) =>{
                     e.preventDefault();
-                    if(movingData.oldCoords.y && movingData.oldCoords.x != null){
+                    if(movingData.oldCoords.y !=null && movingData.oldCoords.x != null){
                         if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' > '+chessBoardData[y][x].notation;
                     }
@@ -1110,7 +1164,7 @@ export const chessBoard =(()=>{
                 }
                 
                 chessBoardTileDiv.onclick = () =>{
-                    console.log(moveHistory);
+                    console.log(chessBoardData[y][x]);
                     if(movingData.oldCoords.y && movingData.oldCoords.x != null){
                         if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' > '+chessBoardData[y][x].notation;
@@ -1213,15 +1267,13 @@ export const chessBoard =(()=>{
     }
     //pgn generator
     function generatePgn(data){
-        let pgnTags = [
-            '[Event: "'
-        ];
-            
         let pgnString = '';
         let moveNumber = 0;
         let chLimit = 1;
+        let pgnResult = '*';
         for(let i = 0; i < data.length; i++){
             let abbreviation = '';
+            let action = '';
             switch (data[i].piece){
                 case 'knight':
                     abbreviation = 'N';
@@ -1235,19 +1287,46 @@ export const chessBoard =(()=>{
                 case 'king':
                     abbreviation='K';
                     break;
+                case 'pawn':
+                    if(data[i].action.eat) abbreviation = data[i].moveNotation.old[0];
+                    break;
                 default:
                     abbreviation='';
                     break;
             }
+            if(data[i].action.promote)action = action+'='+data[i].action.promote;
+            if(data[i].action.checking && !data[i].action.mate){
+                action = action+'+'
+            }else if(data[i].action.mate){
+                action = action+'#'
+                pgnResult = (i%2 == 0?'1-0':'0-1');
+            }
+
             if (i%2 == 0) moveNumber++;
-            pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+data[i].moveNotation.old+abbreviation+data[i].moveNotation.new+' ';
-            if(pgnString.length >= (10 * chLimit)){
+            pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+abbreviation+(data[i].action.eat?'x':'')+data[i].moveNotation.new+action+' ';
+            
+            if(pgnString.length >= (70 * chLimit)){
                 pgnString = pgnString+'\n';
                 chLimit++;
             }
-            console.log(pgnString.length );
         }
-        return pgnString;
+        pgnString = pgnString + pgnResult;
+        let pgnTags =[
+            '[Event "?"]',
+            '[Site "?"]',
+            '[Date "????.??.??"]',
+            '[Round "?"]',
+            '[White "?"]',
+            '[Black "?"]',
+            '[Result "'+pgnResult+'"]'
+        ];
+        let pgnTagString = '';
+        pgnTags.forEach(element => {
+            pgnTagString = pgnTagString+element+'\n';
+        });
+        pgnTagString = pgnTagString+'\n';
+        let pgn = pgnTagString+pgnString;
+        return pgn;
     }
     //download pgn
     const downloadBtn = document.getElementById('download-btn');
@@ -1263,7 +1342,7 @@ export const chessBoard =(()=>{
                     
     downloadBtn.onclick = () =>{
         console.log(generatePgn(moveHistory));
-        console.log(chessBoardData);
+        console.log(moveHistory);
         //downloadBtn.setAttribute("href",downloadPgn(generatePgn(moveHistory)));
     }
     return{makeBoard,generateGame}
