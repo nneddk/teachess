@@ -1,5 +1,4 @@
 const gameBoard = document.getElementById("game-board");
-const undoBtn = document.getElementById("undo-btn");
 const indicator = document.getElementById("indicator");
 export const chessBoard =(()=>{
     let moveHistory = [];
@@ -771,6 +770,7 @@ export const chessBoard =(()=>{
                 }
                 //moveHistory
                 moveDetail.piece = id;
+                moveDetail.pieceData = movingData.pieceData;
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords = [newX, newY];
                 
@@ -954,10 +954,11 @@ export const chessBoard =(()=>{
                 verticalChecker,
             };
         })();
+        const undoBtn = document.getElementById("undo-btn");
         undoBtn.onclick = ()=>{
-            console.log(moveHistory);
-            alert('WIP');
+            console.log(moveHistory.pop());
         }
+        
         function getPromotionDiv(newX, newY, color, hasMoved){
             turnCheck = !turnCheck
             const promotionQueen = document.getElementById('promote-queen');
@@ -1002,6 +1003,7 @@ export const chessBoard =(()=>{
                 refreshData();
                 kingCheck(color);
                 moveDetail.piece = 'pawn';
+                moveDetail.pieceData = movingData.pieceData;
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'R';
@@ -1024,6 +1026,7 @@ export const chessBoard =(()=>{
                 refreshData();
                 kingCheck(color);
                 moveDetail.piece = 'pawn';
+                moveDetail.pieceData = movingData.pieceData;
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'K';
@@ -1046,6 +1049,7 @@ export const chessBoard =(()=>{
                 refreshData();
                 kingCheck(color);
                 moveDetail.piece = 'pawn';
+                moveDetail.pieceData = movingData.pieceData;
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'B';
@@ -1067,6 +1071,7 @@ export const chessBoard =(()=>{
             moveDetail = {
             color: null,
             piece: null,
+            pieceData:null,
             moveNotation: {
                 new:null,
                 old:null,
@@ -1322,8 +1327,8 @@ export const chessBoard =(()=>{
         }
         return '';
     }
-    //WIPPPPPP
-    function generatePgn(data){
+    function generatePgn(){
+        let data = moveHistory;
         let pgnString = '';
         let moveNumber = 0;
         let chLimit = 1;
@@ -1401,26 +1406,11 @@ export const chessBoard =(()=>{
         pgnTagString = pgnTagString+'\n';
         let pgn = pgnTagString+pgnString;
         return pgn;
+    }               
+    
+    function getHistory(){
+        return moveHistory
     }
-    //download pgn
-    const downloadBtn = document.getElementById('download-btn');
-    let pgnFile = null;
-    const downloadPgn = function (text){
-        let data = new Blob([text],{type: 'text/plain'});
-        if(pgnFile !== null){
-            window.URL.revokeObjectURL(pgnFile);
-        }
-        pgnFile = window.URL.createObjectURL(data);
-        return pgnFile;
-    }
-                    
-    downloadBtn.onclick = () =>{
-        navigator.clipboard.writeText(generatePgn(moveHistory));
-        indicator.textContent = 'PGN copied to your clipboard!';
-        console.log(generatePgn(moveHistory));
-        console.log(chessBoardData);
-        //downloadBtn.setAttribute("href",downloadPgn(generatePgn(moveHistory)));
-    }
-    return{makeBoard,generateGame}
+    return{makeBoard,generateGame,getHistory, generatePgn}
 })();
 

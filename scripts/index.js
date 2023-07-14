@@ -2,6 +2,7 @@ import { chessBoard } from "./chessboard.js";
 chessBoard.makeBoard();
 chessBoard.generateGame();
 const resetBtn = document.getElementById('reset-btn');
+const downloadBtn = document.getElementById('download-btn');
 
 const indicator = document.getElementById("indicator");
 resetBtn.onclick=()=>{
@@ -11,4 +12,18 @@ resetBtn.onclick=()=>{
         chessBoard.generateGame();
     }
 }
-
+downloadBtn.onclick = () =>{
+    let pgnFile = null;
+    function downloadPgn(text){
+        let data = new Blob([text],{type: 'text/plain'});
+        if(pgnFile !== null){
+            window.URL.revokeObjectURL(pgnFile);
+        }
+        pgnFile = window.URL.createObjectURL(data);
+        return pgnFile;
+    }
+    navigator.clipboard.writeText(chessBoard.generatePgn());
+    indicator.textContent = 'PGN copied to your clipboard!';
+    console.log(chessBoard.generatePgn());
+    //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
+}
