@@ -1,15 +1,16 @@
 # teachess
 At the moment, a chess UI built for educational purposes
 ## Notes
-- for PGN pawn capture, use notation instead of empty space.
+- none atm c:
 ### currently working on:
-- PGN parser
-- UNDO
-- Game summary
+- CODE REFACTORING
+- PGN parser - DONE !
+- UNDO - DONE!
+- Game summary - DONE!
 # TODO:
 !important TODOs
 - Pawn promotion logic - DONE!
-- PGN generator and parser
+- PGN generator and parser - 50% DONE!
 - Better mobile formatting - DONE-ish? Feedback needed
 
 - castling indication (move possible just not indicated) - DONE
@@ -19,10 +20,10 @@ At the moment, a chess UI built for educational purposes
 - Tie logic - DONE!
 - Actual piece sprites - DONE!
 - Better Highlighting (box-shadow?) - DONE!
-- King check highlighting - DONE-ish (switched over to indication instead);
-- Game move history print (with proper chess move notations);
+- King check highlighting - DONE-ish (switched over to indication instead)
+- Game move history print (with proper chess move notations) - DONE!
 - Last move undo - DONE!
-- Whole game undo?
+- Whole game undo - DONE!
 
 ## Assets Used
 ### Sprites:
