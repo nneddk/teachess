@@ -22,8 +22,8 @@ downloadBtn.onclick = () =>{
         pgnFile = window.URL.createObjectURL(data);
         return pgnFile;
     }
-    navigator.clipboard.writeText(chessBoard.generatePgn());
+    navigator.clipboard.writeText(chessBoard.generatePgn(chessBoard.getHistory()));
     indicator.textContent = 'PGN copied to your clipboard!';
-    console.log(chessBoard.generatePgn());
+    console.log(chessBoard.generatePgn(chessBoard.getHistory()));
     //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
 }

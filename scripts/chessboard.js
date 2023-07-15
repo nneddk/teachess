@@ -28,6 +28,8 @@ export const chessBoard =(()=>{
     let moveDetail = {
         color: null,
         piece: null,
+        moves : null,
+        tile:null,
         moveNotation: {
             new:null,
             old:null,
@@ -719,9 +721,7 @@ export const chessBoard =(()=>{
             chessBoardData[y][x].pieceDom = null;
             chessBoardData[y][x].isEmpty = true;
         } 
-        
-        function movePiece(oldCoords,newCoords,id,color, hasMoved){    
-            
+        function movePiece(oldCoords,newCoords,id,color, hasMoved){        
             if(color)numberOfMoves++;  
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
@@ -729,7 +729,6 @@ export const chessBoard =(()=>{
             moveDetail.color = color;
             moveDetail.oldCoords = [oldX, oldY];
             moveDetail.moveNotation.old = [(String.fromCharCode(97+oldX)), (8-oldY)];
-            //chessBoardData[oldY][oldX].notation
             if (eatChecker(newX, newY,color)){
                 storeEat =  chessBoardData[newY][newX].pieceData;
                 moveDetail.action.eat = storeEat;
@@ -770,7 +769,10 @@ export const chessBoard =(()=>{
                 }
                 //moveHistory
                 moveDetail.piece = id;
-                moveDetail.pieceData = movingData.pieceData;
+                //deep clone needed, either of the two works but JSON parsing may suffer some performance dips and maybe data loss
+                //moveDetail.tile = JSON.parse(JSON.stringify(chessBoardData[newY][newX].threatData));
+                moveDetail.tile = structuredClone(chessBoardData[newY][newX].threatData);
+                moveDetail.moves = (hasMoved + 1);
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords = [newX, newY];
                 
@@ -835,7 +837,6 @@ export const chessBoard =(()=>{
     
                     
                 }
-            
             }
             return false;
         }
@@ -972,106 +973,72 @@ export const chessBoard =(()=>{
             const promotionWrapper = document.getElementById('promotion-wrapper');
             promotionWrapper.style.zIndex = '30';
             promotionWrapper.style.height = '100vh';
+
+            function promotionAction(){
+                promotionWrapper.style.zIndex ='-10';
+                turnCheck = !turnCheck;
+                refreshData();
+                kingCheck(color);
+                moveDetail.piece = 'pawn';
+                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
+                moveDetail.newCoords =[newX,newY];
+                moveHistory.push(moveDetail);
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionRook.classList.remove((color?'white':'black')+'-rook');
+                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
+                promotionQueen.classList.remove((color?'white':'black')+'-queen');
+                promotionKnight.classList.remove((color?'white':'black')+'-knight');
+
+            }
             
             promotionQueen.onclick = () =>{
                 pieceUnmaker(newX, newY);
                 pieceMaker(newX, newY, 'queen', color, hasMoved);
-                promotionWrapper.style.zIndex ='-10';
-                turnCheck = !turnCheck;
-                refreshData();
-                kingCheck(color);
-                moveDetail. piece = 'pawn';
-                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
-                moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'Q';
-                moveHistory.push(moveDetail);
+                promotionAction();
                 clearInfo();
                 clearMoveDetail();
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
-                promotionQueen.classList.remove((color?'white':'black')+'-queen');
-                promotionRook.classList.remove((color?'white':'black')+'-rook');
-                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
-                promotionQueen.classList.remove((color?'white':'black')+'-queen');
-                promotionKnight.classList.remove((color?'white':'black')+'-knight');
+                
             }
             promotionRook.onclick = () =>{
                 pieceUnmaker(newX, newY);
                 pieceMaker(newX, newY, 'rook', color, hasMoved);
-                promotionWrapper.style.zIndex ='-10';
-                turnCheck = !turnCheck;
-                refreshData();
-                kingCheck(color);
-                moveDetail.piece = 'pawn';
-                moveDetail.pieceData = movingData.pieceData;
-                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
-                moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'R';
-                moveHistory.push(moveDetail);
+                promotionAction();
                 clearInfo();
                 clearMoveDetail();
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
-                promotionQueen.classList.remove((color?'white':'black')+'-queen');
-                promotionRook.classList.remove((color?'white':'black')+'-rook');
-                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
-                promotionQueen.classList.remove((color?'white':'black')+'-queen');
-                promotionKnight.classList.remove((color?'white':'black')+'-knight');
             }
             promotionKnight.onclick = () =>{
                 pieceUnmaker(newX, newY);
                 pieceMaker(newX, newY, 'knight', color, hasMoved);
-                promotionWrapper.style.zIndex ='-10';
-                turnCheck = !turnCheck;
-                refreshData();
-                kingCheck(color);
-                moveDetail.piece = 'pawn';
-                moveDetail.pieceData = movingData.pieceData;
-                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
-                moveDetail.newCoords =[newX,newY];
-                moveDetail.action.promote = 'K';
-                moveHistory.push(moveDetail);
+                moveDetail.action.promote = 'N';
+                promotionAction();
                 clearInfo();
                 clearMoveDetail();
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
-                promotionQueen.classList.remove((color?'white':'black')+'-queen');
-                promotionRook.classList.remove((color?'white':'black')+'-rook');
-                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
-                promotionQueen.classList.remove((color?'white':'black')+'-queen');
-                promotionKnight.classList.remove((color?'white':'black')+'-knight');
             }
             promotionBishop.onclick = () =>{
                 pieceUnmaker(newX, newY);
                 pieceMaker(newX, newY, 'bishop', color, hasMoved);
-                promotionWrapper.style.zIndex ='-10';
-                turnCheck = !turnCheck;
-                refreshData();
-                kingCheck(color);
-                moveDetail.piece = 'pawn';
-                moveDetail.pieceData = movingData.pieceData;
-                moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
-                moveDetail.newCoords =[newX,newY];
                 moveDetail.action.promote = 'B';
-                moveHistory.push(moveDetail);
+                promotionAction();
                 clearInfo();
                 clearMoveDetail();
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
-                promotionQueen.classList.remove((color?'white':'black')+'-queen');
-                promotionRook.classList.remove((color?'white':'black')+'-rook');
-                promotionBishop.classList.remove((color?'white':'black')+'-bishop');
-                promotionQueen.classList.remove((color?'white':'black')+'-queen');
-                promotionKnight.classList.remove((color?'white':'black')+'-knight');
             }
-            
-
         }
         function clearMoveDetail(){
             moveDetail = {
             color: null,
             piece: null,
-            pieceData:null,
+            moves: null,
+            tile:null,
             moveNotation: {
                 new:null,
                 old:null,
@@ -1300,41 +1267,36 @@ export const chessBoard =(()=>{
     //pgn generator
     function redundantChecker(data){
         if(data.color){
-            if ((chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.whiteCheck.coords.x.includes(data.oldCoords[0],0))&&
-            (chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.whiteCheck.threats.includes(data.piece,0))){
-                return data.moveNotation.old[1];
-            }
-            if ((chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.whiteCheck.coords.y.includes(data.oldCoords[1],0))&&
-            (chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.whiteCheck.threats.includes(data.piece,0))){
-                return data.moveNotation.old[0];
-            }
-            if (chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.whiteCheck.threats.includes(data.piece,0)){
-                return data.moveNotation.old[0];
+            if(data.tile.whiteCheck.counter > 0){
+                for(let i = 0; i <= data.tile.whiteCheck.counter; i++){
+                    if(data.tile.whiteCheck.threats[i] == data.piece){
+                        if(data.tile.whiteCheck.coords.x[i] == data.oldCoords[0]){
+                            return data.moveNotation.old[1];
+                        }
+                        return data.moveNotation.old[0];
+                    }
+                }
             }
         }
         if (!data.color){
-            if ((chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.blackCheck.coords.x.includes(data.oldCoords[0],0))&&
-            (chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.blackCheck.threats.includes(data.piece,0))){
-                return data.moveNotation.old[1];
-            }
-            if ((chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.blackCheck.coords.y.includes(data.oldCoords[1],0))&&
-            (chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.blackCheck.threats.includes(data.piece,0))){
-                return data.moveNotation.old[0];
-            }
-            if (chessBoardData[data.newCoords[1]][data.newCoords[0]].threatData.blackCheck.threats.includes(data.piece,0)){
-                return data.moveNotation.old[0];
+            if(data.tile.blackCheck.counter > 0){
+                for(let i = 0; i <= data.tile.blackCheck.counter; i++){
+                    if(data.tile.blackCheck.threats[i] == data.piece){
+                        if(data.tile.blackCheck.coords.y[i] == data.oldCoords[1]){
+                            return data.moveNotation.old[1];
+                        }
+                        return data.moveNotation.old[0];
+                    }
+                }
             }
         }
         return '';
     }
-    function generatePgn(){
-        let data = moveHistory;
+    function generatePgn(data){
         let pgnString = '';
         let moveNumber = 0;
         let chLimit = 1;
         let pgnResult = '*';
-        
-        
         for(let i = 0; i < data.length; i++){
             let abbreviation = '';
             let action = '';
@@ -1345,7 +1307,7 @@ export const chessBoard =(()=>{
                     break;
                 case 'bishop':
                     abbreviation = 'B';
-                    if(data[i].action.eat) abbreviation = abbreviation+redundantChecker(data[i]);
+                    abbreviation = abbreviation+redundantChecker(data[i]);
                     break;
                 case 'queen':
                     abbreviation= 'Q';
@@ -1411,6 +1373,7 @@ export const chessBoard =(()=>{
     function getHistory(){
         return moveHistory
     }
+    
     return{makeBoard,generateGame,getHistory, generatePgn}
 })();
 
