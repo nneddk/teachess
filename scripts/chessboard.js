@@ -5,7 +5,6 @@ export const chessBoard =(()=>{
     let gameOver = false;
     let notations = false;
     let numberOfMoves = 0;
-    let undoData = {};
     let availableMoves = {
         black:[],
         white:[]
@@ -114,7 +113,6 @@ export const chessBoard =(()=>{
             }
 
             pieceDiv.onclick=(e) =>{
-                console.log(chessBoardData[y][x])
                 if(chessBoardData[y][x].pieceData.color == turnCheck){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -314,10 +312,11 @@ export const chessBoard =(()=>{
                             &&(rightRook.color == color)
                             &&(rightRook.hasMoved == 0)){
                                 moveDetail.action.castle = true;
+                                moveDetail.moves = 1;
                                 moveHistory.push(moveDetail)
-                                movePiece([oldX,oldY],[newX,newY],id,color);
+                                movePiece([oldX,oldY],[newX,newY],id,color, hasMoved);
                                 moveDetail.action.castle = true;
-                                movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color);
+                                movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                  'king'+' '+' > '+chessBoardData[oldY][oldX+2].notation;
                             
@@ -332,9 +331,11 @@ export const chessBoard =(()=>{
                             &&(leftRook.color == color)
                             &&(leftRook.hasMoved == 0)){
                             moveDetail.action.castle = true;
-                            movePiece([oldX,oldY],[newX,newY],id,color);
+                            moveDetail.moves = 1;
+                            moveHistory.push(moveDetail)
+                            movePiece([oldX,oldY],[newX,newY],id,color, hasMoved);
                             moveDetail.action.castle = true;
-                            movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color);
+                            movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved);
                             if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                             'king'+' '+' > '+chessBoardData[oldY][oldX-2].notation;
                         
@@ -388,8 +389,10 @@ export const chessBoard =(()=>{
                             if((y - 1)>=0){
                                 if(chessBoardData[y-1][x].isEmpty){
                                     highlightMoves(x, y - 1,color);
-                                    if(((y - 2) >= 0) && chessBoardData[y-2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
-                                        highlightMoves(x, y - 2,color);
+                                    if((y - 2) >= 0){
+                                        if(chessBoardData[y-2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
+                                            highlightMoves(x, y - 2,color);
+                                            }
                                     }
                                 }
                                 if ((!boardData.isEmpty && boardData.pieceData.color == !color)){
@@ -405,8 +408,10 @@ export const chessBoard =(()=>{
                             if((y + 1)<=7){
                                 if(chessBoardData[y+1][x].isEmpty){
                                     highlightMoves(x, y + 1,color);
-                                    if(((y + 2) >= 0) && chessBoardData[y+2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
-                                        highlightMoves(x, y + 2,color);
+                                    if((y + 2) <= 7){
+                                        if(chessBoardData[y+2][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
+                                            highlightMoves(x, y + 2,color);
+                                            }
                                     }
                                 }
                                 if ((!boardData.isEmpty && boardData.pieceData.color == !color)){
@@ -423,10 +428,9 @@ export const chessBoard =(()=>{
         
                     }else{
                         highlightMoves(boardData.x, boardData.y,color);
-                        if(id == 'king'){
+                        if(id == 'king' && chessBoardData[y][x].pieceData.hasMoved == 0){
                             if(x + 3 <= 7){   
                                 if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
-                                    
                                     if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
                                         if((color?chessBoardData[y][x+1].threatData.blackCheck.counter == 0:chessBoardData[y][x+1].threatData.whiteCheck.counter == 0 )
                                             && (color?chessBoardData[y][x+2].threatData.blackCheck.counter == 0:chessBoardData[y][x+2].threatData.whiteCheck.counter == 0)){
@@ -735,7 +739,8 @@ export const chessBoard =(()=>{
                 eatMove(newX, newY);
             }else if((enPassantData.x == newX) && (enPassantData.y == newY)){
                 moveDetail.action.eat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
-                moveDetail.action.enpass = true
+                //tick
+                moveDetail.action.enpass = true;
                 storeEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
                 eatMove(enPassantData.target.x, enPassantData.target.y);
             }
@@ -957,7 +962,29 @@ export const chessBoard =(()=>{
         })();
         const undoBtn = document.getElementById("undo-btn");
         undoBtn.onclick = ()=>{
-            console.log(moveHistory.pop());
+            if(moveHistory.length > 0){
+                let undoData = moveHistory.pop();
+                if(undoData.color)numberOfMoves--; 
+                let storeEat= '';
+                if (undoData.action.eat) storeEat = undoData.action.eat;
+                if(undoData.action.mate) gameOver = false;
+                if(undoData.action.enpass) {
+                    if(undoData.color) enPassant(storeEat.x, storeEat.x, (storeEat.y - 1), storeEat.y, storeEat.color);
+                    if(!undoData.color) enPassant(storeEat.x, storeEat.x, (storeEat.y + 1), storeEat.y, storeEat.color);
+
+                }
+                if(undoData.action.castle) {
+                    if (undoData.oldCoords[0] < undoData.newCoords[0]){
+                        undoLastMove((undoData.oldCoords[0] + 3),undoData.oldCoords[1],undoData.newCoords[0] - 1, undoData.newCoords[1],'rook', undoData.color,0);
+                    }
+                    if (undoData.oldCoords[0] > undoData.newCoords[0]){
+                        undoLastMove((undoData.oldCoords[0] - 4),undoData.oldCoords[1],undoData.newCoords[0] + 1, undoData.newCoords[1],'rook', undoData.color,0);
+                    }
+                }
+                undoLastMove(undoData.oldCoords[0],undoData.oldCoords[1],undoData.newCoords[0], undoData.newCoords[1],undoData.piece, undoData.color,(undoData.moves - 1),storeEat);
+                turnCheck = !turnCheck;
+            }
+            
         }
         
         function getPromotionDiv(newX, newY, color, hasMoved){
@@ -1060,7 +1087,6 @@ export const chessBoard =(()=>{
     function makeBoard(){
         moveHistory = [];
         numberOfMoves = 0;
-        undoData = {};
         availableMoves = {
             black:[],
             white:[]
@@ -1158,7 +1184,6 @@ export const chessBoard =(()=>{
                 }
                 
                 chessBoardTileDiv.onclick = () =>{
-                    console.log(chessBoardData[y][x]);
                     if(movingData.oldCoords.y && movingData.oldCoords.x != null){
                         if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' > '+chessBoardData[y][x].notation;
