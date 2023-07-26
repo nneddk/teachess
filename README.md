@@ -4,6 +4,7 @@ At the moment, a chess UI built for educational purposes
 - none atm c:
 ### currently working on:
 - CODE REFACTORING
+- PGN translation
 - PGN parser - DONE !
 - UNDO - DONE!
 - Game summary - DONE!

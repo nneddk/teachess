@@ -1408,37 +1408,64 @@ export const chessBoard =(()=>{
                 newX: null,
                 newY: null,
                 color:null,
+                oldX:null,
+                oldY:null,
             }
             moveString = moveList[i].split('');
+            let identifier = 0;
             //id
-            switch (moveString[0]){
+            switch (moveString[identifier]){
                 case 'N':
                     pgnData.id = 'knight';
+                    identifier++;
                     break;
                 case 'B':
                     pgnData.id = 'Bishop';
+                    identifier++;
                     break;
                 case 'K':
                     pgnData.id = 'king';
+                    identifier++;
                     break;
                 case 'Q':
                     pgnData.id = 'queen';
+                    identifier++;
                     break;
                 case 'R':
                     pgnData.id = 'rook';
+                    identifier++;
                     break;
                 default:
                     pgnData.id ='pawn';
                     break;
             }
+            //color
             if(i%2==0){
                 pgnData.color = 1;
             }else{
                 pgnData.color = 0;
             }
+            if(pgnData.id != 'pawn'){
+                
+            }
+            //new coords identification
+            if(moveString[identifier + 1] == 'x') {
+                if(isNaN(moveString[identifier])){
+                    pgnData.oldX = ((moveString[identifier]).charCodeAt() - 97);
+                }else{
+                    pgnData.oldY = (8 - (parseInt(moveString[identifier])));
+                    
+                }
+                identifier+=2;
+            }
+            if(moveString[identifier] == 'x') identifier++;
+            pgnData.newX = ((moveString[identifier]).charCodeAt() - 97);
+            identifier++;
+            pgnData.newY = (8 - (parseInt(moveString[identifier])));
+            //chessBoardData[pgnData.newY][pgnData.newX]
             console.log(moveString,pgnData);
         }
-        //console.log(chessBoardData);
+        //console.log(chessBoardData);s
     }
     return{makeBoard,generateGame,getHistory, generatePgn, translatePgn}
 })();

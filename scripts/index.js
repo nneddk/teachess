@@ -39,7 +39,7 @@ function parsePGN(){
         pgnTags.push(newPGN.pop());
     }
     newPGN.reverse();
-    newPGN = newPGN.join('\n').replace(/(\r\n|\n|\r|\+|#|x)/gm, "").split(' ');
+    newPGN = newPGN.join('\n').replace(/(\r\n|\n|\r|\+|#)/gm, "").split(' ');
     newPGN.pop();
     let moveList = [];
     for(let i = 0; i<newPGN.length;i++){
