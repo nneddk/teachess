@@ -1398,7 +1398,48 @@ export const chessBoard =(()=>{
     function getHistory(){
         return moveHistory
     }
-    
-    return{makeBoard,generateGame,getHistory, generatePgn}
+    function translatePgn(moveList){
+        //movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)
+        //need id
+        for(let i = 0;i<moveList.length; i++){
+            let moveString;
+            let pgnData = {
+                id:null,
+                newX: null,
+                newY: null,
+                color:null,
+            }
+            moveString = moveList[i].split('');
+            //id
+            switch (moveString[0]){
+                case 'N':
+                    pgnData.id = 'knight';
+                    break;
+                case 'B':
+                    pgnData.id = 'Bishop';
+                    break;
+                case 'K':
+                    pgnData.id = 'king';
+                    break;
+                case 'Q':
+                    pgnData.id = 'queen';
+                    break;
+                case 'R':
+                    pgnData.id = 'rook';
+                    break;
+                default:
+                    pgnData.id ='pawn';
+                    break;
+            }
+            if(i%2==0){
+                pgnData.color = 1;
+            }else{
+                pgnData.color = 0;
+            }
+            console.log(moveString,pgnData);
+        }
+        //console.log(chessBoardData);
+    }
+    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn}
 })();
 
