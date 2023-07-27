@@ -5,13 +5,25 @@ const resetBtn = document.getElementById('reset-btn');
 const downloadBtn = document.getElementById('download-btn');
 
 const indicator = document.getElementById("indicator");
+const generateWrapper = document.getElementById("generate-wrapper");
+const generateBtn = document.getElementById("generate-btn");
+const cancelGenerateBtn = document.getElementById("cancel-generate-btn");
+const inputPgn = document.getElementById("input-pgn");
 resetBtn.onclick=()=>{
-    if(confirm('Reset the board?')){
-        indicator.textContent = '';
-        chessBoard.makeBoard();
-        chessBoard.generateGame();
-        parsePGN();
-    }
+    generateWrapper.style.zIndex = 10;
+    
+}
+generateBtn.onclick =()=>{
+    indicator.textContent = '';
+    chessBoard.makeBoard();
+    chessBoard.generateGame();
+    parsePGN();
+    generateWrapper.style.zIndex = -10;
+    inputPgn.value= '';
+}
+cancelGenerateBtn.onclick =()=>{
+    generateWrapper.style.zIndex = -10;
+    inputPgn.value= '';
 }
 downloadBtn.onclick = () =>{
     let pgnFile = null;
@@ -28,8 +40,9 @@ downloadBtn.onclick = () =>{
     console.log(chessBoard.generatePgn(chessBoard.getHistory()));
     //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
 }
+
 function parsePGN(){
-    let newPGN = indicator.value.split('\n');
+    let newPGN = inputPgn.value.split('\n');
     newPGN.reverse();
     let pgnTags =[];
     for(let i = 0; i<8; i++){

@@ -963,6 +963,7 @@ export const chessBoard =(()=>{
         const undoBtn = document.getElementById("undo-btn");
         undoBtn.onclick = ()=>{
             if(moveHistory.length > 0){
+                if (gameOver) !gameOver;
                 refreshData();
                 let undoData = moveHistory.pop();
                 if(undoData.color)numberOfMoves--; 
@@ -982,6 +983,11 @@ export const chessBoard =(()=>{
                         undoLastMove((undoData.oldCoords[0] - 4),undoData.oldCoords[1],undoData.newCoords[0] + 1, undoData.newCoords[1],'rook', undoData.color,0);
                     }
                 }
+                /*
+                if(!gameOver) indicator.textContent = chessBoardData[undoData.oldCoords[1]][undoData.oldCoords[0]].notation+' '+
+                        undoData.piece+' '+' > '+chessBoardData[undoData.newCoords[1]][undoData.newCoords[0]].notation;
+                        */
+                indicator.textContent = '';
                 undoLastMove(undoData.oldCoords[0],undoData.oldCoords[1],undoData.newCoords[0], undoData.newCoords[1],undoData.piece, undoData.color,(undoData.moves - 1),storeEat);
                 turnCheck = !turnCheck;
             }
@@ -1213,6 +1219,8 @@ export const chessBoard =(()=>{
             let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
             let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
+                if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
+                        movingData.id+' '+' > '+chessBoardData[newY][newX].notation;
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false);
             }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
                 if(movingData.color != turnCheck){
@@ -1550,7 +1558,10 @@ export const chessBoard =(()=>{
             }
             try {
                 if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
-                piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN);
+                    if(!gameOver) indicator.textContent = chessBoardData[pgnData.oldY][pgnData.oldX].notation+' '+
+                        pgnData.id+' '+' > '+chessBoardData[pgnData.newY][pgnData.newX].notation;
+                    piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN);
+                        
                 }
             } catch (error) {
                 let errorMove = '';

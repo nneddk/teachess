@@ -14,7 +14,7 @@
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
 </head>
 <body>
-    <div id = "promotion-wrapper">
+    <div id = "promotion-wrapper" class = "wrapper">
         promotion
         <div class = 'btn-wrapper'>
             <button class = "btn" id = "promote-queen" type="button"></button>
@@ -24,6 +24,12 @@
         </div>
             
     </div>
+    <div id = "generate-wrapper" class = "wrapper">
+        Generate Board
+        <textarea id = "input-pgn" placeholder="Leave blank for default board" spellcheck="false"></textarea>
+        <button class = "btn" id = "generate-btn" type = "button">generate</button> 
+        <button class = "btn" id = "cancel-generate-btn" type = "button">cancel</button> 
+    </div>
     <div class = "header"></div>
     
     <div class = "content">
@@ -32,8 +38,7 @@
     </div>
     <div class = "footer">
         <a class = "github-link" href = "https://github.com/nneddk/teachess"></a>
-        <textarea id = "indicator"></textarea>
-        <!--<div id = "indicator"></div>-->
+        <div id = "indicator"></div>
         <div class = "footer-button-seperators">
             <button class="btn" id ="undo-btn" type="button"></button>
             <button class ="btn" id ="notation-btn" type="button"></button>
