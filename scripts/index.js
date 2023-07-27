@@ -6,15 +6,12 @@ const downloadBtn = document.getElementById('download-btn');
 
 const indicator = document.getElementById("indicator");
 resetBtn.onclick=()=>{
-    /*
     if(confirm('Reset the board?')){
         indicator.textContent = '';
         chessBoard.makeBoard();
         chessBoard.generateGame();
+        parsePGN();
     }
-    */
-    parsePGN();
-    
 }
 downloadBtn.onclick = () =>{
     let pgnFile = null;

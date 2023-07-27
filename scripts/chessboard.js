@@ -1419,7 +1419,6 @@ export const chessBoard =(()=>{
                 oldY:null,
             }
             moveString = moveList[i].split('');
-            console.log(moveString);
             let identifier = 0;
             //id
             switch (moveString[identifier]){
@@ -1538,18 +1537,21 @@ export const chessBoard =(()=>{
                 if(moveString.length == 5)pgnData.newX = 2;
                 
             }
-            //new coords identification
-            
-            //pgnData
-            //console.log(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved);
-            
-            if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
+            try {
+                if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
                 piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN);
+                }
+            } catch (error) {
+                let errorMove = '';
+                for(let i = 0; i < moveString.length; i++){
+                    errorMove = errorMove + moveString[i];
+                }
+                alert("Invalid Move: "+errorMove);
+                makeBoard();
+                generateGame();
             }
             
-            //console.log(moveString,pgnData,chessBoardData[pgnData.newY][pgnData.newX]);
         }
-        //console.log(chessBoardData);
     }
     return{makeBoard,generateGame,getHistory, generatePgn, translatePgn}
 })();
