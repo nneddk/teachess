@@ -1465,10 +1465,20 @@ export const chessBoard =(()=>{
                     identifier+=2;
                 }
                 if(moveString[identifier] == 'x') identifier++;
-                pgnData.newX = ((moveString[identifier]).charCodeAt() - 97);
                 if (identifier == 0){
                     pgnData.oldX = ((moveString[identifier]).charCodeAt() - 97);
                 }
+                if (identifier == 1 && moveString[identifier] != 'x' && moveString.length == 4){
+                    if(isNaN(moveString[identifier])){
+                        pgnData.oldX = ((moveString[identifier]).charCodeAt() - 97);
+                    }else{
+                        pgnData.oldY = (8 - (parseInt(moveString[identifier])));
+                        
+                    }
+                    identifier++;
+                }
+                pgnData.newX = ((moveString[identifier]).charCodeAt() - 97);
+                
                 identifier++;
                 pgnData.newY = (8 - (parseInt(moveString[identifier])));
                 //needs refactor but should work fine
@@ -1523,7 +1533,7 @@ export const chessBoard =(()=>{
                         }
                     }
                 }
-            }else if (moveString[identifier] = 'O') {
+            }else if (moveString[identifier] = '-') {
                 pgnData.oldX = 4;
                 if  (pgnData.color){
                     pgnData.oldY = 7;
