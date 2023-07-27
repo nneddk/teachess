@@ -963,6 +963,7 @@ export const chessBoard =(()=>{
         const undoBtn = document.getElementById("undo-btn");
         undoBtn.onclick = ()=>{
             if(moveHistory.length > 0){
+                refreshData();
                 let undoData = moveHistory.pop();
                 if(undoData.color)numberOfMoves--; 
                 let storeEat= '';
