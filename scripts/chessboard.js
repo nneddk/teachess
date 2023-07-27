@@ -314,9 +314,9 @@ export const chessBoard =(()=>{
                                 moveDetail.action.castle = true;
                                 moveDetail.moves = 1;
                                 moveHistory.push(moveDetail)
-                                movePiece([oldX,oldY],[newX,newY],id,color, hasMoved);
+                                movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false);
                                 moveDetail.action.castle = true;
-                                movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved);
+                                movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved, false);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                  'king'+' '+' > '+chessBoardData[oldY][oldX+2].notation;
                             
@@ -333,9 +333,9 @@ export const chessBoard =(()=>{
                             moveDetail.action.castle = true;
                             moveDetail.moves = 1;
                             moveHistory.push(moveDetail)
-                            movePiece([oldX,oldY],[newX,newY],id,color, hasMoved);
+                            movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false);
                             moveDetail.action.castle = true;
-                            movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved);
+                            movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved, false);
                             if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                             'king'+' '+' > '+chessBoardData[oldY][oldX-2].notation;
                         
@@ -725,7 +725,7 @@ export const chessBoard =(()=>{
             chessBoardData[y][x].pieceDom = null;
             chessBoardData[y][x].isEmpty = true;
         } 
-        function movePiece(oldCoords,newCoords,id,color, hasMoved){        
+        function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote){        
             if(color)numberOfMoves++;  
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
@@ -760,13 +760,13 @@ export const chessBoard =(()=>{
                 if (id == 'pawn' && (!isKingInCheck() == true)){
                     if(color){
                         if(newY == 0){
-                            getPromotionDiv(newX, newY, color, (hasMoved + 1));
+                            getPromotionDiv(newX, newY, color, (hasMoved + 1), pgnPromote);
                             return true;
                         }
                     }
                     if(!color){
                         if(newY == 7){
-                            getPromotionDiv(newX, newY, color, (hasMoved + 1));
+                            getPromotionDiv(newX, newY, color, (hasMoved + 1),pgnPromote);
                             return true;
                         }
                     }
@@ -987,8 +987,9 @@ export const chessBoard =(()=>{
             
         }
         
-        function getPromotionDiv(newX, newY, color, hasMoved){
+        function getPromotionDiv(newX, newY, color, hasMoved, pgnPromote){
             turnCheck = !turnCheck
+            const promotionWrapper = document.getElementById('promotion-wrapper');
             const promotionQueen = document.getElementById('promote-queen');
             const promotionRook = document.getElementById('promote-rook');
             const promotionBishop = document.getElementById('promote-bishop');
@@ -997,12 +998,24 @@ export const chessBoard =(()=>{
             promotionBishop.classList.add((color?'white':'black')+'-bishop');
             promotionQueen.classList.add((color?'white':'black')+'-queen');
             promotionKnight.classList.add((color?'white':'black')+'-knight');
-            const promotionWrapper = document.getElementById('promotion-wrapper');
-            promotionWrapper.style.zIndex = '30';
-            promotionWrapper.style.height = '100vh';
-
+            if(!pgnPromote){  
+                promotionWrapper.style.zIndex = '30';
+                promotionWrapper.style.height = '100vh'; 
+            }
+            promotionQueen.onclick = () =>{
+                promote('Q');
+            }
+            promotionRook.onclick = () =>{
+                promote('R');
+            }
+            promotionKnight.onclick = () =>{
+                promote('N');
+            }
+            promotionBishop.onclick = () =>{
+                promote('B');
+            }
+            
             function promotionAction(){
-                promotionWrapper.style.zIndex ='-10';
                 turnCheck = !turnCheck;
                 refreshData();
                 kingCheck(color);
@@ -1010,54 +1023,48 @@ export const chessBoard =(()=>{
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveHistory.push(moveDetail);
+                if(!pgnPromote){
+                    promotionWrapper.style.zIndex ='-10';
+                }
                 promotionQueen.classList.remove((color?'white':'black')+'-queen');
                 promotionRook.classList.remove((color?'white':'black')+'-rook');
                 promotionBishop.classList.remove((color?'white':'black')+'-bishop');
                 promotionQueen.classList.remove((color?'white':'black')+'-queen');
                 promotionKnight.classList.remove((color?'white':'black')+'-knight');
+                
 
             }
-            
-            promotionQueen.onclick = () =>{
+            function promote(piece){
+                let promoteID;
+                switch (piece){
+                    case 'Q':
+                        promoteID = 'queen';
+                        break;
+                    case 'B':
+                        promoteID = 'bishop';
+                        break;
+                    case 'N':
+                        promoteID = 'knight';
+                        break;
+                    case 'R':
+                        promoteID = 'rook';
+                        break;
+                    default:
+                        promoteID = 'pawn';
+                        break;
+                }
                 pieceUnmaker(newX, newY);
-                pieceMaker(newX, newY, 'queen', color, hasMoved);
-                moveDetail.action.promote = 'Q';
+                pieceMaker(newX, newY, promoteID, color, hasMoved);
+                moveDetail.action.promote = piece;
                 promotionAction();
                 clearInfo();
                 clearMoveDetail();
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
-                
+
             }
-            promotionRook.onclick = () =>{
-                pieceUnmaker(newX, newY);
-                pieceMaker(newX, newY, 'rook', color, hasMoved);
-                moveDetail.action.promote = 'R';
-                promotionAction();
-                clearInfo();
-                clearMoveDetail();
-                turnCheck = !turnCheck;
-                enPassant(null, null, null, null ,enPassantData.color);
-            }
-            promotionKnight.onclick = () =>{
-                pieceUnmaker(newX, newY);
-                pieceMaker(newX, newY, 'knight', color, hasMoved);
-                moveDetail.action.promote = 'N';
-                promotionAction();
-                clearInfo();
-                clearMoveDetail();
-                turnCheck = !turnCheck;
-                enPassant(null, null, null, null ,enPassantData.color);
-            }
-            promotionBishop.onclick = () =>{
-                pieceUnmaker(newX, newY);
-                pieceMaker(newX, newY, 'bishop', color, hasMoved);
-                moveDetail.action.promote = 'B';
-                promotionAction();
-                clearInfo();
-                clearMoveDetail();
-                turnCheck = !turnCheck;
-                enPassant(null, null, null, null ,enPassantData.color);
+            if(pgnPromote){
+                promote(pgnPromote);
             }
         }
         function clearMoveDetail(){
@@ -1205,7 +1212,7 @@ export const chessBoard =(()=>{
             let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
             let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
-                piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved);
+                piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false);
             }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
                 if(movingData.color != turnCheck){
                     if(!gameOver) indicator.textContent = "not your turn!"
@@ -1412,6 +1419,7 @@ export const chessBoard =(()=>{
                 oldY:null,
             }
             moveString = moveList[i].split('');
+            console.log(moveString);
             let identifier = 0;
             //id
             switch (moveString[identifier]){
@@ -1423,6 +1431,7 @@ export const chessBoard =(()=>{
                     pgnData.id = 'bishop';
                     identifier++;
                     break;
+                case 'O':
                 case 'K':
                     pgnData.id = 'king';
                     identifier++;
@@ -1445,76 +1454,97 @@ export const chessBoard =(()=>{
             }else{
                 pgnData.color = false;
             }
-            
-            //new coords identification
-            if(moveString[identifier + 1] == 'x') {
-                if(isNaN(moveString[identifier])){
+            let promotionPGN = false;
+            if(moveString[identifier] != '-'){
+                if(moveString[identifier + 1] == 'x') {
+                    if(isNaN(moveString[identifier])){
+                        pgnData.oldX = ((moveString[identifier]).charCodeAt() - 97);
+                    }else{
+                        pgnData.oldY = (8 - (parseInt(moveString[identifier])));
+                        
+                    }
+                    identifier+=2;
+                }
+                if(moveString[identifier] == 'x') identifier++;
+                pgnData.newX = ((moveString[identifier]).charCodeAt() - 97);
+                if (identifier == 0){
                     pgnData.oldX = ((moveString[identifier]).charCodeAt() - 97);
+                }
+                identifier++;
+                pgnData.newY = (8 - (parseInt(moveString[identifier])));
+                //needs refactor but should work fine
+                
+                if(pgnData.id == 'pawn'){
+                    if(pgnData.color){
+                        if(chessBoardData[(pgnData.newY) + 1][pgnData.oldX].pieceData != null){
+                            pgnData.oldY = pgnData.newY + 1;
+                        }else{
+                            pgnData.oldY = pgnData.newY + 2;
+                        }
+                        
+                    }
+                    if(!pgnData.color){
+                        if(chessBoardData[(pgnData.newY) - 1][pgnData.oldX].pieceData != null){
+                            pgnData.oldY = pgnData.newY - 1;
+                        }else{
+                            pgnData.oldY = pgnData.newY - 2;
+                        }
+                    }
+                    if (moveString[identifier + 1] = '='){
+                            promotionPGN = moveString[identifier + 2];
+                    }
                 }else{
-                    pgnData.oldY = (8 - (parseInt(moveString[identifier])));
-                    
-                }
-                identifier+=2;
-            }
-            if(moveString[identifier] == 'x') identifier++;
-            pgnData.newX = ((moveString[identifier]).charCodeAt() - 97);
-            if (identifier == 0){
-                pgnData.oldX = ((moveString[identifier]).charCodeAt() - 97);
-            }
-            identifier++;
-            pgnData.newY = (8 - (parseInt(moveString[identifier])));
-            //needs refactor but should work fine
-            if(pgnData.id == 'pawn'){
-                if(pgnData.color){
-                    if(chessBoardData[(pgnData.newY) + 1][pgnData.oldX].pieceData != null){
-                        pgnData.oldY = pgnData.newY + 1;
-                    }else{
-                        pgnData.oldY = pgnData.newY + 2;
-                    }
-                }
-                if(!pgnData.color){
-                    if(chessBoardData[(pgnData.newY) - 1][pgnData.oldX].pieceData != null){
-                        pgnData.oldY = pgnData.newY - 1;
-                    }else{
-                        pgnData.oldY = pgnData.newY - 2;
-                    }
-                }
-            }else{
-                if(pgnData.color){
-                    for(let i = 0; i < chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.counter; i++){
-                        if(chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.threats[i] == pgnData.id){
-                            if(pgnData.oldX != null && pgnData.oldY == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i] == pgnData.oldX)){
-                                pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i];
-                            }else if(pgnData.oldY != null && pgnData.oldX == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i] == pgnData.oldY)){
-                                pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i];
-                            }else if(pgnData.oldY == null && pgnData.oldX == null){
-                                pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i];
-                                pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i];
+                    if(pgnData.color){
+                        for(let i = 0; i < chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.counter; i++){
+                            if(chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.threats[i] == pgnData.id){
+                                if(pgnData.oldX != null && pgnData.oldY == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i] == pgnData.oldX)){
+                                    pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i];
+                                }else if(pgnData.oldY != null && pgnData.oldX == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i] == pgnData.oldY)){
+                                    pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i];
+                                }else if(pgnData.oldY == null && pgnData.oldX == null){
+                                    pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i];
+                                    pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i];
+                                }
+    
                             }
-
                         }
-                    }
-                }else if (!pgnData.color){
-                    for(let i = 0; i < chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.counter; i++){
-                        if(chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.threats[i] == pgnData.id){
-                            if(pgnData.oldX != null && pgnData.oldY == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i] == pgnData.oldX)){
-                                pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].blackData.blackCheck.coords.y[i];
-                            }else if(pgnData.oldY != null && pgnData.oldX == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.y[i] == pgnData.oldY)){
-                                pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i];
-                            }else if(pgnData.oldY == null && pgnData.oldX == null){
-                                pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.y[i];
-                                pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i];
+                    }else if (!pgnData.color){
+                        for(let i = 0; i < chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.counter; i++){
+                            if(chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.threats[i] == pgnData.id){
+                                if(pgnData.oldX != null && pgnData.oldY == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i] == pgnData.oldX)){
+                                    pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].blackData.blackCheck.coords.y[i];
+                                }else if(pgnData.oldY != null && pgnData.oldX == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.y[i] == pgnData.oldY)){
+                                    pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i];
+                                }else if(pgnData.oldY == null && pgnData.oldX == null){
+                                    pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.y[i];
+                                    pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i];
+                                }
+    
                             }
-
                         }
                     }
                 }
+            }else if (moveString[identifier] = 'O') {
+                pgnData.oldX = 4;
+                if  (pgnData.color){
+                    pgnData.oldY = 7;
+                    pgnData.newY = 7;
+                } 
+                if  (!pgnData.color){
+                    pgnData.oldY = 0;
+                    pgnData.newY = 0;
+                }
+                if(moveString.length == 3)pgnData.newX = 6;
+                if(moveString.length == 5)pgnData.newX = 2;
+                
             }
+            //new coords identification
+            
             //pgnData
             //console.log(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved);
             
             if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
-                piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved);
+                piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN);
             }
             
             //console.log(moveString,pgnData,chessBoardData[pgnData.newY][pgnData.newX]);
