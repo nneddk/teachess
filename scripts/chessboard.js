@@ -1420,7 +1420,7 @@ export const chessBoard =(()=>{
                     identifier++;
                     break;
                 case 'B':
-                    pgnData.id = 'Bishop';
+                    pgnData.id = 'bishop';
                     identifier++;
                     break;
                 case 'K':
@@ -1441,13 +1441,11 @@ export const chessBoard =(()=>{
             }
             //color
             if(i%2==0){
-                pgnData.color = 1;
+                pgnData.color = true;
             }else{
-                pgnData.color = 0;
+                pgnData.color = false;
             }
-            if(pgnData.id != 'pawn'){
-                
-            }
+            
             //new coords identification
             if(moveString[identifier + 1] == 'x') {
                 if(isNaN(moveString[identifier])){
@@ -1460,12 +1458,68 @@ export const chessBoard =(()=>{
             }
             if(moveString[identifier] == 'x') identifier++;
             pgnData.newX = ((moveString[identifier]).charCodeAt() - 97);
+            if (identifier == 0){
+                pgnData.oldX = ((moveString[identifier]).charCodeAt() - 97);
+            }
             identifier++;
             pgnData.newY = (8 - (parseInt(moveString[identifier])));
-            //chessBoardData[pgnData.newY][pgnData.newX]
-            console.log(moveString,pgnData);
+            //needs refactor but should work fine
+            if(pgnData.id == 'pawn'){
+                if(pgnData.color){
+                    if(chessBoardData[(pgnData.newY) + 1][pgnData.oldX].pieceData != null){
+                        pgnData.oldY = pgnData.newY + 1;
+                    }else{
+                        pgnData.oldY = pgnData.newY + 2;
+                    }
+                }
+                if(!pgnData.color){
+                    if(chessBoardData[(pgnData.newY) - 1][pgnData.oldX].pieceData != null){
+                        pgnData.oldY = pgnData.newY - 1;
+                    }else{
+                        pgnData.oldY = pgnData.newY - 2;
+                    }
+                }
+            }else{
+                if(pgnData.color){
+                    for(let i = 0; i < chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.counter; i++){
+                        if(chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.threats[i] == pgnData.id){
+                            if(pgnData.oldX != null && pgnData.oldY == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i] == pgnData.oldX)){
+                                pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i];
+                            }else if(pgnData.oldY != null && pgnData.oldX == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i] == pgnData.oldY)){
+                                pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i];
+                            }else if(pgnData.oldY == null && pgnData.oldX == null){
+                                pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.y[i];
+                                pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.coords.x[i];
+                            }
+
+                        }
+                    }
+                }else if (!pgnData.color){
+                    for(let i = 0; i < chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.counter; i++){
+                        if(chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.threats[i] == pgnData.id){
+                            if(pgnData.oldX != null && pgnData.oldY == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i] == pgnData.oldX)){
+                                pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].blackData.blackCheck.coords.y[i];
+                            }else if(pgnData.oldY != null && pgnData.oldX == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.y[i] == pgnData.oldY)){
+                                pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i];
+                            }else if(pgnData.oldY == null && pgnData.oldX == null){
+                                pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.y[i];
+                                pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i];
+                            }
+
+                        }
+                    }
+                }
+            }
+            //pgnData
+            //console.log(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved);
+            
+            if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
+                piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved);
+            }
+            
+            //console.log(moveString,pgnData,chessBoardData[pgnData.newY][pgnData.newX]);
         }
-        //console.log(chessBoardData);s
+        //console.log(chessBoardData);
     }
     return{makeBoard,generateGame,getHistory, generatePgn, translatePgn}
 })();
