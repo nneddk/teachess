@@ -747,7 +747,9 @@ export const chessBoard =(()=>{
             pieceMaker(newX, newY, id, color, (hasMoved + 1));
             pieceUnmaker(oldX, oldY);
             refreshData();
+            console.log(isKingInCheck());
             if (isKingInCheck() == true){
+                refreshData();
                 if(!gameOver) indicator.textContent = "king is in check!";
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
@@ -790,16 +792,17 @@ export const chessBoard =(()=>{
             
         }
         function kingCheck(color){
+            turnCheck = !turnCheck;
             if(isKingInCheck()){
                 refreshData();
-                if(!gameOver) indicator.textContent = (isKingInCheck()?"white":"black")+"'s king is in check!";
+                if(!gameOver) indicator.textContent = (turnCheck?"white":"black")+"'s king is in check!";
                 moveDetail.action.checking = true;
                 let possible;
-                if(isKingInCheck() == 'white'){
+                if(isKingInCheck() && turnCheck){
                     possible = availableMoves.white;
                     checkmateChecker(true, possible);
                 }
-                if(isKingInCheck() == 'black'){
+                if(isKingInCheck() && !turnCheck){
                     possible = availableMoves.black;
                     checkmateChecker(false, possible);
                 }
@@ -817,6 +820,7 @@ export const chessBoard =(()=>{
                     checkmateChecker(true, possible, true);
                 }
             }
+            turnCheck = !turnCheck;
         }
         function undoLastMove (oldX, oldY, newX, newY, id, color, hasMoved, storeEat){
             pieceMaker(oldX, oldY, id, color, hasMoved);
@@ -828,13 +832,12 @@ export const chessBoard =(()=>{
                 for(let x = 0; x <8; x++){
                     if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                         if(chessBoardData[y][x].pieceData.id == 'king'){
-                            if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck.counter)){
-                                if (turnCheck) return true; 
-                                return 'white';  
+                            if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck.counter)&& turnCheck){
+                                return true;  
                             }
-                            if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)){
+                            if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)&& !turnCheck){
                                 if (!turnCheck) return true;
-                                return 'black'
+                                return true;
                             }
                             
                         }
@@ -1323,7 +1326,7 @@ export const chessBoard =(()=>{
             if(data.tile.blackCheck.counter > 0){
                 for(let i = 0; i <= data.tile.blackCheck.counter; i++){
                     if(data.tile.blackCheck.threats[i] == data.piece){
-                        if(data.tile.blackCheck.coords.y[i] == data.oldCoords[1]){
+                        if(data.tile.blackCheck.coords.x[i] == data.oldCoords[0]){
                             return data.moveNotation.old[1];
                         }
                         return data.moveNotation.old[0];
@@ -1352,14 +1355,14 @@ export const chessBoard =(()=>{
                     break;
                 case 'queen':
                     abbreviation= 'Q';
-                    abbreviation+redundantChecker(data[i]);
+                    abbreviation = abbreviation+redundantChecker(data[i]);
                     break;
                 case 'king':
                     abbreviation='K';
                     break;
                 case 'rook':
                     abbreviation = 'R';
-                    abbreviation+redundantChecker(data[i]);
+                    abbreviation = abbreviation+redundantChecker(data[i]);
                     break;
                 case 'pawn':
                     if(data[i].action.eat) abbreviation = data[i].moveNotation.old[0];
@@ -1530,7 +1533,7 @@ export const chessBoard =(()=>{
                         for(let i = 0; i < chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.counter; i++){
                             if(chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.threats[i] == pgnData.id){
                                 if(pgnData.oldX != null && pgnData.oldY == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i] == pgnData.oldX)){
-                                    pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].blackData.blackCheck.coords.y[i];
+                                    pgnData.oldY = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.y[i];
                                 }else if(pgnData.oldY != null && pgnData.oldX == null && (chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.y[i] == pgnData.oldY)){
                                     pgnData.oldX = chessBoardData[pgnData.newY][pgnData.newX].threatData.blackCheck.coords.x[i];
                                 }else if(pgnData.oldY == null && pgnData.oldX == null){
@@ -1542,6 +1545,7 @@ export const chessBoard =(()=>{
                         }
                     }
                 }
+            console.log(pgnData);
             }else if (moveString[identifier] = '-') {
                 pgnData.oldX = 4;
                 if  (pgnData.color){

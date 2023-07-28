@@ -4,6 +4,7 @@ At the moment, a chess UI built for educational purposes
 - none atm c:
 ### currently working on:
 - CODE REFACTORING
+- footer button logo rework
 - PGN translation - DONE!
 - PGN parser - DONE !
 - UNDO - DONE!
