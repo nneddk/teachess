@@ -26,6 +26,11 @@ cancelGenerateBtn.onclick =()=>{
     inputPgn.value= '';
 }
 downloadBtn.onclick = () =>{
+    navigator.clipboard.writeText(chessBoard.generatePgn(chessBoard.getHistory()));
+    indicator.textContent = 'PGN copied to your clipboard!';
+    //console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
+    //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
+    /*
     let pgnFile = null;
     function downloadPgn(text){
         let data = new Blob([text],{type: 'text/plain'});
@@ -35,10 +40,8 @@ downloadBtn.onclick = () =>{
         pgnFile = window.URL.createObjectURL(data);
         return pgnFile;
     }
-    navigator.clipboard.writeText(chessBoard.generatePgn(chessBoard.getHistory()));
-    indicator.textContent = 'PGN copied to your clipboard!';
-    console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
-    //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
+    downloadBtn.setAttribute("href",downloadPgn(openingData));
+    */
 }
 
 function parsePGN(){
@@ -60,10 +63,4 @@ function parsePGN(){
         }
     }
     chessBoard.translatePgn(moveList);
-    //console.log(newPGN);
-    //console.log(pgnTags);
-}
-
-function translate(){
-    
 }
