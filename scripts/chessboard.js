@@ -1,3 +1,26 @@
+//opening data
+let openingData = '';
+async function translate(){
+    //[eco:eco, name:name, pgn:pgn]
+    await fetch('./assets/openings/main.txt')
+    .then((response)=>response.text())
+    .then((data)=>{
+        openingData = data;
+    });
+    openingData = openingData.split('\n');
+    for(let i = 0; i<openingData.length; i++){
+        openingData[i] = openingData[i].split('\t');
+        let tempData = {
+            eco:openingData[i][0],
+            name:openingData[i][1],
+            pgn:openingData[i][2]
+        }
+        openingData[i] = tempData;
+        
+    }
+    console.log(openingData);
+}
+translate();
 const gameBoard = document.getElementById("game-board");
 const indicator = document.getElementById("indicator");
 export const chessBoard =(()=>{
@@ -780,7 +803,8 @@ export const chessBoard =(()=>{
                 moveDetail.newCoords = [newX, newY];
                 
                 if(pushData) moveHistory.push(moveDetail);
-                if(pushData) console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
+                //opening
+                if(pushData) findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
                 clearMoveDetail();
                 clearInfo();
                 turnCheck = !turnCheck;
@@ -1576,6 +1600,17 @@ export const chessBoard =(()=>{
                 generateGame();
             }
             
+        }
+    }
+    function findOpening(pgn){
+        console.log(pgn);
+        pgn = pgn.trim();
+        //linear search, for testing purposes, need to refactor to a binary search
+        for(let i = 0; i<openingData.length; i++){
+            if(openingData[i].pgn == pgn){
+                console.log(openingData[i].name);
+                break;
+            }
         }
     }
     return{makeBoard,generateGame,getHistory, generatePgn, translatePgn}
