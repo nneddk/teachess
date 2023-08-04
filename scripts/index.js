@@ -37,7 +37,7 @@ downloadBtn.onclick = () =>{
     }
     navigator.clipboard.writeText(chessBoard.generatePgn(chessBoard.getHistory()));
     indicator.textContent = 'PGN copied to your clipboard!';
-    console.log(chessBoard.generatePgn(chessBoard.getHistory()));
+    console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
     //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
 }
 
@@ -49,7 +49,9 @@ function parsePGN(){
         pgnTags.push(newPGN.pop());
     }
     newPGN.reverse();
-    newPGN = newPGN.join('\n').replace(/(\r\n|\n|\r|\+|#)/gm, "").split(' ');
+    
+    newPGN = newPGN.join('\n').replace(/(\r\n|\n)/gm, " ").replace(/(\r\n|\n|\r|\+|#)/gm, "").split(' ');
+    
     newPGN.pop();
     let moveList = [];
     for(let i = 0; i<newPGN.length;i++){
@@ -60,4 +62,8 @@ function parsePGN(){
     chessBoard.translatePgn(moveList);
     //console.log(newPGN);
     //console.log(pgnTags);
+}
+
+function translate(){
+    
 }

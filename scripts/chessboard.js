@@ -313,15 +313,14 @@ export const chessBoard =(()=>{
                             &&(rightRook.hasMoved == 0)){
                                 moveDetail.action.castle = true;
                                 moveDetail.moves = 1;
-                                moveHistory.push(moveDetail)
-                                movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false);
+                                //opening
+                                
+                                movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false, true);
                                 moveDetail.action.castle = true;
-                                movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved, false);
+                                movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved, false, false);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                  'king'+' '+' > '+chessBoardData[oldY][oldX+2].notation;
-                            
-
-                            turnCheck = !turnCheck;
+                                turnCheck = !turnCheck;
                             }
                         }
                         if(chessBoardData[oldY][oldX - 4].pieceData != null && chessBoardData[oldY][oldX - 4].pieceData.id == 'rook'
@@ -330,16 +329,14 @@ export const chessBoard =(()=>{
                             if((newX == oldX - 2 && oldY == newY)
                             &&(leftRook.color == color)
                             &&(leftRook.hasMoved == 0)){
-                            moveDetail.action.castle = true;
-                            moveDetail.moves = 1;
-                            moveHistory.push(moveDetail)
-                            movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false);
-                            moveDetail.action.castle = true;
-                            movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved, false);
-                            if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
-                            'king'+' '+' > '+chessBoardData[oldY][oldX-2].notation;
-                        
-                            turnCheck = !turnCheck;
+                                moveDetail.action.castle = true;
+                                moveDetail.moves = 1;
+                                movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false, true);
+                                moveDetail.action.castle = true;
+                                movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved, false, false);
+                                if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
+                                'king'+' '+' > '+chessBoardData[oldY][oldX-2].notation;
+                                turnCheck = !turnCheck;
                             }
                         }   
                     }
@@ -725,7 +722,7 @@ export const chessBoard =(()=>{
             chessBoardData[y][x].pieceDom = null;
             chessBoardData[y][x].isEmpty = true;
         } 
-        function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote){        
+        function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote, pushData){        
             if(color)numberOfMoves++;  
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
@@ -746,8 +743,7 @@ export const chessBoard =(()=>{
             }
             pieceMaker(newX, newY, id, color, (hasMoved + 1));
             pieceUnmaker(oldX, oldY);
-            refreshData();
-            console.log(isKingInCheck());
+            refreshData()
             if (isKingInCheck() == true){
                 refreshData();
                 if(!gameOver) indicator.textContent = "king is in check!";
@@ -783,7 +779,8 @@ export const chessBoard =(()=>{
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords = [newX, newY];
                 
-                if(!moveDetail.action.castle) moveHistory.push(moveDetail);
+                if(pushData) moveHistory.push(moveDetail);
+                if(pushData) console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
                 clearMoveDetail();
                 clearInfo();
                 turnCheck = !turnCheck;
@@ -1224,7 +1221,7 @@ export const chessBoard =(()=>{
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
                 if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' > '+chessBoardData[newY][newX].notation;
-                piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false);
+                piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false, true);
             }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
                 if(movingData.color != turnCheck){
                     if(!gameOver) indicator.textContent = "not your turn!"
@@ -1336,7 +1333,7 @@ export const chessBoard =(()=>{
         }
         return '';
     }
-    function generatePgn(data){
+    function generatePgn(data, openingCheck){
         let pgnString = '';
         let moveNumber = 0;
         let chLimit = 1;
@@ -1395,6 +1392,7 @@ export const chessBoard =(()=>{
                 chLimit++;
             }
         }
+        if (openingCheck) return pgnString;
         pgnString = pgnString + pgnResult;
         let pgnTags =[
             '[Event "?"]',
@@ -1411,6 +1409,7 @@ export const chessBoard =(()=>{
         });
         pgnTagString = pgnTagString+'\n';
         let pgn = pgnTagString+pgnString;
+        
         return pgn;
     }               
     
@@ -1545,7 +1544,7 @@ export const chessBoard =(()=>{
                         }
                     }
                 }
-            console.log(pgnData);
+
             }else if (moveString[identifier] = '-') {
                 pgnData.oldX = 4;
                 if  (pgnData.color){
@@ -1564,7 +1563,7 @@ export const chessBoard =(()=>{
                 if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
                     if(!gameOver) indicator.textContent = chessBoardData[pgnData.oldY][pgnData.oldX].notation+' '+
                         pgnData.id+' '+' > '+chessBoardData[pgnData.newY][pgnData.newX].notation;
-                    piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN);
+                    piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN, true);
                         
                 }
             } catch (error) {

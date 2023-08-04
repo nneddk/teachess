@@ -34,3 +34,4 @@ At the moment, a chess UI built for educational purposes
 ### TooMuchInkFont:
     Made by K Guillory
     https://www.dafont.com/toomuchink.font
+    
