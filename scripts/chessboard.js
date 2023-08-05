@@ -890,11 +890,13 @@ export const chessBoard =(()=>{
                 }
                 if(n == possible.length -1 && isKingInCheck()){
                     if(stalemate != null) {
+                        moveDetail.action.mate = 'draw';
                         indicator.textContent =' stalemate at '+numberOfMoves+' moves';
                     }else{
+                        moveDetail.action.mate = true;
                         indicator.textContent = (color?'black':'white')+" checkmate's at "+numberOfMoves+' moves';
                     }
-                    moveDetail.action.mate = true;
+                    
                     gameOver = true;
 
                 } 
@@ -993,7 +995,6 @@ export const chessBoard =(()=>{
                 if(undoData.color)numberOfMoves--; 
                 let storeEat= '';
                 if (undoData.action.eat) storeEat = undoData.action.eat;
-                if(undoData.action.mate) gameOver = false;
                 if(undoData.action.enpass) {
                     if(undoData.color) enPassant(storeEat.x, storeEat.x, (storeEat.y - 1), storeEat.y, storeEat.color);
                     if(!undoData.color) enPassant(storeEat.x, storeEat.x, (storeEat.y + 1), storeEat.y, storeEat.color);
@@ -1395,9 +1396,14 @@ export const chessBoard =(()=>{
             if(data[i].action.promote)action = action+'='+data[i].action.promote;
             if(data[i].action.checking && !data[i].action.mate){
                 action = action+'+'
-            }else if(data[i].action.mate){
-                action = action+'#'
-                pgnResult = (i%2 == 0?'1-0':'0-1');
+            }else if(data[i].action.mate != false){
+                if(data[i].action.mate == 'draw'){
+                    pgnResult = '1/2-1/2';
+                }else{
+                    action = action+'#'
+                    pgnResult = (i%2 == 0?'1-0':'0-1');
+                }
+                
             }
             function castle (oldX, newX){
                 if (oldX<newX) return 'O-O';

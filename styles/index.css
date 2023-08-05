@@ -104,21 +104,30 @@ img {
     align-items: center;
     flex-direction: column;
 }
+
 .content{
-    height: 93vh;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-
+    gap:5vmin;
     background-image: url('../assets/board/bg.svg');
     background-color: lightyellow;
     background-position: center;
     background-size: 50%;
 }
+.main-board{
+    display:grid;
+    grid-template-columns: 5vmin 85vmin;
+}
+.sidebar{
+    height: 85vmin;
+    width:30vw;
+}
 .footer{
     height:7vh;
     background-color: black;
-    display: flex;
+    display: none;
     text-align: justify;
     align-items: center;
     justify-content: space-between;
