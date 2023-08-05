@@ -1,11 +1,11 @@
 # teachess
 At the moment, a chess UI built for educational purposes
 ### currently working on:
-- Opening Indication
+- Redo Website UI
 # TODO:
 - Redo Website UI
 - History Traversal
-- Opening Indication
+- Opening Indication - DONE
 
 ## Assets Used
 ### Openings
