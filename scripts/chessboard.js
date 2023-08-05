@@ -18,7 +18,6 @@ async function translate(){
         openingData[i] = tempData;
         
     }
-    console.log(openingData);
 }
 translate();
 const gameBoard = document.getElementById("game-board");
@@ -759,7 +758,6 @@ export const chessBoard =(()=>{
                 eatMove(newX, newY);
             }else if((enPassantData.x == newX) && (enPassantData.y == newY)){
                 moveDetail.action.eat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
-                //tick
                 moveDetail.action.enpass = true;
                 storeEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
                 eatMove(enPassantData.target.x, enPassantData.target.y);
@@ -804,7 +802,9 @@ export const chessBoard =(()=>{
                 
                 if(pushData) moveHistory.push(moveDetail);
                 //opening
-                if(pushData) findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
+                if(pushData){
+                    findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
+                } 
                 clearMoveDetail();
                 clearInfo();
                 turnCheck = !turnCheck;
@@ -1405,15 +1405,17 @@ export const chessBoard =(()=>{
             }
             if (i%2 == 0) moveNumber++;
             if(!data[i].action.castle){
-                pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+abbreviation+(data[i].action.eat?'x':'')+data[i].moveNotation.new+action+' ';
+                pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+abbreviation+(data[i].action.eat?'x':'')+data[i].moveNotation.new+action;
             }else{
-                pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+castle((data[i].oldCoords[0]),(data[i].newCoords[0]))+' ';
+                pgnString = pgnString+(i%2 == 0?moveNumber+'. ':'')+castle((data[i].oldCoords[0]),(data[i].newCoords[0]));
             }
             
             
             if(pgnString.length >= (70 * chLimit)){
                 pgnString = pgnString+'\n';
                 chLimit++;
+            }else{
+                pgnString = pgnString+' ';
             }
         }
         if (openingCheck) return pgnString;
@@ -1603,15 +1605,50 @@ export const chessBoard =(()=>{
         }
     }
     function findOpening(pgn){
-        console.log(pgn);
+        
         pgn = pgn.trim();
+        pgn = pgn.replace(/(\r\n|\n)/gm, "");
         //linear search, for testing purposes, need to refactor to a binary search
+       
         for(let i = 0; i<openingData.length; i++){
             if(openingData[i].pgn == pgn){
                 console.log(openingData[i].name);
                 break;
             }
+            if(openingData[i].pgn.length > pgn.length){
+                break;
+            }
+        }/*
+        //binary search, for faster time complexity
+        
+        for (let i = findStartIndex(); i < openingData.length; i++){
+            if(openingData[i].pgn == pgn){
+                console.log(openingData[i].name);
+                break;
+            }
+            if(openingData[i].pgn.length > pgn.length){
+                break;
+            }
         }
+        function findStartIndex(){
+            let low = 0, high = openingData.length - 1;
+            let x = (pgn.length - 1);
+            while(low <= high){
+
+                let mid = Math.floor((low+high)/2);
+
+                if (openingData[mid].pgn.length == x) return mid;
+
+                if (openingData[mid].pgn.length <=x){
+                    low = mid + 1;
+                }
+                if (openingData[mid].pgn.length > x){
+                    high = mid - 1;
+                }
+            }
+
+            return 0;
+        }*/ 
     }
     return{makeBoard,generateGame,getHistory, generatePgn, translatePgn}
 })();

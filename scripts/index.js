@@ -30,31 +30,34 @@ downloadBtn.onclick = () =>{
     indicator.textContent = 'PGN copied to your clipboard!';
     //console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
     //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
-    /*
-    let pgnFile = null;
-    function downloadPgn(text){
-        let data = new Blob([text],{type: 'text/plain'});
-        if(pgnFile !== null){
-            window.URL.revokeObjectURL(pgnFile);
-        }
-        pgnFile = window.URL.createObjectURL(data);
-        return pgnFile;
-    }
-    downloadBtn.setAttribute("href",downloadPgn(openingData));
-    */
 }
 
 function parsePGN(){
-    let newPGN = inputPgn.value.split('\n');
+    let newPGN = inputPgn.value.trim().split('\n');
     newPGN.reverse();
     let pgnTags =[];
-    for(let i = 0; i<8; i++){
+    console.log(newPGN);
+    for(let i = newPGN.length - 1; i>0; i--){
+        console.log(newPGN[i]);
+        if(newPGN[i] == ''){
+            pgnTags.push(newPGN.pop());
+            break;
+        }
+        if(newPGN[i].charAt(0)!= '['){
+            break;
+        }
         pgnTags.push(newPGN.pop());
+        
     }
     newPGN.reverse();
+    console.log(newPGN);
+    newPGN = newPGN.join('\n').replace(/(\n)/gm, ' ').replace(/(\+|#)/gm, '').split(' ');
+    console.log(newPGN);
+    /*
+    newPGN = newPGN.join('\n').replace(/(\r\n|\n)/gm, "").replace(/(\r\n|\n|\r|\+|#)/gm, "").split(' ');
     
-    newPGN = newPGN.join('\n').replace(/(\r\n|\n)/gm, " ").replace(/(\r\n|\n|\r|\+|#)/gm, "").split(' ');
-    
+    console.log(newPGN);
+    */
     newPGN.pop();
     let moveList = [];
     for(let i = 0; i<newPGN.length;i++){
@@ -64,3 +67,46 @@ function parsePGN(){
     }
     chessBoard.translatePgn(moveList);
 }
+//for compiling openings only, make sure to comment out!
+/*
+let openingData = '';
+async function translate(){
+    //[eco:eco, name:name, pgn:pgn]
+    await fetch('./assets/openings/a.txt')
+    .then((response)=>response.text())
+    .then((data)=>{
+        openingData = openingData + data;
+    });
+    await fetch('./assets/openings/b.txt')
+    .then((response)=>response.text())
+    .then((data)=>{
+        openingData = openingData + data;
+    });
+    await fetch('./assets/openings/c.txt')
+    .then((response)=>response.text())
+    .then((data)=>{
+        openingData = openingData + data;
+    });
+    await fetch('./assets/openings/d.txt')
+    .then((response)=>response.text())
+    .then((data)=>{
+        openingData = openingData + data;
+    });
+    await fetch('./assets/openings/e.txt')
+    .then((response)=>response.text())
+    .then((data)=>{
+        openingData = openingData + data;
+    });
+    openingData = openingData.split('\n');
+    for(let i = 0; i<openingData.length; i++){
+        openingData[i] = openingData[i].split('\t');
+    }
+    openingData.sort((a,b)=>{return a[2].length - b[2].length});
+    for(let i = 0; i<openingData.length; i++){
+        openingData[i] = openingData[i].join('\t');
+    }
+    openingData = openingData.join('\n');
+    console.log(openingData);
+}
+translate();
+*/
