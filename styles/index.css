@@ -118,11 +118,22 @@ img {
 }
 .main-board{
     display:grid;
-    grid-template-columns: 5vmin 85vmin;
+    grid-template-columns: 3.5vmin 85vmin;
+    grid-template-rows: 85vmin 3.5vmin;
 }
+
 .sidebar{
-    height: 85vmin;
-    width:30vw;
+    height: 91vmin;
+    width:50vmin;
+    border:solid;
+    display:grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 2fr 1fr 2fr 3fr 1fr 1fr;
+}
+.move-history-holder{
+    display:grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 2fr 0.5fr;
 }
 .footer{
     height:7vh;
@@ -132,13 +143,6 @@ img {
     align-items: center;
     justify-content: space-between;
 
-}
-#indicator{
-    font-family: 'TooMuchInk',monospace ;
-    color:white;
-    font-size:4vmin;
-    text-align: center;
-    text-justify: auto;
 }
 .footer-button-seperators{
     display:grid;

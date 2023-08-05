@@ -33,13 +33,43 @@
     
     <div class = "content">
         <div class = 'main-board'>
-            <div class = 'y-annotation'></div>
+            <div id = 'y-notation'>
+                <span class = 'notation dark'>8</span>
+                <span class = 'notation light'>7</span>
+                <span class = 'notation dark'>6</span>
+                <span class = 'notation light'>5</span>
+                <span class = 'notation dark'>4</span>
+                <span class = 'notation light'>3</span>
+                <span class = 'notation dark'>2</span>
+                <span class = 'notation light'>1</span>
+
+            </div>
             <div id = "game-board"></div>
             <div></div>
-            <div class = 'x-annotation'></div>
+            <div id = 'x-notation'>
+                <span class = 'notation light'>a</span>
+                <span class = 'notation dark'>b</span>
+                <span class = 'notation light'>c</span>
+                <span class = 'notation dark'>d</span>
+                <span class = 'notation light'>e</span>
+                <span class = 'notation dark'>f</span>
+                <span class = 'notation light'>g</span>
+                <span class = 'notation dark'>h</span>
+            </div>
         </div>
         
-        <div class = 'sidebar'></div>
+        <div class = 'sidebar'>
+            <div id = 'turn-indicator'>turn-indicator</div>
+            <div id = 'opening-indicator'>opening-indicator</div>
+            <div id = 'indicator'> indicator</div>
+            <div class = 'move-history-holder'>
+                <div id = 'move-history'>move-history</div>
+                <div class = 'generate-btn-holder'>generate-btn-holder</div>
+            </div>
+            
+            <div class = 'traversal-btn-holder'>traversal-btn-holder</div>
+            <div class = 'misc-btn-holder'>misc-btn-holder</div>
+        </div>
     </div>
     <div class = "footer">
         <a class = "github-link" href = "https://github.com/nneddk/teachess"></a>

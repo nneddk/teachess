@@ -21,15 +21,44 @@
 .btn-wrapper>.btn:hover{
     transform: scale(1.1);
 }
-.x-annotation{
-    border:solid;
+#x-notation{
     width:85vmin;
-    height:5vmin;
+    height:3.5vmin;
+    display:grid;
+    grid-template-columns: repeat(8,1fr);
+    grid-template-rows: 1fr;
 }
-.y-annotation{
-    border:solid;
+#y-notation{
     height:85vmin;
-    width:5vmin;
+    width:3.5vmin;
+    display:grid;
+    grid-template-rows: repeat(8,1fr);
+    grid-template-columns: 1fr;
+}
+.notation{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'TooMuchInk',monospace ;
+    font-size: 3vmin;
+}
+.notation.dark{
+    color: #dbdbb4;
+    background-image: url('../assets/board/dark.svg');
+    background-size: 100%;
+}
+#y-notation>.notation.dark{
+    background-image: url('../assets/board/dark.svg');
+    background-size: 300%;
+}
+.notation.light{
+    color: #5f743d;
+    background-image: url('../assets/board/bright.svg');
+    background-size: 100%;
+}
+#y-notation>.notation.light{
+    background-image: url('../assets/board/bright.svg');
+    background-size: 300%;
 }
 #game-board{
     background-image: url('../assets/board/board.svg');
@@ -70,14 +99,15 @@
     opacity: 1;
     z-index: 0;
 }
-/*
+
 .white-tile{
-    background-image: url('../assets/board/dark.svg');
+    color: #dbdbb4;
 }
 .black-tile{
-    background-image: url('../assets/board/bright.svg');
+    color: #5f743d;
+    
 }
-*/
+
 .placement{
     background-image: url('../assets/board/placement.svg');
     position: absolute;

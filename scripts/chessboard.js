@@ -1290,7 +1290,7 @@ export const chessBoard =(()=>{
                 if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                     activePieces.push(chessBoardData[y][x].pieceData);
                 }
-                chessBoardData[y][x].tileLocation.style.color = (notations?"black":"transparent"); 
+                chessBoardData[y][x].tileLocation.style.color = (notations?"":"transparent"); 
                 }
             }
             for(let i = 0; i<activePieces.length; i++){
