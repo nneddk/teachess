@@ -1,3 +1,5 @@
+import { hideDisplay } from "./index.js";
+
 //opening data
 let openingData = '';
 async function translate(){
@@ -22,10 +24,14 @@ async function translate(){
 translate();
 const gameBoard = document.getElementById("game-board");
 const indicator = document.getElementById("indicator");
+const winIndicator = document.getElementById('win-indicator');
+const turnIndicatorPic = document.getElementById('turn-indicator-pic');
+const openingIndicator = document.getElementById('opening-indicator');
+const moveHistoryIndicator = document.getElementById('move-history');
 export const chessBoard =(()=>{
     let moveHistory = [];
     let gameOver = false;
-    let notations = false;
+    let notations = 0;
     let numberOfMoves = 0;
     let availableMoves = {
         black:[],
@@ -889,12 +895,20 @@ export const chessBoard =(()=>{
                     break;
                 }
                 if(n == possible.length -1 && isKingInCheck()){
+                    winIndicator.style.display = 'block';
                     if(stalemate != null) {
                         moveDetail.action.mate = 'draw';
                         indicator.textContent =' stalemate at '+numberOfMoves+' moves';
+                        winIndicator.classList.add('black-turn');
+                        turnCheck = !turnCheck;
+                        refreshData();
                     }else{
                         moveDetail.action.mate = true;
                         indicator.textContent = (color?'black':'white')+" checkmate's at "+numberOfMoves+' moves';
+                        winIndicator.textContent = 'Checkmate'
+                        winIndicator.classList.add('checkmate');
+                        turnCheck = !turnCheck;
+                        refreshData();
                     }
                     
                     gameOver = true;
@@ -989,7 +1003,14 @@ export const chessBoard =(()=>{
         const undoBtn = document.getElementById("undo-btn");
         undoBtn.onclick = ()=>{
             if(moveHistory.length > 0){
-                if (gameOver) !gameOver;
+                if (gameOver){
+                   gameOver = !gameOver; 
+                   turnCheck = !turnCheck;
+                   winIndicator.style.display = 'none';
+                   winIndicator.textContent = '';
+                   winIndicator.classList.remove('black-turn');
+                   winIndicator.classList.remove('checkmate');
+                } 
                 refreshData();
                 let undoData = moveHistory.pop();
                 if(undoData.color)numberOfMoves--; 
@@ -1014,7 +1035,9 @@ export const chessBoard =(()=>{
                         */
                 indicator.textContent = '';
                 undoLastMove(undoData.oldCoords[0],undoData.oldCoords[1],undoData.newCoords[0], undoData.newCoords[1],undoData.piece, undoData.color,(undoData.moves - 1),storeEat);
+                findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
                 turnCheck = !turnCheck;
+                refreshData();
             }
             
         }
@@ -1290,12 +1313,20 @@ export const chessBoard =(()=>{
                 if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
                     activePieces.push(chessBoardData[y][x].pieceData);
                 }
-                chessBoardData[y][x].tileLocation.style.color = (notations?"":"transparent"); 
-                }
+                chessBoardData[y][x].tileLocation.style.color = ((notations == 2||notations == 3)?"":"transparent"); 
+                
+                } 
             }
             for(let i = 0; i<activePieces.length; i++){
                 piece.getThreatData(activePieces[i].id, activePieces[i].x, activePieces[i].y, activePieces[i].color);
             }
+            //turnIndicator
+            if(!gameOver){
+                turnIndicatorPic.classList.add((turnCheck?'white':'black')+'-turn');
+                turnIndicatorPic.classList.remove((!turnCheck?'white':'black')+'-turn'); 
+            }
+            
+
     }
     function generateGame(){
         for (let x = 0; x<8;x++){
@@ -1325,10 +1356,11 @@ export const chessBoard =(()=>{
         piece.pieceMaker(6,7,'knight',true,0);
         refreshData();
     }
-    const notationBtn = document.getElementById('notation-btn');
-    notationBtn.onclick = () =>{
-        notations = !notations;
+    function viewNotation(){
+        notations++;
+        notations = (notations%4);
         refreshData();
+        return notations;
     }
     //pgn generator
     function redundantChecker(data){
@@ -1610,15 +1642,19 @@ export const chessBoard =(()=>{
             
         }
     }
+    const inputPgn = document.getElementById("input-pgn");
     function findOpening(pgn){
         
         pgn = pgn.trim();
-        pgn = pgn.replace(/(\r\n|\n)/gm, "");
+        pgn = pgn.replace(/(\r\n|\n)/gm, " ");
+        moveHistoryIndicator.textContent = pgn;
+        if(inputPgn.style.display =="inline-block"){
+            hideDisplay();
+        }
         //linear search, for testing purposes, need to refactor to a binary search
-       
         for(let i = 0; i<openingData.length; i++){
             if(openingData[i].pgn == pgn){
-                console.log(openingData[i].name);
+                openingIndicator.textContent = openingData[i].eco+': '+openingData[i].name;
                 break;
             }
             if(openingData[i].pgn.length > pgn.length){
@@ -1656,6 +1692,6 @@ export const chessBoard =(()=>{
             return 0;
         }*/ 
     }
-    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn}
+    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn, viewNotation}
 })();
 
