@@ -134,17 +134,3 @@
     background-size: 50%;
     opacity: 0.5;
 }
-@media only screen and (max-width: 600px) {
-    #game-board{
-        position: absolute;
-        background-color: grey;
-        height: 95vmin;
-        width: 95vmin;
-        display:grid;
-        grid-template-columns: repeat(1, 1fr);
-        grid-template-rows: repeat(8, 1fr);
-    
-        z-index: 0;
-    }
-  }
-

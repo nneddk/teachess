@@ -83,57 +83,8 @@ img {
     align-items: center;
     gap:5vmin;
     background-image: url('../assets/board/bg.svg');
-    background-color: lightyellow;
+    background-color: grey;
     background-position: center;
     background-size: 50%;
+    background-blend-mode: multiply;
 }
-.footer{
-    height:7vh;
-    background-color: black;
-    display: none;
-    text-align: justify;
-    align-items: center;
-    justify-content: space-between;
-
-}
-.footer-button-seperators{
-    display:grid;
-    grid-template-columns: repeat(4, 1fr);
-    margin-right: 1vw;
-    margin-left: 1vw;
-    height: 100%;
-    gap: 0.5vw;
-
-    align-items: center;
-}
-.github-link{
-    text-decoration: none;
-    color:white;
-    margin-left: 1vw;
-    margin-right: 1vw;
-
-    display:block;
-    width: 7vh;
-    height: 100%;
-
-    background-image: url('../assets/logos/GitHub-Mark-Light-64px.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size:3vh;
-}
-@media only screen and (max-width: 800px) {
-    .content{
-        height: 85vh;
-    }
-    .footer{
-        position: sticky;
-        bottom: 0;
-        height:15vh;
-        background-color: black;
-        display: flex;
-        text-align: justify;
-        align-items: center;
-        justify-content: space-between;
-    
-    }
-  }
