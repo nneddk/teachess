@@ -25,11 +25,6 @@
         </div>
             
     </div>
-    <div id = "generate-wrapper" class = "wrapper">
-        Generate Board
-        <button class = "btn" id = "cancel-generate-btn" type = "button">cancel</button> 
-    </div>
-    
     <div class = "content">
         <div class = "main-board">
             <div id = "y-notation">
@@ -56,47 +51,37 @@
                 <span class = "notation dark">h</span>
             </div>
         </div>
-        
-        <div class = "toolbar">
-            <div class = "turn-indicator-holder">
-                <div id = "turn-indicator-pic"></div>
-                <div id = "win-indicator"></div>
+        <div class = "toolbar-holder">
+            <div class = "toolbar">
+                <div class = "turn-indicator-holder">
+                    <div id = "turn-indicator-pic"></div>
+                    <div id = "win-indicator"></div>
+                </div>
+                <div id = "indicator"> Teachess</div>
+                <div id = "opening-indicator"></div>
+                <div id = "move-history-holder">
+                    <textarea id = "move-history" readonly= "true" placeholder="Moves will appear here..." spellcheck="false"></textarea>
+                    <textarea id = "input-pgn" placeholder="Leave blank for default board" spellcheck="false"></textarea>
+                    <button class = "btn" id = "generate-btn" type = "button">generate</button> 
+                </div>
+                
+                <div class = "traversal-btn-holder">
+                    <button class ="btn" id = "first-move-btn" type = "button"> &lt;&lt; </button>
+                    <button class ="btn" id = "undo-btn" type = "button"> &lt; </button>
+                    <button class ="btn" id = "redo-btn" type = "button"> &gt; </button>
+                    <button class ="btn" id = "last-move-btn" type = "button"> &gt;&gt; </button>
+                </div>
+                <div class = "captured-pieces">
+
+                </div>
+                <div class = "misc-btn-holder">
+                    <button class ="btn" id ="notation-btn" type="button"></button>
+                    <button class="btn" id ="download-btn" type="button"></button>
+                    <button class ="btn" id = "reset-btn" type="button"></button>
+                </div>
             </div>
-            <div id = "indicator"> indicator</div>
-            <div class = "opening-indicator-holder">
-                <div id = "opening-indicator">opening-indicator</div>
-            </div>
-            <div id = "move-history-holder">
-                <textarea id = "move-history" readonly= "true" placeholder="Moves will appear here..." spellcheck="false"></textarea>
-                <textarea id = "input-pgn" placeholder="Leave blank for default board" spellcheck="false"></textarea>
-                <button class = "btn" id = "generate-btn" type = "button">generate</button> 
-            </div>
-            
-            <div class = "traversal-btn-holder">
-                <button class ="btn" id = "first-move-btn" type = "button"> &LeftTriangleBar; </button>
-                <button class ="btn" id = "undo-btn" type = "button"> &vartriangleleft; </button>
-                <button class ="btn" id = "redo-btn" type = "button"> &vartriangleright; </button>
-                <button class ="btn" id = "last-move-btn" type = "button"> &RightTriangleBar; </button>
-            </div>
-            <div class = "misc-btn-holder">
-                <button class ="btn" id ="notation-btn" type="button"></button>
-                <button class="btn" id ="download-btn" type="button"></button>
-                <button class ="btn" id = "reset-btn" type="button"></button>
-            </div>
-        </div>
-    </div>
-    <div class = "footer">
-        <a class = "github-link" href = "https://github.com/nneddk/teachess"></a>
-        <div id = "indicator"></div>
-        <div class = "footer-button-seperators">
-            <button class="btn" id ="undo-btn" type="button"></button>
-            
-            
-            
-            
         </div>
         
     </div>
-    
 </body>
 </html>
