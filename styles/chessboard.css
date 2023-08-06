@@ -23,17 +23,21 @@
 }
 #x-notation{
     width:85vmin;
-    height:3.5vmin;
+    height:3.75;
     display:grid;
     grid-template-columns: repeat(8,1fr);
     grid-template-rows: 1fr;
+    overflow: hidden;
+    opacity: 0;
 }
 #y-notation{
     height:85vmin;
-    width:3.5vmin;
+    width:3.75vmin;
     display:grid;
     grid-template-rows: repeat(8,1fr);
     grid-template-columns: 1fr;
+    overflow: hidden;
+    opacity: 0;
 }
 .notation{
     display:flex;
@@ -81,17 +85,20 @@
 .tile{
     margin: 5px;
     display: flex;
+    align-items: center;
+    justify-content: center;
     font-family: 'TooMuchInk',monospace ;
     font-size:3vmin;
     color:transparent;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 110%;   
+    background-size: 110%;
+    
 }
 .piece-pic{
     position: absolute;
-    width: 10vmin;
-    height: 10vmin;
+    width: 9vmin;
+    height: 9vmin;
     background-color: transparent;
     background-position: center;
     background-repeat: no-repeat;
@@ -107,24 +114,24 @@
     color: #5f743d;
     
 }
-
 .placement{
+    
     background-image: url('../assets/board/placement.svg');
-    position: absolute;
-    width: 10vmin;
-    height: 10vmin;
+    
+    
     background-color: transparent;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 60%;
+    background-size: 70%;
     opacity: 0.5;
+    position: absolute;
 }
 .highlighted{
     background-image: url('../assets/board/placement.svg');
     background-color: transparent;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 40%;
+    background-size: 50%;
     opacity: 0.5;
 }
 @media only screen and (max-width: 600px) {
