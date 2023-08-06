@@ -6,6 +6,8 @@ At the moment, a chess UI built for educational purposes
 - Redo Website UI
 - History Traversal
 - Opening Indication - DONE
+## ideas
+- random opening play
 
 ## Assets Used
 ### Openings
