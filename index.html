@@ -8,6 +8,7 @@
     <link rel = "stylesheet" href ="./styles/index.css">
     <link rel = "stylesheet" href ="./styles/chessboard.css">
     <link rel = "stylesheet" href ="./styles/pieces.css">
+    <link rel = "stylesheet" href ="./styles/toolbar.css">
     <script type = "module" src = "./scripts/index.js" defer></script>
     <script type = "module" src = "./scripts/chessboard.js" defer></script>
     <title>Teachess</title>
@@ -16,7 +17,7 @@
 <body>
     <div id = "promotion-wrapper" class = "wrapper">
         promotion
-        <div class = 'btn-wrapper'>
+        <div class = "btn-wrapper">
             <button class = "btn" id = "promote-queen" type="button"></button>
             <button class = "btn" id = "promote-rook" type="button"></button>
             <button class = "btn" id = "promote-bishop" type="button"></button>
@@ -26,49 +27,62 @@
     </div>
     <div id = "generate-wrapper" class = "wrapper">
         Generate Board
-        <textarea id = "input-pgn" placeholder="Leave blank for default board" spellcheck="false"></textarea>
-        <button class = "btn" id = "generate-btn" type = "button">generate</button> 
         <button class = "btn" id = "cancel-generate-btn" type = "button">cancel</button> 
     </div>
     
     <div class = "content">
-        <div class = 'main-board'>
-            <div id = 'y-notation'>
-                <span class = 'notation dark'>8</span>
-                <span class = 'notation light'>7</span>
-                <span class = 'notation dark'>6</span>
-                <span class = 'notation light'>5</span>
-                <span class = 'notation dark'>4</span>
-                <span class = 'notation light'>3</span>
-                <span class = 'notation dark'>2</span>
-                <span class = 'notation light'>1</span>
+        <div class = "main-board">
+            <div id = "y-notation">
+                <span class = "notation dark">8</span>
+                <span class = "notation light">7</span>
+                <span class = "notation dark">6</span>
+                <span class = "notation light">5</span>
+                <span class = "notation dark">4</span>
+                <span class = "notation light">3</span>
+                <span class = "notation dark">2</span>
+                <span class = "notation light">1</span>
 
             </div>
             <div id = "game-board"></div>
             <div></div>
-            <div id = 'x-notation'>
-                <span class = 'notation light'>a</span>
-                <span class = 'notation dark'>b</span>
-                <span class = 'notation light'>c</span>
-                <span class = 'notation dark'>d</span>
-                <span class = 'notation light'>e</span>
-                <span class = 'notation dark'>f</span>
-                <span class = 'notation light'>g</span>
-                <span class = 'notation dark'>h</span>
+            <div id = "x-notation">
+                <span class = "notation light">a</span>
+                <span class = "notation dark">b</span>
+                <span class = "notation light">c</span>
+                <span class = "notation dark">d</span>
+                <span class = "notation light">e</span>
+                <span class = "notation dark">f</span>
+                <span class = "notation light">g</span>
+                <span class = "notation dark">h</span>
             </div>
         </div>
         
-        <div class = 'sidebar'>
-            <div id = 'turn-indicator'>turn-indicator</div>
-            <div id = 'opening-indicator'>opening-indicator</div>
-            <div id = 'indicator'> indicator</div>
-            <div class = 'move-history-holder'>
-                <div id = 'move-history'>move-history</div>
-                <div class = 'generate-btn-holder'>generate-btn-holder</div>
+        <div class = "toolbar">
+            <div class = "turn-indicator-holder">
+                <div id = "turn-indicator-pic"></div>
+                <div id = "win-indicator"></div>
+            </div>
+            <div id = "indicator"> indicator</div>
+            <div class = "opening-indicator-holder">
+                <div id = "opening-indicator">opening-indicator</div>
+            </div>
+            <div id = "move-history-holder">
+                <textarea id = "move-history" readonly= "true" placeholder="Moves will appear here..." spellcheck="false"></textarea>
+                <textarea id = "input-pgn" placeholder="Leave blank for default board" spellcheck="false"></textarea>
+                <button class = "btn" id = "generate-btn" type = "button">generate</button> 
             </div>
             
-            <div class = 'traversal-btn-holder'>traversal-btn-holder</div>
-            <div class = 'misc-btn-holder'>misc-btn-holder</div>
+            <div class = "traversal-btn-holder">
+                <button class ="btn" id = "first-move-btn" type = "button"> &LeftTriangleBar; </button>
+                <button class ="btn" id = "undo-btn" type = "button"> &vartriangleleft; </button>
+                <button class ="btn" id = "redo-btn" type = "button"> &vartriangleright; </button>
+                <button class ="btn" id = "last-move-btn" type = "button"> &RightTriangleBar; </button>
+            </div>
+            <div class = "misc-btn-holder">
+                <button class ="btn" id ="notation-btn" type="button"></button>
+                <button class="btn" id ="download-btn" type="button"></button>
+                <button class ="btn" id = "reset-btn" type="button"></button>
+            </div>
         </div>
     </div>
     <div class = "footer">
@@ -76,9 +90,9 @@
         <div id = "indicator"></div>
         <div class = "footer-button-seperators">
             <button class="btn" id ="undo-btn" type="button"></button>
-            <button class ="btn" id ="notation-btn" type="button"></button>
-            <button class="btn" id ="download-btn" type="button"></button>
-            <button class ="btn" id = "reset-btn" type="button"></button>
+            
+            
+            
             
         </div>
         

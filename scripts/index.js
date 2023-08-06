@@ -1,6 +1,8 @@
 import { chessBoard } from "./chessboard.js";
+/* create's the board and populates it on load*/
 chessBoard.makeBoard();
 chessBoard.generateGame();
+
 const resetBtn = document.getElementById('reset-btn');
 const downloadBtn = document.getElementById('download-btn');
 
@@ -9,9 +11,31 @@ const generateWrapper = document.getElementById("generate-wrapper");
 const generateBtn = document.getElementById("generate-btn");
 const cancelGenerateBtn = document.getElementById("cancel-generate-btn");
 const inputPgn = document.getElementById("input-pgn");
+
+const notationBtn = document.getElementById('notation-btn');
+const yNotation = document.getElementById('y-notation');
+const xNotation = document.getElementById('x-notation');
+const moveHistoryIndicator = document.getElementById('move-history');
+const moveHistoryHolder = document.getElementById('move-history-holder');
+let holderOpen = false;
+//page buttons
 resetBtn.onclick=()=>{
-    generateWrapper.style.zIndex = 10;
-    
+    hideDisplay();   
+}
+export function hideDisplay(){
+    holderOpen = !holderOpen;
+    inputPgn.value= ''
+    if(holderOpen){
+        moveHistoryHolder.style.gridTemplateRows = "3fr 0.5fr";
+        moveHistoryIndicator.style.display = "none";
+        inputPgn.style.display = "inline-block";
+        generateBtn.style.display = "inline-block"; 
+    }else{
+        moveHistoryHolder.style.gridTemplateRows = "2fr";
+        moveHistoryIndicator.style.display = "inline-block";
+        inputPgn.style.display = "none";
+        generateBtn.style.display = "none";
+    }
 }
 generateBtn.onclick =()=>{
     indicator.textContent = '';
@@ -20,10 +44,10 @@ generateBtn.onclick =()=>{
     parsePGN();
     generateWrapper.style.zIndex = -10;
     inputPgn.value= '';
-}
-cancelGenerateBtn.onclick =()=>{
-    generateWrapper.style.zIndex = -10;
-    inputPgn.value= '';
+    moveHistoryHolder.style.gridTemplateRows = "2fr";
+    inputPgn.style.display = "none";
+    generateBtn.style.display = "none";
+    moveHistoryIndicator.style.display = "inline-block";
 }
 downloadBtn.onclick = () =>{
     navigator.clipboard.writeText(chessBoard.generatePgn(chessBoard.getHistory()));
@@ -31,12 +55,26 @@ downloadBtn.onclick = () =>{
     //console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
     //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
 }
-
+notationBtn.onclick = () =>{
+    let notationValue = chessBoard.viewNotation();
+    if(notationValue == 1 || notationValue == 3){
+        yNotation.style.opacity = '1';
+        xNotation.style.opacity = '1';
+        //yNotation.style.width = '3.5vmin';
+        /*xNotation.style.height = '3.5vmin';
+        */
+    }else{
+        yNotation.style.opacity = '0';
+        xNotation.style.opacity = '0'
+        //yNotation.style.width = '0vmin';
+       /* xNotation.style.height = '0vmin';
+        */
+    }
+}
 function parsePGN(){
     let newPGN = inputPgn.value.trim().split('\n');
     newPGN.reverse();
     let pgnTags =[];
-    console.log(newPGN);
     for(let i = newPGN.length - 1; i>0; i--){
         console.log(newPGN[i]);
         if(newPGN[i] == ''){
@@ -50,15 +88,16 @@ function parsePGN(){
         
     }
     newPGN.reverse();
-    console.log(newPGN);
     newPGN = newPGN.join('\n').replace(/(\n)/gm, ' ').replace(/(\+|#)/gm, '').split(' ');
-    console.log(newPGN);
     /*
     newPGN = newPGN.join('\n').replace(/(\r\n|\n)/gm, "").replace(/(\r\n|\n|\r|\+|#)/gm, "").split(' ');
     
     console.log(newPGN);
     */
-    newPGN.pop();
+    if( (newPGN[(newPGN.length - 1)] == '*')|| (newPGN[(newPGN.length - 1)] == '1/2-1/2')|| (newPGN[(newPGN.length - 1)] == '1-0')||(newPGN[(newPGN.length - 1)] == '0-1') ){
+        newPGN.pop();
+    }
+    
     let moveList = [];
     for(let i = 0; i<newPGN.length;i++){
         if(i%3!=0){
