@@ -24,7 +24,7 @@ resetBtn.onclick=()=>{
 }
 export function hideDisplay(){
     holderOpen = !holderOpen;
-    inputPgn.value= ''
+    
     if(holderOpen){
         moveHistoryHolder.style.gridTemplateRows = "3fr 0.5fr";
         moveHistoryIndicator.style.display = "none";
@@ -41,6 +41,7 @@ generateBtn.onclick =()=>{
     indicator.textContent = '';
     chessBoard.makeBoard();
     chessBoard.generateGame();
+    console.log(inputPgn.value);
     parsePGN();
     generateWrapper.style.zIndex = -10;
     inputPgn.value= '';
@@ -76,7 +77,6 @@ function parsePGN(){
     newPGN.reverse();
     let pgnTags =[];
     for(let i = newPGN.length - 1; i>0; i--){
-        console.log(newPGN[i]);
         if(newPGN[i] == ''){
             pgnTags.push(newPGN.pop());
             break;
@@ -89,11 +89,7 @@ function parsePGN(){
     }
     newPGN.reverse();
     newPGN = newPGN.join('\n').replace(/(\n)/gm, ' ').replace(/(\+|#)/gm, '').split(' ');
-    /*
-    newPGN = newPGN.join('\n').replace(/(\r\n|\n)/gm, "").replace(/(\r\n|\n|\r|\+|#)/gm, "").split(' ');
-    
-    console.log(newPGN);
-    */
+
     if( (newPGN[(newPGN.length - 1)] == '*')|| (newPGN[(newPGN.length - 1)] == '1/2-1/2')|| (newPGN[(newPGN.length - 1)] == '1-0')||(newPGN[(newPGN.length - 1)] == '0-1') ){
         newPGN.pop();
     }

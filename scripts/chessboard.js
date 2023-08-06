@@ -32,7 +32,6 @@ export const chessBoard =(()=>{
     let moveHistory = [];
     let gameOver = false;
     let notations = 0;
-    let numberOfMoves = 0;
     let availableMoves = {
         black:[],
         white:[]
@@ -751,7 +750,6 @@ export const chessBoard =(()=>{
             chessBoardData[y][x].isEmpty = true;
         } 
         function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote, pushData){        
-            if(color)numberOfMoves++;  
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
             let storeEat;
@@ -895,6 +893,14 @@ export const chessBoard =(()=>{
                     break;
                 }
                 if(n == possible.length -1 && isKingInCheck()){
+                    let numberOfMoves = 0;
+
+                    if ((moveHistory.length + 1) % 2 == 0){
+                        numberOfMoves = (moveHistory.length + 1) / 2;
+                    }else if ((moveHistory.length + 1) % 2 == 1) {
+                        numberOfMoves = Math.floor((moveHistory.length + 1)/2) + 1
+                    }
+                    
                     winIndicator.style.display = 'block';
                     if(stalemate != null) {
                         moveDetail.action.mate = 'draw';
@@ -1013,7 +1019,6 @@ export const chessBoard =(()=>{
                 } 
                 refreshData();
                 let undoData = moveHistory.pop();
-                if(undoData.color)numberOfMoves--; 
                 let storeEat= '';
                 if (undoData.action.eat) storeEat = undoData.action.eat;
                 if(undoData.action.enpass) {
@@ -1035,7 +1040,8 @@ export const chessBoard =(()=>{
                         */
                 indicator.textContent = '';
                 undoLastMove(undoData.oldCoords[0],undoData.oldCoords[1],undoData.newCoords[0], undoData.newCoords[1],undoData.piece, undoData.color,(undoData.moves - 1),storeEat);
-                findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
+                openingIndicator.textContent = '';
+                findOpening(chessBoard.generatePgn(getHistory(),true));
                 turnCheck = !turnCheck;
                 refreshData();
             }
@@ -1148,7 +1154,6 @@ export const chessBoard =(()=>{
     })();
     function makeBoard(){
         moveHistory = [];
-        numberOfMoves = 0;
         availableMoves = {
             black:[],
             white:[]
@@ -1325,6 +1330,9 @@ export const chessBoard =(()=>{
                 turnIndicatorPic.classList.add((turnCheck?'white':'black')+'-turn');
                 turnIndicatorPic.classList.remove((!turnCheck?'white':'black')+'-turn'); 
             }
+            //openingIndicator.textContent = '';
+            findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
+            
             
 
     }
@@ -1628,7 +1636,7 @@ export const chessBoard =(()=>{
                     if(!gameOver) indicator.textContent = chessBoardData[pgnData.oldY][pgnData.oldX].notation+' '+
                         pgnData.id+' '+' > '+chessBoardData[pgnData.newY][pgnData.newX].notation;
                     piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN, true);
-                        
+                    findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
                 }
             } catch (error) {
                 let errorMove = '';
