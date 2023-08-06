@@ -9,7 +9,6 @@ const downloadBtn = document.getElementById('download-btn');
 const indicator = document.getElementById("indicator");
 const generateWrapper = document.getElementById("generate-wrapper");
 const generateBtn = document.getElementById("generate-btn");
-const cancelGenerateBtn = document.getElementById("cancel-generate-btn");
 const inputPgn = document.getElementById("input-pgn");
 
 const notationBtn = document.getElementById('notation-btn');
@@ -30,6 +29,7 @@ export function hideDisplay(){
         moveHistoryIndicator.style.display = "none";
         inputPgn.style.display = "inline-block";
         generateBtn.style.display = "inline-block"; 
+        inputPgn.value = '';
     }else{
         moveHistoryHolder.style.gridTemplateRows = "2fr";
         moveHistoryIndicator.style.display = "inline-block";
