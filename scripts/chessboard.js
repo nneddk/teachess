@@ -15,7 +15,7 @@ async function translate(){
         let tempData = {
             eco:openingData[i][0],
             name:openingData[i][1],
-            pgn:openingData[i][2]
+            pgn:openingData[i][2].replace(/(\r)/gm, '')
         }
         openingData[i] = tempData;
         
@@ -771,7 +771,7 @@ export const chessBoard =(()=>{
             refreshData()
             if (isKingInCheck() == true){
                 refreshData();
-                if(!gameOver) indicator.textContent = "king is in check!";
+                if(!gameOver) indicator.textContent = "King is in check!";
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
                 if(moveDetail.action.eat) moveDetail.action.eat = false;
@@ -820,7 +820,7 @@ export const chessBoard =(()=>{
             turnCheck = !turnCheck;
             if(isKingInCheck()){
                 refreshData();
-                if(!gameOver) indicator.textContent = (turnCheck?"white":"black")+"'s king is in check!";
+                if(!gameOver) indicator.textContent = (turnCheck?"White":"Black")+"'s king is in check!";
                 moveDetail.action.checking = true;
                 let possible;
                 if(isKingInCheck() && turnCheck){
@@ -910,7 +910,7 @@ export const chessBoard =(()=>{
                         refreshData();
                     }else{
                         moveDetail.action.mate = true;
-                        indicator.textContent = (color?'black':'white')+" checkmate's at "+numberOfMoves+' moves';
+                        indicator.textContent = (color?'Black':'White')+" checkmate's in "+numberOfMoves+' moves';
                         winIndicator.textContent = 'Checkmate'
                         winIndicator.classList.add('checkmate');
                         turnCheck = !turnCheck;
