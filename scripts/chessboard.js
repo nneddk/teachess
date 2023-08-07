@@ -452,7 +452,7 @@ export const chessBoard =(()=>{
         
                     }else{
                         highlightMoves(boardData.x, boardData.y,color);
-                        if(id == 'king' && chessBoardData[y][x].pieceData.hasMoved == 0){
+                        if(id == 'king' && chessBoardData[y][x].pieceData.hasMoved == 0 && isKingInCheck()){
                             if(x + 3 <= 7){   
                                 if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
                                     if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
@@ -583,7 +583,7 @@ export const chessBoard =(()=>{
                 }
                 
                 //possible for castling
-                if(id == 'king'){
+                if(id == 'king' && isKingInCheck()){
                     if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
                         if(x + 3 <= 7){
                             if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
@@ -888,6 +888,7 @@ export const chessBoard =(()=>{
                 pieceUnmaker(oldX, oldY);
                 refreshData();
                 if (isKingInCheck() == false){
+                    console.log(possible[n]);
                     undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
                     refreshData(); 
                     break;
