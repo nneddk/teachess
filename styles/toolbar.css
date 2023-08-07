@@ -125,6 +125,7 @@
 #opening-indicator{
     display:flex;
     align-items: center;
+    justify-content: center;
     font-family: 'TooMuchInk',monospace ;
     color:white;
     font-size: 1.5vmin;
@@ -136,6 +137,8 @@
     margin-right: 1vmin;
 
     padding: 1vmin;
+
+    text-align: center;
 
     box-sizing: border-box;
     background-color: rgb(0,0,0,0.5);
@@ -151,21 +154,32 @@
     display:grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr;
-    margin-top: 1vmin;
-    padding-left: 1vmin;
-    padding-right: 1vmin;
-    gap:1vmin;
-    justify-content: center;
+    margin: 1vmin;
+    gap:5px;
+    border-radius: 10px;
 }
 .traversal-btn-holder>.btn{
-    text-align: center;
-    height:4vmin;
     font-size: 3vmin;
     color: white;
-    border-radius: 10px;
     background-color: rgb(0,0,0,0.5);
-    font-family: 'TooMuchInk',monospace ;
     border:none;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.btn.left{
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+.btn.right{
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+.traversal-btn-holder>.btn:hover{
+    color:black;
+    background-color: white;
 }
 .misc-btn-holder{
     border-top: solid rgb(0,0,0,0.5);
