@@ -100,7 +100,7 @@ export const chessBoard =(()=>{
            
             pieceDiv.ondragstart = (e) =>{
                 e.dataTransfer.setDragImage(new Image(),0,0);
-                if(chessBoardData[y][x].pieceData != null && chessBoardData[y][x].pieceData.color == turnCheck){
+                if(chessBoardData[y][x].pieceData != null && chessBoardData[y][x].pieceData.color == turnCheck && !gameOver){
                     e.stopPropagation();  
                     clearInfo();
                     refreshData();
@@ -142,7 +142,7 @@ export const chessBoard =(()=>{
             }
 
             pieceDiv.onclick=(e) =>{
-                if(chessBoardData[y][x].pieceData.color == turnCheck){
+                if(chessBoardData[y][x].pieceData.color == turnCheck && !gameOver){
                     e.stopPropagation();  
                     if(movingData.piece == null){
                         setData();
@@ -178,6 +178,7 @@ export const chessBoard =(()=>{
             chessBoardData[y][x].pieceData = null;
         } 
         function getMoveData (id, oldCoords, newCoords, color,hasMoved){
+            if(gameOver) return;     
             let allowMove = false;
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1];
@@ -751,7 +752,8 @@ export const chessBoard =(()=>{
             chessBoardData[y][x].pieceDom = null;
             chessBoardData[y][x].isEmpty = true;
         } 
-        function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote, pushData){        
+        function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote, pushData){   
+            if(gameOver) return;     
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
             let storeEat;
@@ -1171,7 +1173,7 @@ export const chessBoard =(()=>{
         return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove, undoMove, redoMove};
     })();
     function makeBoard(){
-        moveIndex = -1;
+        gameOver = false;
         moveHistory = [];
         redoData = [];
         availableMoves = {
