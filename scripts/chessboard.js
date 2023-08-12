@@ -1178,6 +1178,10 @@ export const chessBoard =(()=>{
             black:[],
             white:[]
         };
+        winIndicator.style.display = 'none';
+        winIndicator.textContent = '';
+        winIndicator.classList.remove('black-turn');
+        winIndicator.classList.remove('checkmate');
         turnCheck = 1;
         clearInfo();
         chessBoardData = [];
