@@ -1,4 +1,4 @@
-import { hideDisplay } from "./index.js";
+import { hideDisplay } from "./toolbar.js";
 
 //opening data
 let openingData = '';
@@ -29,9 +29,11 @@ const turnIndicatorPic = document.getElementById('turn-indicator-pic');
 const openingIndicator = document.getElementById('opening-indicator');
 const moveHistoryIndicator = document.getElementById('move-history');
 export const chessBoard =(()=>{
+    let moveIndex = -1;
     let moveHistory = [];
     let gameOver = false;
     let notations = 0;
+    let redoData = [];
     let availableMoves = {
         black:[],
         white:[]
@@ -803,10 +805,10 @@ export const chessBoard =(()=>{
                 moveDetail.moves = (hasMoved + 1);
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords = [newX, newY];
-                
-                if(pushData) moveHistory.push(moveDetail);
-                //opening
+
                 if(pushData){
+                    moveHistory.push(moveDetail);
+                    moveIndex = moveHistory.length;
                     findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
                 } 
                 clearMoveDetail();
@@ -888,7 +890,6 @@ export const chessBoard =(()=>{
                 pieceUnmaker(oldX, oldY);
                 refreshData();
                 if (isKingInCheck() == false){
-                    console.log(possible[n]);
                     undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
                     refreshData(); 
                     break;
@@ -1007,8 +1008,7 @@ export const chessBoard =(()=>{
                 verticalChecker,
             };
         })();
-        const undoBtn = document.getElementById("undo-btn");
-        undoBtn.onclick = ()=>{
+        function undoMove(){
             if(moveHistory.length > 0){
                 if (gameOver){
                    gameOver = !gameOver; 
@@ -1020,6 +1020,7 @@ export const chessBoard =(()=>{
                 } 
                 refreshData();
                 let undoData = moveHistory.pop();
+                redoData.push(undoData);
                 let storeEat= '';
                 if (undoData.action.eat) storeEat = undoData.action.eat;
                 if(undoData.action.enpass) {
@@ -1046,9 +1047,20 @@ export const chessBoard =(()=>{
                 turnCheck = !turnCheck;
                 refreshData();
             }
+        }
+        function redoMove(){
+            if(redoData.length > 0){
+                let tempRedoData = redoData.pop();
+                if(getMoveData(tempRedoData.piece, [tempRedoData.oldCoords[0], tempRedoData.oldCoords[1]], [tempRedoData.newCoords[0], tempRedoData.newCoords[1]], tempRedoData.color, (tempRedoData.moves - 1))){
+                    /*
+                    if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
+                            movingData.id+' '+' > '+chessBoardData[newY][newX].notation;*/
+                    movePiece([tempRedoData.oldCoords[0], tempRedoData.oldCoords[1]], [tempRedoData.newCoords[0], tempRedoData.newCoords[1]], tempRedoData.piece, tempRedoData.color, (tempRedoData.moves - 1), false, true);
+                }
+                
+            }
             
         }
-        
         function getPromotionDiv(newX, newY, color, hasMoved, pgnPromote){
             turnCheck = !turnCheck
             const promotionWrapper = document.getElementById('promotion-wrapper');
@@ -1085,6 +1097,7 @@ export const chessBoard =(()=>{
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords =[newX,newY];
                 moveHistory.push(moveDetail);
+                moveIndex = moveHistory.length;
                 if(!pgnPromote){
                     promotionWrapper.style.zIndex ='-10';
                 }
@@ -1151,10 +1164,12 @@ export const chessBoard =(()=>{
         }
             }
         }
-        return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove};
+        return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove, undoMove, redoMove};
     })();
     function makeBoard(){
+        moveIndex = -1;
         moveHistory = [];
+        redoData = [];
         availableMoves = {
             black:[],
             white:[]
@@ -1276,6 +1291,7 @@ export const chessBoard =(()=>{
                 if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' > '+chessBoardData[newY][newX].notation;
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false, true);
+                redoData = [];
             }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
                 if(movingData.color != turnCheck){
                     if(!gameOver) indicator.textContent = "not your turn!"
@@ -1464,8 +1480,10 @@ export const chessBoard =(()=>{
             }else{
                 pgnString = pgnString+' ';
             }
+            findOpening(pgnString);
         }
-        if (openingCheck) return pgnString;
+        if (openingCheck)return pgnString;  
+        
         pgnString = pgnString + pgnResult;
         let pgnTags =[
             '[Event "?"]',
@@ -1638,6 +1656,7 @@ export const chessBoard =(()=>{
                         pgnData.id+' '+' > '+chessBoardData[pgnData.newY][pgnData.newX].notation;
                     piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN, true);
                     findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
+                    redoData = [];
                 }
             } catch (error) {
                 let errorMove = '';
@@ -1701,6 +1720,29 @@ export const chessBoard =(()=>{
             return 0;
         }*/ 
     }
-    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn, viewNotation}
+    function traverseHistory(action){
+        switch(action){
+            case 'undo':
+                piece.undoMove();
+                break;
+            case 'redo':
+                piece.redoMove();
+                break;
+            case 'start':
+                while(moveHistory.length > 0){
+                    piece.undoMove();
+                }
+                break;
+            case 'end':
+                while(redoData.length > 0){
+                    piece.redoMove();
+                }
+                break;
+            default:
+                break;
+        }
+        //console.log(moveIndex)
+    }
+    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn, viewNotation, traverseHistory}
 })();
 
