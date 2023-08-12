@@ -1009,6 +1009,7 @@ export const chessBoard =(()=>{
             };
         })();
         function undoMove(){
+            refreshData();
             if(moveHistory.length > 0){
                 if (gameOver){
                    gameOver = !gameOver; 
@@ -1018,7 +1019,7 @@ export const chessBoard =(()=>{
                    winIndicator.classList.remove('black-turn');
                    winIndicator.classList.remove('checkmate');
                 } 
-                refreshData();
+                
                 let undoData = moveHistory.pop();
                 redoData.push(undoData);
                 let storeEat= '';
@@ -1049,6 +1050,7 @@ export const chessBoard =(()=>{
             }
         }
         function redoMove(){
+            refreshData();
             if(redoData.length > 0){
                 let tempRedoData = redoData.pop();
                 console.log(tempRedoData);
@@ -1057,6 +1059,7 @@ export const chessBoard =(()=>{
                     if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                             movingData.id+' '+' > '+chessBoardData[newY][newX].notation;*/
                     movePiece([tempRedoData.oldCoords[0], tempRedoData.oldCoords[1]], [tempRedoData.newCoords[0], tempRedoData.newCoords[1]], tempRedoData.piece, tempRedoData.color, (tempRedoData.moves - 1), tempRedoData.action.promote, true);
+                    refreshData();
                 }
                 
             }
