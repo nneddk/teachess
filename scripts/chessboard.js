@@ -454,7 +454,7 @@ export const chessBoard =(()=>{
         
                     }else{
                         highlightMoves(boardData.x, boardData.y,color);
-                        if(id == 'king' && chessBoardData[y][x].pieceData.hasMoved == 0 && isKingInCheck()){
+                        if(id == 'king' && chessBoardData[y][x].pieceData.hasMoved == 0){
                             if(x + 3 <= 7){   
                                 if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
                                     if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
@@ -1051,11 +1051,12 @@ export const chessBoard =(()=>{
         function redoMove(){
             if(redoData.length > 0){
                 let tempRedoData = redoData.pop();
+                console.log(tempRedoData);
                 if(getMoveData(tempRedoData.piece, [tempRedoData.oldCoords[0], tempRedoData.oldCoords[1]], [tempRedoData.newCoords[0], tempRedoData.newCoords[1]], tempRedoData.color, (tempRedoData.moves - 1))){
                     /*
                     if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                             movingData.id+' '+' > '+chessBoardData[newY][newX].notation;*/
-                    movePiece([tempRedoData.oldCoords[0], tempRedoData.oldCoords[1]], [tempRedoData.newCoords[0], tempRedoData.newCoords[1]], tempRedoData.piece, tempRedoData.color, (tempRedoData.moves - 1), false, true);
+                    movePiece([tempRedoData.oldCoords[0], tempRedoData.oldCoords[1]], [tempRedoData.newCoords[0], tempRedoData.newCoords[1]], tempRedoData.piece, tempRedoData.color, (tempRedoData.moves - 1), tempRedoData.action.promote, true);
                 }
                 
             }
