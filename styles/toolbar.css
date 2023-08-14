@@ -13,7 +13,7 @@
     display:grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr 0.5fr 2fr 0.5fr 1fr 0.5fr;
-    background-color: rgb(80, 80, 80);
+    background-color: rgb(100, 100, 100);
     border-radius: 10px;
     background-image: url('../assets/board/bg.svg');
     background-blend-mode: multiply;
@@ -38,7 +38,7 @@
     padding: 5px;
 
     box-sizing: border-box;
-    background-color: rgb(40,40,40);
+    background-color: rgb(60,60,60);
     color:white;
     resize: none;
 
@@ -71,7 +71,7 @@
     padding: 5px;
 
     box-sizing: border-box;
-    background-color: rgb(40,40,40);
+    background-color: rgb(60,60,60);
     color:white;
     resize: none;
 
@@ -120,7 +120,7 @@
     font-size: 3vmin;
     padding: 1vmin;
     margin:1vmin;
-    background-color: rgb(40,40,40);
+    background-color: rgb(60,60,60);
     border-radius: 10px;
 }
 
@@ -133,7 +133,7 @@
     font-size: 1.5vmin;
     border: none;
 
-    background-color: rgb(40,40,40);
+    background-color: rgb(60,60,60);
 
     margin-left: 1vmin;
     margin-right: 1vmin;
@@ -162,12 +162,11 @@
 .traversal-btn-holder>.btn{
     font-size: 3vmin;
     color: white;
-    background-color: rgb(40,40,40);
+    background-color: rgb(60,60,60);
     border:none;
     display:flex;
     justify-content: center;
     align-items: center;
-    transition: 0.3s;
 }
 
 .btn.left{
@@ -210,8 +209,10 @@
     margin-top: 0;
 }
 .captured-pieces>div{
-    background-color: rgb(40,40,40);
+    background-color: rgb(60,60,60);
     border-radius: 10px;
+    display:flex;
+    align-items: center;
 }
 #download-btn{
     background-image: url('../assets/logos/share.svg');
@@ -232,4 +233,13 @@
 }
 #notation-btn:hover{
     transform: scale(1.3);
+}
+
+.captured-piece{
+    border:solid;
+    height:2vmin;
+    width:2vmin;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center ;
 }

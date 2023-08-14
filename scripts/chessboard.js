@@ -807,7 +807,7 @@ export const chessBoard =(()=>{
                 moveDetail.moves = (hasMoved + 1);
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords = [newX, newY];
-
+                if(moveDetail.action.eat) showEat(storeEat);
                 if(pushData){
                     moveHistory.push(moveDetail);
                     moveIndex = moveHistory.length;
@@ -818,7 +818,6 @@ export const chessBoard =(()=>{
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
             }
-            
         }
         function kingCheck(color){
             turnCheck = !turnCheck;
@@ -1064,6 +1063,21 @@ export const chessBoard =(()=>{
                     refreshData();
                 }
                 
+            }
+            
+        }
+        function showEat(eatData){
+            const capturedPiece = document.createElement("div");
+            capturedPiece.classList.add((eatData.color?"white":"black")+'-'+eatData.id);
+            capturedPiece.classList.add('captured-piece');
+            if(eatData.color){
+                const whiteHolder = document.getElementById("captured-white-holder");
+                whiteHolder.appendChild(capturedPiece)
+            }
+
+            if(!eatData.color){
+                const blackHolder = document.getElementById("captured-black-holder");
+                blackHolder.appendChild(capturedPiece);
             }
             
         }
@@ -1447,7 +1461,7 @@ export const chessBoard =(()=>{
                     abbreviation = abbreviation+redundantChecker(data[i]);
                     break;
                 case 'king':
-                    abbreviation='K';
+                    abbreviation = 'K';
                     break;
                 case 'rook':
                     abbreviation = 'R';
