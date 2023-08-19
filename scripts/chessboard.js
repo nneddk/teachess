@@ -784,6 +784,7 @@ export const chessBoard =(()=>{
             }else{
                 kingCheck(color);
                 //promotion logic
+                if(moveDetail.action.eat) showEat(storeEat);
                 if (id == 'pawn' && (!isKingInCheck() == true)){
                     if(color){
                         if(newY == 0){
@@ -807,12 +808,14 @@ export const chessBoard =(()=>{
                 moveDetail.moves = (hasMoved + 1);
                 moveDetail.moveNotation.new = chessBoardData[newY][newX].notation;
                 moveDetail.newCoords = [newX, newY];
-                if(moveDetail.action.eat) showEat(storeEat);
+                
                 if(pushData){
                     moveHistory.push(moveDetail);
                     moveIndex = moveHistory.length;
                     findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
                 } 
+                if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
+                            id+' '+' > '+chessBoardData[newY][newX].notation;
                 clearMoveDetail();
                 clearInfo();
                 turnCheck = !turnCheck;
@@ -1676,8 +1679,6 @@ export const chessBoard =(()=>{
             }
             try {
                 if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
-                    if(!gameOver) indicator.textContent = chessBoardData[pgnData.oldY][pgnData.oldX].notation+' '+
-                        pgnData.id+' '+' > '+chessBoardData[pgnData.newY][pgnData.newX].notation;
                     piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN, true);
                     findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
                     redoData = [];

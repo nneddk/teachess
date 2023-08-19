@@ -87,7 +87,7 @@ img {
     align-items: center;
     gap:5vmin;
     background-image: url('../assets/board/bg.svg');
-    background-color: grey;
+    background-color: rgb(100,100,100);
     background-position: center;
     background-size: 50%;
     background-blend-mode: multiply;

@@ -63,7 +63,7 @@
     background-image: url('../assets/board/board.svg');
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 100%;
+    background-size: 101%;
     height: 85vmin;
     width: 85vmin;
     display:grid;
@@ -111,9 +111,7 @@
 }
 .placement{
     
-    background-image: url('../assets/board/placement.svg');
-    
-    
+    background-image: url('../assets/board/placement.svg'); 
     background-color: transparent;
     background-position: center;
     background-repeat: no-repeat;
