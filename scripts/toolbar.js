@@ -32,6 +32,7 @@ export function hideDisplay(){
         inputPgn.style.display = "inline-block";
         generateBtn.style.display = "inline-block"; 
         inputPgn.value = '';
+        inputPgn.focus();
     }else{
         moveHistoryHolder.style.gridTemplateRows = "2fr";
         moveHistoryIndicator.style.display = "inline-block";
@@ -51,8 +52,13 @@ generateBtn.onclick =()=>{
     moveHistoryIndicator.style.display = "inline-block";
 }
 downloadBtn.onclick = () =>{
-    navigator.clipboard.writeText(chessBoard.generatePgn(chessBoard.getHistory()));
-    indicator.textContent = 'PGN copied to your clipboard!';
+    if(chessBoard.getHistory().length != 0){
+        navigator.clipboard.writeText(chessBoard.generatePgn(chessBoard.getHistory()));
+        indicator.textContent = 'PGN copied to your clipboard!';
+    }else{
+        indicator.textContent = 'No Moves Recorded';
+    }
+    
     //console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
     //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
 }
