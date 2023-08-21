@@ -349,7 +349,7 @@ export const chessBoard =(()=>{
                                 moveDetail.action.castle = true;
                                 movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved, false, false);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
-                                 'king'+' '+' > '+chessBoardData[oldY][oldX+2].notation;
+                                 'king'+' '+' -> '+chessBoardData[oldY][oldX+2].notation;
                                 turnCheck = !turnCheck;
                             }
                         }
@@ -365,7 +365,7 @@ export const chessBoard =(()=>{
                                 moveDetail.action.castle = true;
                                 movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved, false, false);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
-                                'king'+' '+' > '+chessBoardData[oldY][oldX-2].notation;
+                                'king'+' '+' -> '+chessBoardData[oldY][oldX-2].notation;
                                 turnCheck = !turnCheck;
                             }
                         }   
@@ -815,7 +815,7 @@ export const chessBoard =(()=>{
                     findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
                 } 
                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
-                            id+' '+' > '+chessBoardData[newY][newX].notation;
+                            id+' '+' -> '+chessBoardData[newY][newX].notation;
                 clearMoveDetail();
                 clearInfo();
                 turnCheck = !turnCheck;
@@ -1023,11 +1023,15 @@ export const chessBoard =(()=>{
                    winIndicator.classList.remove('black-turn');
                    winIndicator.classList.remove('checkmate');
                 } 
-                
+                enPassant(null, null, null, null ,!enPassantData.color); 
                 let undoData = moveHistory.pop();
                 redoData.push(undoData);
                 let storeEat= '';
-                if (undoData.action.eat) storeEat = undoData.action.eat;
+                if (undoData.action.eat) {
+                    storeEat = undoData.action.eat;
+                    const capturedPiecesDiv = document.getElementById("captured-"+(undoData.color?"black":"white")+"-holder");
+                    if(capturedPiecesDiv.hasChildNodes) capturedPiecesDiv.removeChild(capturedPiecesDiv.lastChild);
+                }
                 if(undoData.action.enpass) {
                     if(undoData.color) enPassant(storeEat.x, storeEat.x, (storeEat.y - 1), storeEat.y, storeEat.color);
                     if(!undoData.color) enPassant(storeEat.x, storeEat.x, (storeEat.y + 1), storeEat.y, storeEat.color);
@@ -1041,6 +1045,7 @@ export const chessBoard =(()=>{
                         undoLastMove((undoData.oldCoords[0] - 4),undoData.oldCoords[1],undoData.newCoords[0] + 1, undoData.newCoords[1],'rook', undoData.color,0);
                     }
                 }
+
                 /*
                 if(!gameOver) indicator.textContent = chessBoardData[undoData.oldCoords[1]][undoData.oldCoords[0]].notation+' '+
                         undoData.piece+' '+' > '+chessBoardData[undoData.newCoords[1]][undoData.newCoords[0]].notation;
@@ -1051,6 +1056,7 @@ export const chessBoard =(()=>{
                 findOpening(chessBoard.generatePgn(getHistory(),true));
                 turnCheck = !turnCheck;
                 refreshData();
+                indicator.textContent = "Teachess";
             }
         }
         function redoMove(){
@@ -1073,6 +1079,7 @@ export const chessBoard =(()=>{
             const capturedPiece = document.createElement("div");
             capturedPiece.classList.add((eatData.color?"white":"black")+'-'+eatData.id);
             capturedPiece.classList.add('captured-piece');
+            capturedPiece.setAttribute('title',eatData.id);
             if(eatData.color){
                 const whiteHolder = document.getElementById("captured-white-holder");
                 whiteHolder.appendChild(capturedPiece)
@@ -1282,7 +1289,7 @@ export const chessBoard =(()=>{
                     e.preventDefault();
                     if(movingData.oldCoords.y !=null && movingData.oldCoords.x != null){
                         if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
-                        movingData.id+' '+' > '+chessBoardData[y][x].notation;
+                        movingData.id+' '+' -> '+chessBoardData[y][x].notation;
                     }
                 }
 
@@ -1296,7 +1303,7 @@ export const chessBoard =(()=>{
                 chessBoardTileDiv.onclick = () =>{
                     if(movingData.oldCoords.y && movingData.oldCoords.x != null){
                         if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
-                        movingData.id+' '+' > '+chessBoardData[y][x].notation;
+                        movingData.id+' '+' -> '+chessBoardData[y][x].notation;
                     }
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
@@ -1316,7 +1323,7 @@ export const chessBoard =(()=>{
             let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
                 if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
-                        movingData.id+' '+' > '+chessBoardData[newY][newX].notation;
+                        movingData.id+' '+' -> '+chessBoardData[newY][newX].notation;
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false, true);
                 redoData = [];
             }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
@@ -1537,6 +1544,7 @@ export const chessBoard =(()=>{
     function translatePgn(moveList){
         //movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)
         //need id
+        openingIndicator.textContent = "";
         for(let i = 0;i<moveList.length; i++){
             let moveString;
             let pgnData = {
