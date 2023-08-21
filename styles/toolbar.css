@@ -8,18 +8,18 @@
     width: 44vmin;
 }
 .toolbar{
-    height: 75vmin;
+    height: 70vmin;
     width:44vmin;
     display:grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 0.8fr 1fr 0.5fr 2fr 0.5fr 0.4fr 0.5fr;
+    grid-template-rows: 0.8fr 0.8fr 0.5fr 2fr 0.45fr 0.5fr 0.4fr;
     background-color:rgb(60, 60, 60);
 }
 #move-history-holder{
     display:grid;
     grid-template-columns: 1fr;
     grid-template-rows: 2fr;
-    gap:1vmin;
+    gap:3px;
 
 }
 #move-history{
@@ -79,7 +79,6 @@
     justify-content: center;
     align-items: center;
     gap:2vmin;
-    background-color: rgb(60, 60, 60);
 }
 #turn-indicator-pic{
     height:8vmin;
@@ -150,6 +149,7 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr;
     margin: 1vmin;
+    margin-top: 3px;
     gap:3px;
 }
 .traversal-btn-holder>.btn{
