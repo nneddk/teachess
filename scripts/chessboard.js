@@ -910,13 +910,13 @@ export const chessBoard =(()=>{
                     winIndicator.style.display = 'block';
                     if(stalemate != null) {
                         moveDetail.action.mate = 'draw';
-                        indicator.textContent =' stalemate at '+numberOfMoves+' moves';
+                        indicator.textContent =' stalemate in '+numberOfMoves+' moves';
                         winIndicator.classList.add('black-turn');
                         turnCheck = !turnCheck;
                         refreshData();
                     }else{
                         moveDetail.action.mate = true;
-                        indicator.textContent = (color?'Black':'White')+" checkmate's in "+numberOfMoves+' moves';
+                        indicator.textContent = (color?'black':'white')+" wins in "+numberOfMoves+' moves';
                         winIndicator.textContent = 'Checkmate'
                         winIndicator.classList.add('checkmate');
                         turnCheck = !turnCheck;
@@ -1030,7 +1030,7 @@ export const chessBoard =(()=>{
                 if (undoData.action.eat) {
                     storeEat = undoData.action.eat;
                     const capturedPiecesDiv = document.getElementById("captured-"+(undoData.color?"black":"white")+"-holder");
-                    if(capturedPiecesDiv.hasChildNodes) capturedPiecesDiv.removeChild(capturedPiecesDiv.lastChild);
+                    if(capturedPiecesDiv.hasChildNodes()) capturedPiecesDiv.removeChild(capturedPiecesDiv.lastChild);
                 }
                 if(undoData.action.enpass) {
                     if(undoData.color) enPassant(storeEat.x, storeEat.x, (storeEat.y - 1), storeEat.y, storeEat.color);
@@ -1388,6 +1388,11 @@ export const chessBoard =(()=>{
 
     }
     function generateGame(){
+        const capturedWhitePiecesDiv = document.getElementById("captured-white-holder");
+        const capturedBlackPiecesDiv = document.getElementById("captured-black-holder");
+        while(capturedWhitePiecesDiv.hasChildNodes()) capturedWhitePiecesDiv.removeChild(capturedWhitePiecesDiv.lastChild);
+        while(capturedBlackPiecesDiv.hasChildNodes()) capturedBlackPiecesDiv.removeChild(capturedBlackPiecesDiv.lastChild);
+        indicator.textContent = 'Teachess';
         for (let x = 0; x<8;x++){
             piece.pieceMaker(x,6,'pawn',true, 0);
             piece.pieceMaker(x,1,'pawn',false, 0); 
