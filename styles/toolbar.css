@@ -187,7 +187,11 @@
     
 
 }
-
+#algo-btn{
+    font-family: 'TooMuchInk',monospace;
+    color:white;
+    font-size: 2vmin;
+}
 #download-btn{
     background-image: url('../assets/logos/share.svg');
 }
