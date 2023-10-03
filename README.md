@@ -1,11 +1,9 @@
 # teachess
 At the moment, a chess UI built for educational purposes
-### currently working on:
-- Captured pieces indication
 # TODO:
-- Redo Website UI
-- History Traversal - DONE
-- Opening Indication - DONE
+- REDO CASTLING LOGIC
+- FINISH BOGOCHESS
+- ADD LOGIC TO AI MOVES
 ## ideas
 - random opening play
 
