@@ -343,8 +343,6 @@ export const chessBoard =(()=>{
                             &&(rightRook.hasMoved == 0)){
                                 moveDetail.action.castle = true;
                                 moveDetail.moves = 1;
-                                //opening
-                                
                                 movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false, true);
                                 moveDetail.action.castle = true;
                                 movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved, false, false);
@@ -539,7 +537,7 @@ export const chessBoard =(()=>{
                             });
                         }  
                     }
-                    if ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color) && id == 'pawn'){
+                    if (((boardData.pieceData !=null) &&(boardData.pieceData.color == !color)||(boardData.x == enPassantData.x && boardData.y == enPassantData.y)) && id == 'pawn'){
                         if(color) {
                             availableMoves.white.push({
                                 id:id,
@@ -548,7 +546,6 @@ export const chessBoard =(()=>{
                                 hasMoved: chessBoardData[y][x].pieceData.hasMoved,
                                 move : boardData,
                             });
-
                         }
                         if(!color){
                             availableMoves.black.push({
@@ -602,76 +599,87 @@ export const chessBoard =(()=>{
                                     move : chessBoardData[y+2][x],
                                 });
                             }
-                    }
-                    
+                    }                    
                 }
-                
-                //possible for castling
-                if(id == 'king' && isKingInCheck()){
-                    if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
-                        if(x + 3 <= 7){
-                            if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
-                                if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
-                                    if((color?chessBoardData[y][x+1].threatData.blackCheck.counter == 0:chessBoardData[y][x+1].threatData.whiteCheck.counter == 0 )
-                                        && (color?chessBoardData[y][x+2].threatData.blackCheck.counter == 0:chessBoardData[y][x+2].threatData.whiteCheck.counter == 0)){
-                                            if(chessBoardData[y][x+1].isEmpty && chessBoardData[y][x+2].isEmpty){
-                                                if(color){
-                                                    availableMoves.white.push({
-                                                        id:id,
-                                                        x:x,
-                                                        y,y,
-                                                        hasMoved:chessBoardData[y][x].pieceData.hasMoved,
-                                                        move: chessBoardData[y][x+2]
-                                                    });
-                                                }if(!color){
-                                                    availableMoves.black.push({
-                                                        id:id,
-                                                        x:x,
-                                                        y,y,
-                                                        hasMoved:chessBoardData[y][x].pieceData.hasMoved,
-                                                        move: chessBoardData[y][x+2]
-                                                    });
-                                                }
+                //enpassant thing
+            /*
+            if(enPassantData.x !=null && enPassantData.y != null){
+                if (enPassantData.color){
+                    if (!chessBoardData[enPassantData.y-1][enPassantData.x+1].isEmpty && (chessBoardData[enPassantData.y-1][enPassantData.x+1].color != enPassantData.color)){
+                        availableMoves.black.push({
+                            id:'pawn',
+                            x:enPassantData.x+1,
+                            y:enPassantData.y-1,
+                            hasMoved:chessBoardData[enPassantData.y-1][enPassantData.x + 1].pieceData.hasMoved,
+                            move: chessBoardData[enPassantData.y][enPassantData.x]
+                        });
+                    }
+                }
+            }*/
+            }
+            
+            if(id == 'king' && !isKingInCheck()){
+                if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
+                    if(x + 3 <= 7){
+                        if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
+                            if(chessBoardData[y][x+3].pieceData.id == 'rook' && chessBoardData[y][x+3].pieceData.color == color){
+                                if((color?chessBoardData[y][x+1].threatData.blackCheck.counter == 0:chessBoardData[y][x+1].threatData.whiteCheck.counter == 0 )
+                                    && (color?chessBoardData[y][x+2].threatData.blackCheck.counter == 0:chessBoardData[y][x+2].threatData.whiteCheck.counter == 0)){
+                                        if(chessBoardData[y][x+1].isEmpty && chessBoardData[y][x+2].isEmpty){
+                                            if(color){
+                                                availableMoves.white.push({
+                                                    id:id,
+                                                    x:x,
+                                                    y,y,
+                                                    hasMoved:chessBoardData[y][x].pieceData.hasMoved,
+                                                    move: chessBoardData[y][x+2]
+                                                });
+                                            }if(!color){
+                                                availableMoves.black.push({
+                                                    id:id,
+                                                    x:x,
+                                                    y,y,
+                                                    hasMoved:chessBoardData[y][x].pieceData.hasMoved,
+                                                    move: chessBoardData[y][x+2]
+                                                });
                                             }
-                                        
                                         }
-                                }
-                            }
-                        }
-                        if(x - 4 >= 0){
-                            if(!chessBoardData[y][x-4].isEmpty && chessBoardData[y][x - 4].pieceData.hasMoved == 0){
-                                if(chessBoardData[y][x -4].pieceData.id == 'rook' && chessBoardData[y][x - 4].pieceData.color == color){
-                                    if((color?chessBoardData[y][x-1].threatData.blackCheck.counter == 0:chessBoardData[y][x-1].threatData.whiteCheck.counter == 0 )
-                                        && (color?chessBoardData[y][x-2].threatData.blackCheck.counter == 0:chessBoardData[y][x-2].threatData.whiteCheck.counter == 0)){
-                                            if(chessBoardData[y][x-1].isEmpty && chessBoardData[y][x-2].isEmpty && chessBoardData[y][x-3].isEmpty){
-                                                if(color){
-                                                    availableMoves.white.push({
-                                                        id:id,
-                                                        x:x,
-                                                        y,y,
-                                                        hasMoved:chessBoardData[y][x].pieceData.hasMoved,
-                                                        move: chessBoardData[y][x-2]
-                                                    });
-                                                }if(!color){
-                                                    availableMoves.black.push({
-                                                        id:id,
-                                                        x:x,
-                                                        y,y,
-                                                        hasMoved:chessBoardData[y][x].pieceData.hasMoved,
-                                                        move: chessBoardData[y][x-2]
-                                                    });
-                                                }
-                                            }
-                                        
-                                        }
-                                }
-    
+                                    
+                                    }
                             }
                         }
                     }
-                }
+                    if(x - 4 >= 0){
+                        if(!chessBoardData[y][x-4].isEmpty && chessBoardData[y][x - 4].pieceData.hasMoved == 0){
+                            if(chessBoardData[y][x -4].pieceData.id == 'rook' && chessBoardData[y][x - 4].pieceData.color == color){
+                                if((color?chessBoardData[y][x-1].threatData.blackCheck.counter == 0:chessBoardData[y][x-1].threatData.whiteCheck.counter == 0 )
+                                    && (color?chessBoardData[y][x-2].threatData.blackCheck.counter == 0:chessBoardData[y][x-2].threatData.whiteCheck.counter == 0)){
+                                        if(chessBoardData[y][x-1].isEmpty && chessBoardData[y][x-2].isEmpty && chessBoardData[y][x-3].isEmpty){
+                                            if(color){
+                                                availableMoves.white.push({
+                                                    id:id,
+                                                    x:x,
+                                                    y,y,
+                                                    hasMoved:chessBoardData[y][x].pieceData.hasMoved,
+                                                    move: chessBoardData[y][x-2]
+                                                });
+                                            }if(!color){
+                                                availableMoves.black.push({
+                                                    id:id,
+                                                    x:x,
+                                                    y,y,
+                                                    hasMoved:chessBoardData[y][x].pieceData.hasMoved,
+                                                    move: chessBoardData[y][x-2]
+                                                });
+                                            }
+                                        }
+                                    
+                                    }
+                            }
 
-        
+                        }
+                    }
+                }
             }
             function verticalThreatData(minY, maxY){
                 for(let currentY = y; currentY<=maxY; currentY++){    
@@ -846,9 +854,42 @@ export const chessBoard =(()=>{
         //testing
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
+            aiMove();
+            //console.log(availableMoves);
+        }
+        function aiMove(){
+            //exit if game is over
+            if(gameOver) return;
             let datasetCount = 0;  
-            console.log(availableMoves);
+            //console.log(availableMoves);
+            
+            if(turnCheck){
+                makeMove(availableMoves.white);
+            }else if(!turnCheck){
+                makeMove(availableMoves.black)
+            }
+            
+            function makeMove(arrayOfMoves){
+                let randomIndex = Math.floor(Math.random()*(arrayOfMoves.length))
+                let selectedMove = arrayOfMoves[randomIndex];
+                let selectedOldCoords = [selectedMove.x, selectedMove.y],
+                selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
+                selectedColor = (turnCheck?true:false);
+                if(getMoveData(selectedMove.id, selectedOldCoords, selectedNewCoords, selectedColor, selectedMove.hasMoved)){
+                    if(!gameOver) indicator.textContent = chessBoardData[selectedOldCoords[1]][selectedOldCoords[0]].notation+' '+
+                            selectedMove.id+' '+' -> '+chessBoardData[selectedNewCoords[1]][selectedNewCoords[0]].notation;
+                    movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, false, true);
+                }else{
+                    aiMove();
+                }
+                if(isKingInCheck() && !gameOver){
+                    //might be too clunky, rethink maybe?
+                    aiMove();
+                }
+            }
+            
             refreshData(); 
+            /*
             if(turnCheck){
                recursiveMove(availableMoves, true, 1); 
             }else{
@@ -878,7 +919,7 @@ export const chessBoard =(()=>{
                     if(depth == 0){
                         if(isKingInCheck()){
                             
-                            console.log('Possible Check: '+possible[n].id,possible[n].move.x,possible[n].move.y);
+                            //console.log('Possible Check: '+possible[n].id,possible[n].move.x,possible[n].move.y);
                         }
                         if (!color){
                             datasetCount += availableMoves.white.length;
@@ -892,6 +933,7 @@ export const chessBoard =(()=>{
                 }  
             }
             console.log('Possible Moves at 1st depth: '+datasetCount);
+            */
         }
         function kingCheck(color){
             turnCheck = !turnCheck;
@@ -1264,7 +1306,7 @@ export const chessBoard =(()=>{
         }
             }
         }
-        return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove, undoMove, redoMove};
+        return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove, undoMove, redoMove, aiMove};
     })();
     function makeBoard(){
         gameOver = false;
@@ -1396,6 +1438,7 @@ export const chessBoard =(()=>{
                         movingData.id+' '+' -> '+chessBoardData[newY][newX].notation;
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false, true);
                 redoData = [];
+                piece.aiMove();
             }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
                 if(movingData.color != turnCheck){
                     if(!gameOver) indicator.textContent = "not your turn!"
