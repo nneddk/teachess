@@ -13,6 +13,7 @@ At the moment, a chess UI built for educational purposes
 - animations maybe? for smoother transitions (look into this).
 - sounds? doable
 - fen parser for use in image scanning(set up when possible).
+- promotions have trouble with redo undo with ai move
 
 ## Assets Used
 ### Openings
