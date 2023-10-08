@@ -799,7 +799,7 @@ export const chessBoard =(()=>{
                 storeEat =  chessBoardData[newY][newX].pieceData;
                 moveDetail.action.eat = storeEat;
                 eatMove(newX, newY);
-            }else if((enPassantData.x == newX) && (enPassantData.y == newY)){
+            }else if((enPassantData.x == newX) && (enPassantData.y == newY)&& id == 'pawn' && enPassantData.color != color){
                 moveDetail.action.eat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
                 moveDetail.action.enpass = true;
                 storeEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
@@ -815,7 +815,6 @@ export const chessBoard =(()=>{
                 refreshData();
                 if(moveDetail.action.eat) moveDetail.action.eat = false;
                 if(moveDetail.action.enpass) moveDetail.action.enpass = false;
-                
             }else{
                 kingCheck(color);
                 //promotion logic
@@ -892,13 +891,13 @@ export const chessBoard =(()=>{
                             selectedMove.id+' '+' -> '+chessBoardData[selectedNewCoords[1]][selectedNewCoords[0]].notation;
                     movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, false, true);
                 }
-                if(isKingInCheck() && !gameOver){
-                    //might be too clunky, rethink maybe?
-                    aiMove();
-                }
             }
             aiOn = false;
             refreshData(); 
+            if(isKingInCheck()){
+                aiOn = true;
+                aiMove();
+            }
             /*
             if(turnCheck){
                recursiveMove(availableMoves, true, 1); 
@@ -1431,7 +1430,7 @@ export const chessBoard =(()=>{
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
                     clickTile();
-                    
+                    console.log(chessBoardData[y][x]);
                     piecePic.classList.remove("placement");
                 }
                 chessBoardTileDiv.append(piecePic);
