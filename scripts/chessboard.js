@@ -31,7 +31,7 @@ const moveHistoryIndicator = document.getElementById('move-history');
 export const chessBoard =(()=>{
     //this sets which turn the ai takes over (black is 0 and white is 1);
     let aiTurn = 0;
-    let aiOn = true;
+    let aiOn = false;
     let moveIndex = -1;
     let moveHistory = [];
     let gameOver = false;
@@ -824,13 +824,13 @@ export const chessBoard =(()=>{
                     if(color){
                         if(newY == 0){
                             getPromotionDiv(newX, newY, color, (hasMoved + 1), pgnPromote);
-                            return true;
+                            return;
                         }
                     }
                     if(!color){
                         if(newY == 7){
                             getPromotionDiv(newX, newY, color, (hasMoved + 1),pgnPromote);
-                            return true;
+                            return;
                         }
                     }
                     
@@ -856,6 +856,7 @@ export const chessBoard =(()=>{
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
                 //only moves black, need to set WHERE ai is on (white/black)
+                if(turnCheck == aiTurn && aiOn) piece.aiMove();
                 
             }
         }
@@ -867,8 +868,10 @@ export const chessBoard =(()=>{
         }
         function aiMove(){
             //exit if game is over or if ai is off
+            
             if(!aiOn) return;
             if(gameOver) return;
+            if(aiTurn != turnCheck) return;
             let datasetCount = 0;  
             //console.log(availableMoves);
             
@@ -891,11 +894,10 @@ export const chessBoard =(()=>{
                 }
                 if(isKingInCheck() && !gameOver){
                     //might be too clunky, rethink maybe?
-                    console.log('tick');
                     aiMove();
                 }
             }
-            
+            aiOn = false;
             refreshData(); 
             /*
             if(turnCheck){
@@ -1286,6 +1288,7 @@ export const chessBoard =(()=>{
                 clearMoveDetail();
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
+                if(turnCheck == aiTurn && aiOn) aiMove();
 
             }
             if(pgnPromote){
@@ -1444,10 +1447,9 @@ export const chessBoard =(()=>{
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
                 if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' -> '+chessBoardData[newY][newX].notation;
+                aiOn = true;
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false, true);
                 redoData = [];
-                //piece.aiMove();
-                if(turnCheck == aiTurn && aiOn) piece.aiMove();
             }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
                 if(movingData.color != turnCheck){
                     if(!gameOver) indicator.textContent = "not your turn!"
