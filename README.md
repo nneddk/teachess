@@ -13,7 +13,10 @@ At the moment, a chess UI built for educational purposes
 - animations maybe? for smoother transitions (look into this).
 - sounds? doable
 - fen parser for use in image scanning(set up when possible).
-- promotions have trouble with redo undo with ai move
+- promotions have trouble with redo undo with ai move (fixed).
+- random move is clunky, implement piece square table.
+- keep track of enpassant movement specifically for when the king is checked
+- undo/redo tracking.
 
 ## Assets Used
 ### Openings
