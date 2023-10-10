@@ -353,6 +353,7 @@ export const chessBoard =(()=>{
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                  'king'+' '+' -> '+chessBoardData[oldY][oldX+2].notation;
                                 turnCheck = !turnCheck;
+                                aiOn = true;
                                 aiMove();
                             }
                         }
@@ -370,6 +371,7 @@ export const chessBoard =(()=>{
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                 'king'+' '+' -> '+chessBoardData[oldY][oldX-2].notation;
                                 turnCheck = !turnCheck;
+                                aiOn = true;
                                 aiMove();
                             }
                         }   
@@ -815,6 +817,9 @@ export const chessBoard =(()=>{
                 refreshData();
                 if(moveDetail.action.eat) moveDetail.action.eat = false;
                 if(moveDetail.action.enpass) moveDetail.action.enpass = false;
+
+                aiOn = true;
+                aiMove();
             }else{
                 kingCheck(color);
                 //promotion logic
@@ -893,11 +898,13 @@ export const chessBoard =(()=>{
                 }
             }
             aiOn = false;
-            refreshData(); 
+            
             if(isKingInCheck()){
+                console.log('tick');
                 aiOn = true;
                 aiMove();
             }
+            refreshData(); 
             /*
             if(turnCheck){
                recursiveMove(availableMoves, true, 1); 
