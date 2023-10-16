@@ -1,4 +1,5 @@
 import { hideDisplay } from "./toolbar.js";
+import { setOpenings,getNextMove } from "./ai.js";
 
 //opening data
 let openingData = '';
@@ -20,6 +21,7 @@ async function translate(){
         openingData[i] = tempData;
         
     }
+    setOpenings(openingData);
 }
 translate();
 const gameBoard = document.getElementById("game-board");
@@ -886,24 +888,25 @@ export const chessBoard =(()=>{
             }
             
             function makeMove(arrayOfMoves){
+                //makes random move;
                 let randomIndex = Math.floor(Math.random()*(arrayOfMoves.length))
-                let selectedMove = arrayOfMoves[randomIndex];
-                let selectedOldCoords = [selectedMove.x, selectedMove.y],
-                selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
-                selectedColor = (turnCheck?true:false);
-                if(getMoveData(selectedMove.id, selectedOldCoords, selectedNewCoords, selectedColor, selectedMove.hasMoved)){
-                    if(!gameOver) indicator.textContent = chessBoardData[selectedOldCoords[1]][selectedOldCoords[0]].notation+' '+
-                            selectedMove.id+' '+' -> '+chessBoardData[selectedNewCoords[1]][selectedNewCoords[0]].notation;
-                    movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, false, true);
+                //pass the moves that are possible with the current pgn
+                let selectedMove = getNextMove(arrayOfMoves, chessBoard.generatePgn(getHistory(),true));
+                //let selectedMove = arrayOfMoves[randomIndex];
+                if (selectedMove){
+                    let selectedOldCoords = [selectedMove.x, selectedMove.y],
+                    selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
+                    selectedColor = (turnCheck?true:false);
+                    if(getMoveData(selectedMove.id, selectedOldCoords, selectedNewCoords, selectedColor, selectedMove.hasMoved)){
+                        if(!gameOver) indicator.textContent = chessBoardData[selectedOldCoords[1]][selectedOldCoords[0]].notation+' '+
+                                selectedMove.id+' '+' -> '+chessBoardData[selectedNewCoords[1]][selectedNewCoords[0]].notation;
+                        movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, false, true);
+                    }
+
                 }
+                //console.log('opening over');
             }
             aiOn = false;
-            
-            if(isKingInCheck()){
-                console.log('tick');
-                aiOn = true;
-                aiMove();
-            }
             refreshData(); 
             /*
             if(turnCheck){
@@ -1437,7 +1440,6 @@ export const chessBoard =(()=>{
                     movingData.newCoords.x = x;
                     movingData.newCoords.y = y;
                     clickTile();
-                    console.log(chessBoardData[y][x]);
                     piecePic.classList.remove("placement");
                 }
                 chessBoardTileDiv.append(piecePic);
@@ -1677,10 +1679,11 @@ export const chessBoard =(()=>{
     function getHistory(){
         return moveHistory
     }
-    function translatePgn(moveList){
+    function translatePgn(moveList, translate, color){
         //movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)
         //need id
-        openingIndicator.textContent = "";
+        console.log(moveList);
+        if(!translate) openingIndicator.textContent = "";
         for(let i = 0;i<moveList.length; i++){
             let moveString;
             let pgnData = {
@@ -1690,8 +1693,11 @@ export const chessBoard =(()=>{
                 color:null,
                 oldX:null,
                 oldY:null,
+                hasMoved:null,
+                notation:null,
             }
-            moveString = moveList[i].split('');
+            if(!translate) moveString = moveList[i].split('');
+            if(translate) moveString = moveList.split('');
             let identifier = 0;
             //id
             switch (moveString[identifier]){
@@ -1721,10 +1727,15 @@ export const chessBoard =(()=>{
                     break;
             }
             //color
-            if(i%2==0){
-                pgnData.color = true;
-            }else{
-                pgnData.color = false;
+            if(!translate){
+                if(i%2==0){
+                    pgnData.color = true;
+                }else{
+                    pgnData.color = false;
+                }
+            }
+            if(translate){
+                pgnData.color = color;
             }
             let promotionPGN = false;
             if(moveString[identifier] != '-'){
@@ -1821,6 +1832,11 @@ export const chessBoard =(()=>{
                 if(moveString.length == 5)pgnData.newX = 2;
                 
             }
+            pgnData.hasMoved = chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved;
+            pgnData.notation = chessBoardData[pgnData.oldY][pgnData.oldX].notation;
+            if(translate){
+                return pgnData;
+            }
             try {
                 if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
                     piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN, true);
@@ -1857,37 +1873,7 @@ export const chessBoard =(()=>{
             if(openingData[i].pgn.length > pgn.length){
                 break;
             }
-        }/*
-        //binary search, for faster time complexity
-        
-        for (let i = findStartIndex(); i < openingData.length; i++){
-            if(openingData[i].pgn == pgn){
-                console.log(openingData[i].name);
-                break;
-            }
-            if(openingData[i].pgn.length > pgn.length){
-                break;
-            }
         }
-        function findStartIndex(){
-            let low = 0, high = openingData.length - 1;
-            let x = (pgn.length - 1);
-            while(low <= high){
-
-                let mid = Math.floor((low+high)/2);
-
-                if (openingData[mid].pgn.length == x) return mid;
-
-                if (openingData[mid].pgn.length <=x){
-                    low = mid + 1;
-                }
-                if (openingData[mid].pgn.length > x){
-                    high = mid - 1;
-                }
-            }
-
-            return 0;
-        }*/ 
     }
     function traverseHistory(action){
         switch(action){
