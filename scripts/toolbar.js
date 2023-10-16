@@ -119,5 +119,5 @@ function parsePGN(){
             moveList.push(newPGN[i]);
         }
     }
-    chessBoard.translatePgn(moveList);
+    chessBoard.translatePgn(moveList, false, false);
 }
