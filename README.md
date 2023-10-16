@@ -4,6 +4,7 @@ At the moment, a chess UI built for educational purposes
 - ADD LOGIC TO AI MOVES
 - implement some ai, even a little
 - implement animations/smoothing over
+- openings move finished, now to add table evaluations.
 ## ideas
 - random opening play
 ## notes
