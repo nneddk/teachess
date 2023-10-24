@@ -98,9 +98,11 @@ export const chessBoard =(()=>{
                 color: color,
                 hasMoved: (hasMoved == 0?0:hasMoved),
                 id:id,
+                notation: setNotation(id),
                 x:x,
                 y:y,  
             };
+            
             pieceDiv.setAttribute('draggable', true);
            
             pieceDiv.ondragstart = (e) =>{
@@ -176,6 +178,24 @@ export const chessBoard =(()=>{
             chessBoardData[y][x].pieceData = pieceData;
             chessBoardData[y][x].isEmpty = false;
             chessBoardData[y][x].tileLocation.append(pieceDiv);
+        }
+        function setNotation(id){
+            switch (id){
+                case 'pawn':
+                    return 'P';
+                case 'knight':
+                    return 'N';
+                case 'king':
+                    return 'K';
+                case 'bishop':
+                    return 'B';
+                case 'queen':
+                    return 'Q';
+                case 'rook':
+                    return 'R';
+                default:
+                    break;
+            }
         }
         function pieceUnmaker(x, y){
             chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
@@ -1677,7 +1697,10 @@ export const chessBoard =(()=>{
     }               
     
     function getHistory(){
-        return moveHistory
+        return moveHistory;
+    }
+    function getBoardData(){
+        return chessBoardData;
     }
     function translatePgn(moveList, translate, color){
         //movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)
@@ -1899,6 +1922,6 @@ export const chessBoard =(()=>{
         //console.log(moveIndex)
     }
 
-    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn, viewNotation, traverseHistory}
+    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn, viewNotation, traverseHistory, getBoardData}
 })();
 
