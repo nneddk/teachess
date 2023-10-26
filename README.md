@@ -5,6 +5,9 @@ At the moment, a chess UI built for educational purposes
 - implement some ai, even a little
 - implement animations/smoothing over
 - openings move finished, now to add table evaluations.
+- add palette swap for when playing as black.
+- add deep minimax
+- add alpha beta pruning
 ## ideas
 - random opening play
 ## notes
