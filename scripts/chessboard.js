@@ -1,5 +1,5 @@
 import { hideDisplay } from "./toolbar.js";
-import { setOpenings,getNextMove } from "./ai.js";
+import { setOpenings,getNextMove,gameEval, getBoardPosition } from "./ai.js";
 
 //opening data
 let openingData = '';
@@ -79,7 +79,7 @@ export const chessBoard =(()=>{
         }
     }
     //1 for white, 0 for black;
-    let turnCheck = 1;
+    let turnCheck = true;
     const piece = (()=>{
         let enPassantData = {
             color:null,
@@ -174,7 +174,6 @@ export const chessBoard =(()=>{
                 movingData.hasMoved = pieceData.hasMoved;
                 if(!gameOver) indicator.textContent = chessBoardData[pieceData.y][pieceData.x].notation+' '+id;
             }
-            chessBoardData[y][x].pieceDom = pieceDiv;
             chessBoardData[y][x].pieceData = pieceData;
             chessBoardData[y][x].isEmpty = false;
             chessBoardData[y][x].tileLocation.append(pieceDiv);
@@ -369,12 +368,14 @@ export const chessBoard =(()=>{
 
                                 moveDetail.action.castle = true;
                                 moveDetail.moves = 1;
+                                aiOn = false;
                                 movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false, true);
                                 moveDetail.action.castle = true;
                                 movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved, false, false);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                  'king'+' '+' -> '+chessBoardData[oldY][oldX+2].notation;
                                 turnCheck = !turnCheck;
+                                refreshData();
                                 aiOn = true;
                                 aiMove();
                             }
@@ -385,14 +386,17 @@ export const chessBoard =(()=>{
                             if((newX == oldX - 2 && oldY == newY)
                             &&(leftRook.color == color)
                             &&(leftRook.hasMoved == 0)){
+
                                 moveDetail.action.castle = true;
                                 moveDetail.moves = 1;
+                                aiOn = false;
                                 movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false, true);
                                 moveDetail.action.castle = true;
                                 movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved, false, false);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                 'king'+' '+' -> '+chessBoardData[oldY][oldX-2].notation;
                                 turnCheck = !turnCheck;
+                                refreshData();
                                 aiOn = true;
                                 aiMove();
                             }
@@ -808,7 +812,6 @@ export const chessBoard =(()=>{
         function eatMove(x, y){
             chessBoardData[y][x].tileLocation.removeChild(chessBoardData[y][x].tileLocation.lastChild);
             chessBoardData[y][x].pieceData = null;
-            chessBoardData[y][x].pieceDom = null;
             chessBoardData[y][x].isEmpty = true;
         } 
         function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote, pushData){   
@@ -833,15 +836,13 @@ export const chessBoard =(()=>{
             pieceUnmaker(oldX, oldY);
             refreshData()
             if (isKingInCheck() == true){
+
                 refreshData();
                 if(!gameOver) indicator.textContent = "King is in check!";
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
                 refreshData();
                 if(moveDetail.action.eat) moveDetail.action.eat = false;
                 if(moveDetail.action.enpass) moveDetail.action.enpass = false;
-
-                aiOn = true;
-                aiMove();
             }else{
                 kingCheck(color);
                 //promotion logic
@@ -889,32 +890,58 @@ export const chessBoard =(()=>{
         //testing
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
-            aiMove();
+            gameEval(snapShot(),turnCheck);
+            //aiOn = true;
+            //aiMove();
             //console.log(availableMoves);
+        }
+        function snapShot(){
+            return getBoardPosition(chessBoardData);
         }
         function aiMove(){
             //exit if game is over or if ai is off
             
             if(!aiOn) return;
+            //prevents problems with iteration, dw about it.
+            aiOn = false;
             if(gameOver) return;
-            if(aiTurn != turnCheck) return;
-            let datasetCount = 0;  
-            //console.log(availableMoves);
-            
+
             if(turnCheck){
-                makeMove(availableMoves.white);
+                getNextMove(availableMoves.white);
             }else if(!turnCheck){
-                makeMove(availableMoves.black)
+                getNextMove(availableMoves.black)
             }
-            
-            function makeMove(arrayOfMoves){
-                //makes random move;
-                let randomIndex = Math.floor(Math.random()*(arrayOfMoves.length))
-                //pass the moves that are possible with the current pgn
-                let selectedMove = getNextMove(arrayOfMoves, chessBoard.generatePgn(getHistory(),true));
-                //let selectedMove = arrayOfMoves[randomIndex];
-                if (selectedMove){
-                    let selectedOldCoords = [selectedMove.x, selectedMove.y],
+            function getNextMove(arrayOfMoves){
+                return;
+                let move = [];
+                let moveEval = [];
+                //console.log(gameEval(getBoardData(), turnCheck));
+                for(let i = 0; i<arrayOfMoves.length; i++){
+                    makeMove(arrayOfMoves[i]);
+                    moveEval.push(snapShot());
+                    move.push(arrayOfMoves[i]);
+                    undoMove();
+                    redoData = [];
+                }
+                let bestMove;
+                let bestEval = 0;
+                for(let i = 0; i < move.length; i++){
+                    let currentEval = gameEval(moveEval[i],turnCheck);
+                    if (currentEval > bestEval){
+                        bestMove = move[i];
+                        bestEval = currentEval;
+                        
+                    }
+                    //console.log(move[i],':', gameEval(moveEval[i], turnCheck));
+                }
+                console.log(bestMove,':', bestEval);
+                /*
+                console.log(gameEval(getBoardData(), turnCheck));
+                console.log(bestMove);*/
+                //console.log('opening over');
+            }
+            function makeMove(selectedMove){
+                let selectedOldCoords = [selectedMove.x, selectedMove.y],
                     selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
                     selectedColor = (turnCheck?true:false);
                     if(getMoveData(selectedMove.id, selectedOldCoords, selectedNewCoords, selectedColor, selectedMove.hasMoved)){
@@ -922,12 +949,10 @@ export const chessBoard =(()=>{
                                 selectedMove.id+' '+' -> '+chessBoardData[selectedNewCoords[1]][selectedNewCoords[0]].notation;
                         movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, false, true);
                     }
-
-                }
-                //console.log('opening over');
+                    refreshData();
             }
-            aiOn = false;
             refreshData(); 
+            
             /*
             if(turnCheck){
                recursiveMove(availableMoves, true, 1); 
@@ -1360,7 +1385,7 @@ export const chessBoard =(()=>{
         winIndicator.textContent = '';
         winIndicator.classList.remove('black-turn');
         winIndicator.classList.remove('checkmate');
-        turnCheck = 1;
+        turnCheck = true;
         clearInfo();
         chessBoardData = [];
         while (gameBoard.hasChildNodes()) gameBoard.removeChild(gameBoard.lastChild);
@@ -1375,7 +1400,6 @@ export const chessBoard =(()=>{
                 let TileData ={
                     isEmpty: true,
                     notation: (String.fromCharCode(97+x))+(8 - y),
-                    pieceDom:null,
                     pieceData:null,
                     tileLocation: chessBoardTileDiv,
                     threatData:{
