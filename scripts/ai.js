@@ -58,8 +58,6 @@ export function getNextMove(availableMoves, pgn, turnCheck){
 export function gameEval(board, turnCheck){
     //first get board positions
     //let currentBoard = getBoardPosition(board);
-    console.log('simple eval',simpleEval(board, turnCheck));
-    console.log('pesto eval', pestoEval(board, turnCheck));
     return simpleEval(board, turnCheck);
     
 }
