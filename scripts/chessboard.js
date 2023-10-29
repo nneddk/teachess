@@ -571,7 +571,7 @@ export const chessBoard =(()=>{
                             });
                         }  
                     }
-                    if (((boardData.pieceData !=null) &&(boardData.pieceData.color == !color)||(boardData.x == enPassantData.x && boardData.y == enPassantData.y)) && id == 'pawn'){
+                    if (((boardData.pieceData !=null) &&(boardData.pieceData.color == !color)||(boardData.x == enPassantData.x && boardData.y == enPassantData.y && enPassantData.color != color)) && id == 'pawn'){
                         if(color) {
                             availableMoves.white.push({
                                 id:id,
@@ -834,7 +834,7 @@ export const chessBoard =(()=>{
             }
             pieceMaker(newX, newY, id, color, (hasMoved + 1));
             pieceUnmaker(oldX, oldY);
-            refreshData()
+            refreshData();
             if (isKingInCheck() == true){
 
                 refreshData();
@@ -890,39 +890,39 @@ export const chessBoard =(()=>{
         //testing
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
-            gameEval(snapShot(),turnCheck);
+            //gameEval(snapShot(),turnCheck);
             //aiOn = true;
-            //aiMove();
+            getAIMove();
             //console.log(availableMoves);
+            //console.log(generatePgn(getHistory()));
         }
         function snapShot(){
             return getBoardPosition(chessBoardData);
         }
         function aiMove(){
+            return;
+        }
+        function getAIMove(){
             //exit if game is over or if ai is off
-            
-            if(!aiOn) return;
-            //prevents problems with iteration, dw about it.
-            aiOn = false;
-            if(gameOver) return;
-
             if(turnCheck){
                 getNextMove(availableMoves.white);
             }else if(!turnCheck){
                 getNextMove(availableMoves.black)
             }
+
             function getNextMove(arrayOfMoves){
-                return;
                 let move = [];
                 let moveEval = [];
                 //console.log(gameEval(getBoardData(), turnCheck));
                 for(let i = 0; i<arrayOfMoves.length; i++){
-                    makeMove(arrayOfMoves[i]);
-                    moveEval.push(snapShot());
-                    move.push(arrayOfMoves[i]);
-                    undoMove();
-                    redoData = [];
+                    let currentMove = evaluateMove(arrayOfMoves[i])
+                    if (currentMove){
+                        move.push(arrayOfMoves[i]);
+                        moveEval.push(currentMove);
+                    }
                 }
+                console.log(move);
+                console.log(moveEval);
                 let bestMove;
                 let bestEval = 0;
                 for(let i = 0; i < move.length; i++){
@@ -940,7 +940,56 @@ export const chessBoard =(()=>{
                 console.log(bestMove);*/
                 //console.log('opening over');
             }
-            function makeMove(selectedMove){
+            function evaluateMove(selectedMove){
+                let oldX = selectedMove.x, oldY = selectedMove.y,
+                    newX = selectedMove.move.x, newY = selectedMove.move.y,
+                    color = (turnCheck?true:false),
+                    id = selectedMove.id,
+                    hasMoved = selectedMove.hasMoved,
+                    storeEat;
+                //headACHEEEEEEEEE
+                //castling check
+                refreshData();
+                if (eatChecker(newX, newY,color)){
+                    storeEat =  chessBoardData[newY][newX].pieceData;
+                    eatMove(newX, newY);
+                }else if((enPassantData.x == newX) && (enPassantData.y == newY)&& id == 'pawn' && enPassantData.color != color){
+                    storeEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
+                    eatMove(enPassantData.target.x, enPassantData.target.y);
+                }
+                pieceMaker(newX, newY, id, color, (hasMoved + 1));
+                pieceUnmaker(oldX, oldY);
+                //castling check
+                if (id == 'king'){
+                    if(newX == oldX + 2){
+                        pieceMaker((oldX + 1), newY, 'rook', color, (hasMoved + 1));
+                        pieceUnmaker((oldX + 3), oldY);
+                    }
+                    if(newX == oldX - 2){
+                        pieceMaker((oldX - 1), newY, 'rook', color, (hasMoved + 1));
+                        pieceUnmaker((oldX - 4), oldY);
+                    }
+                }
+                refreshData();
+                let tempBoard = snapShot();
+                if(isKingInCheck() == true){
+                    undoLastMove(oldX, oldY, newX, newY, id, color, hasMoved, storeEat);
+                    return false;
+                }
+
+                undoLastMove(oldX, oldY, newX, newY, id, color, hasMoved, storeEat);
+                //undo castling
+                if (id == 'king'){
+                    if (newX == oldX + 2){
+                        undoLastMove((oldX + 3), oldY, (oldX + 1), newY, 'rook', color, hasMoved, storeEat);
+                    }
+                    if(newX == oldX - 2){
+                        undoLastMove((oldX - 4), oldY, (oldX - 1), newY, 'rook', color, hasMoved, storeEat);
+                    }
+                }
+                refreshData();
+                return tempBoard;
+                /*
                 let selectedOldCoords = [selectedMove.x, selectedMove.y],
                     selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
                     selectedColor = (turnCheck?true:false);
@@ -950,6 +999,8 @@ export const chessBoard =(()=>{
                         movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, false, true);
                     }
                     refreshData();
+                    */
+
             }
             refreshData(); 
             
