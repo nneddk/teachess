@@ -53,7 +53,8 @@ generateBtn.onclick =()=>{
 }
 downloadBtn.onclick = () =>{
     if(chessBoard.getHistory().length != 0){
-        navigator.clipboard.writeText(chessBoard.generatePgn(chessBoard.getHistory()));
+        let pgnText = chessBoard.generatePgn(chessBoard.getHistory());
+        navigator.clipboard.writeText(pgnText);
         indicator.textContent = 'PGN copied to your clipboard!';
     }else{
         indicator.textContent = 'No Moves Recorded';
