@@ -899,17 +899,14 @@ export const chessBoard =(()=>{
         function snapShot(){
             return getBoardPosition(chessBoardData);
         }
+        
         function aiMove(){
             return;
         }
         function getAIMove(){
             //exit if game is over or if ai is off
-            if(turnCheck){
-                getNextMove(availableMoves.white);
-            }else if(!turnCheck){
-                getNextMove(availableMoves.black)
-            }
-
+            
+            /*
             function getNextMove(arrayOfMoves){
                 let move = [];
                 let moveEval = [];
@@ -921,75 +918,150 @@ export const chessBoard =(()=>{
                         moveEval.push(currentMove);
                     }
                 }
-                console.log(move);
-                console.log(moveEval);
-                let bestMove;
-                let bestEval = 0;
-                for(let i = 0; i < move.length; i++){
-                    let currentEval = gameEval(moveEval[i],turnCheck);
-                    if (currentEval > bestEval){
-                        bestMove = move[i];
-                        bestEval = currentEval;
-                        
-                    }
-                    //console.log(move[i],':', gameEval(moveEval[i], turnCheck));
-                }
-                console.log(bestMove,':', bestEval);
-                /*
-                console.log(gameEval(getBoardData(), turnCheck));
-                console.log(bestMove);*/
-                //console.log('opening over');
             }
-            function evaluateMove(selectedMove){
-                let oldX = selectedMove.x, oldY = selectedMove.y,
+            */
+            function getAvailableMoves(isMax){
+                if(!isMax){
+                    return (availableMoves.white);
+                }else{
+                    return (availableMoves.black)
+                }
+            }
+            //only for evaluation purposes, this can get mess with board data if not handled properly
+            let quickHistory = [];
+            const quick = (()=>{
+                function move(selectedMove){
+                    let oldX = selectedMove.x, oldY = selectedMove.y,
                     newX = selectedMove.move.x, newY = selectedMove.move.y,
-                    color = (turnCheck?true:false),
+                    color = chessBoardData[oldY][oldX].pieceData.color,
                     id = selectedMove.id,
-                    hasMoved = selectedMove.hasMoved,
-                    storeEat;
-                //headACHEEEEEEEEE
-                //castling check
-                refreshData();
-                if (eatChecker(newX, newY,color)){
-                    storeEat =  chessBoardData[newY][newX].pieceData;
-                    eatMove(newX, newY);
-                }else if((enPassantData.x == newX) && (enPassantData.y == newY)&& id == 'pawn' && enPassantData.color != color){
-                    storeEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
-                    eatMove(enPassantData.target.x, enPassantData.target.y);
-                }
-                pieceMaker(newX, newY, id, color, (hasMoved + 1));
-                pieceUnmaker(oldX, oldY);
-                //castling check
-                if (id == 'king'){
-                    if(newX == oldX + 2){
-                        pieceMaker((oldX + 1), newY, 'rook', color, (hasMoved + 1));
-                        pieceUnmaker((oldX + 3), oldY);
+                    hasMoved = selectedMove.hasMoved, 
+                    quickEat;
+                    
+                    //headACHEEEEEEEEE
+                    //castling check
+                    refreshData();
+                    if (eatChecker(newX, newY,color)){
+                        quickEat =  chessBoardData[newY][newX].pieceData;
+                        eatMove(newX, newY);
+                    }else if((enPassantData.x == newX) && (enPassantData.y == newY)&& id == 'pawn' && enPassantData.color != color){
+                        quickEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
+                        eatMove(enPassantData.target.x, enPassantData.target.y);
                     }
-                    if(newX == oldX - 2){
-                        pieceMaker((oldX - 1), newY, 'rook', color, (hasMoved + 1));
-                        pieceUnmaker((oldX - 4), oldY);
+                    pieceMaker(newX, newY, id, color, (hasMoved + 1));
+                    pieceUnmaker(oldX, oldY);
+                    //castling check
+                    if (id == 'king'){
+                        if(newX == oldX + 2){
+                            pieceMaker((oldX + 1), newY, 'rook', color, (hasMoved + 1));
+                            pieceUnmaker((oldX + 3), oldY);
+                        }
+                        if(newX == oldX - 2){
+                            pieceMaker((oldX - 1), newY, 'rook', color, (hasMoved + 1));
+                            pieceUnmaker((oldX - 4), oldY);
+                        }
+                    }
+                    refreshData();
+                    quickHistory.push({
+                        oldX:oldX,
+                        oldY:oldY,
+                        newX:newX,
+                        newY:newY,
+                        color:color,
+                        id:id,
+                        hasMoved:hasMoved,
+                        quickEat,
+                    });
+                }
+                function undo(){
+                    refreshData();
+                    //qD = quick Data
+                    let qD = quickHistory.pop()
+                    undoLastMove(qD.oldX, qD.oldY, qD.newX, qD.newY, qD.id, qD.color, qD.hasMoved, qD.quickEat);
+                    //undo castling
+                    if (qD.id == 'king'){
+                        if (qD.newX == qD.oldX + 2){
+                            undoLastMove((qD.oldX + 3), qD.oldY, (qD.oldX + 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.storeEat);
+                        }
+                        if(qD.newX == qD.oldX - 2){
+                            undoLastMove((qD.oldX - 4), qD.oldY, (qD.oldX - 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.storeEat);
+                        }
+                    }
+                    refreshData();
+                }
+                
+                return {move,undo}
+            })();
+            Move(miniMaxRoot(3,true));
+            function miniMaxRoot(depth, isMaximizer){
+                let currentMoves = getAvailableMoves(isMaximizer);
+                let bestMove = -9999;
+                let bestMoveFound;
+                for(let i = 0; i < currentMoves.length; i++){
+                    let newMove = currentMoves[i];
+                    quick.move(newMove);
+
+                    if(isKingInCheck() == true){
+                        quick.undo();
+                        continue;
+                    }
+                    let tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
+                    //let tempValue = gameEval(snapShot());
+                    
+                    quick.undo();
+
+                    if(tempValue >= bestMove){
+                        bestMove = tempValue;
+                        bestMoveFound = newMove;
                     }
                 }
-                refreshData();
-                let tempBoard = snapShot();
-                if(isKingInCheck() == true){
-                    undoLastMove(oldX, oldY, newX, newY, id, color, hasMoved, storeEat);
-                    return false;
+                return bestMoveFound;
+            }
+            function miniMax(depth, alpha, beta, isMaximizer){
+                if(depth === 0){
+                    return -gameEval(snapShot()); 
+                }
+                let currentMoves = getAvailableMoves(isMaximizer); 
+                
+                if(isMaximizer){
+                    let bestMove = -9999;
+                    for(let i = 0; i < currentMoves.length; i++){
+                        quick.move(currentMoves[i]);
+                        if(isKingInCheck() == true){
+                            quick.undo();
+                            continue;
+                        }
+                        bestMove = Math.max(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
+                        quick.undo();
+                        alpha = Math.max (alpha, bestMove);
+                        if(beta <= alpha){
+                            return bestMove;
+                        }
+                    }
+                    return bestMove;
+                }else{
+                    let bestMove = 9999;
+                    for(let i = 0; i < currentMoves.length; i++){
+                        quick.move(currentMoves[i]);
+                        if(isKingInCheck() == true){
+                            quick.undo();
+                            continue;
+                        }
+                        bestMove = Math.min(bestMove, miniMax((depth - 1),alpha, beta, !isMaximizer));
+                        quick.undo();
+                        beta = Math.min(beta, bestMove);
+                        if(beta<=alpha){
+                            return bestMove;
+                        }
+                    }
+                    return bestMove;
                 }
 
-                undoLastMove(oldX, oldY, newX, newY, id, color, hasMoved, storeEat);
-                //undo castling
-                if (id == 'king'){
-                    if (newX == oldX + 2){
-                        undoLastMove((oldX + 3), oldY, (oldX + 1), newY, 'rook', color, hasMoved, storeEat);
-                    }
-                    if(newX == oldX - 2){
-                        undoLastMove((oldX - 4), oldY, (oldX - 1), newY, 'rook', color, hasMoved, storeEat);
-                    }
-                }
-                refreshData();
-                return tempBoard;
-                /*
+            }
+            
+            function Move(selectedMove){
+                console.log('tick');
+                //console.log(selectedMove);
                 let selectedOldCoords = [selectedMove.x, selectedMove.y],
                     selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
                     selectedColor = (turnCheck?true:false);
@@ -999,8 +1071,6 @@ export const chessBoard =(()=>{
                         movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, false, true);
                     }
                     refreshData();
-                    */
-
             }
             refreshData(); 
             
