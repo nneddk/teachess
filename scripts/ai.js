@@ -46,8 +46,8 @@ function openingCheck(currentPGN){
 
 export function getNextMove(availableMoves, pgn, turnCheck){
     //check if openings are viable
-    console.log(availableMoves);
-    gameEval(chessBoard.getBoardData(), turnCheck, availableMoves);
+    //console.log(availableMoves);
+    //gameEval(chessBoard.getBoardData(), turnCheck, availableMoves);
     /*
     let openingMove = openingCheck(pgn);
     if(openingMove){
@@ -55,10 +55,11 @@ export function getNextMove(availableMoves, pgn, turnCheck){
     }*/
     return false;
 }
-export function gameEval(board, turnCheck){
+export function gameEval(board){
     //first get board positions
     //let currentBoard = getBoardPosition(board);
-    return simpleEval(board, turnCheck);
+    return simpleEval(board);
+    //return pestoEval(board);
     
 }
 function translateMove(currentPGN, notation){
@@ -79,7 +80,7 @@ function translateMove(currentPGN, notation){
     return translatedMoveData;
 }
 //simple Eval
-function simpleEval(boards, turnCheck){
+function simpleEval(boards){
     if(!boards) return;
     let blackBoard = boards.blackPieces;
     let whiteBoard = boards.whitePieces;
@@ -217,16 +218,13 @@ function simpleEval(boards, turnCheck){
             
         }
     }
-    if(turnCheck){
-        return whiteEvalTotal;
-    }else if (!turnCheck){
-        return blackEvalTotal;
-    }
+    //return blackEvalTotal;
+    return whiteEvalTotal - blackEvalTotal;
     
 
 }
 //pestoEval
-function pestoEval(boards, turnCheck){
+function pestoEval(boards, isMax){
     if(!boards) return;
     //console.log(board);
     //mirrored PST Tables must be implemented for black (more on this shortly)
@@ -381,8 +379,8 @@ function pestoEval(boards, turnCheck){
             pieceSquareTable.kingPST.eg
         ];
 
-        const mgPieceValue = [82, 337, 365, 477, 1025, 0];
-        const egPieceValue = [94, 281, 297, 512, 936, 0];
+        const mgPieceValue = [82, 337, 365, 477, 1025, 2000];
+        const egPieceValue = [94, 281, 297, 512, 936, 2000];
         const gamePhaseInc = [0,1,1,2,4,0];
         let pc;
         switch (piece){
@@ -439,7 +437,7 @@ function pestoEval(boards, turnCheck){
             
         }
     }
-    let side = (turnCheck?0:1);
+    let side = (isMax?0:1);
     let mg = [
         mgWhiteEval,
         mgBlackEval,
@@ -448,27 +446,31 @@ function pestoEval(boards, turnCheck){
         egWhiteEval,
         egBlackEval,
     ]
-    //flips depending on whose side it is to move
-    //let mgScore = (mg[side] - mg[side^1]);
-    //let egScore = (eg[side] - eg[side^1]);
-    //let mgScore = (mg[0] - mg[1]);
-    //let egScore = (eg[0] - eg[1])
+    /*/flips depending on whose side it is to move
+    let mgScore = (mg[side] - mg[side^1]);
+    let egScore = (eg[side] - eg[side^1]);
+    */
+    let mgScore = (mg[0] - mg[1]);
+    let egScore = (eg[0] - eg[1])
+    
 
     //tapering evaluation between middlegame and endgame boards
     let mgPhase = gamePhase;
     if(mgPhase > 24) mgPhase = 24;
     let egPhase = 24 - mgPhase;
 
-    //let evalScore = (((mgScore * mgPhase) + (egScore * egPhase)) / 24);
+    let evalScore = (((mgScore * mgPhase) + (egScore * egPhase)) / 24);
+    return evalScore;
     //console.log(evalScore);
+    /*
     let whiteEval = Math.floor((((mg[0] * mgPhase) + (eg[0] * egPhase)) /24));
     let blackEval =  Math.floor((((mg[1] * mgPhase) + (eg[1] * egPhase)) /24));
-    if(turnCheck){
+    if(isMax){
         return whiteEval;
-    }else if (!turnCheck){
-        return blackEval;
-    }
-    return 0;
+    }else if (!isMax){
+        return -blackEval;
+    }*/
+
 }
 
 export function getBoardPosition(data){
