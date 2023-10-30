@@ -922,11 +922,24 @@ export const chessBoard =(()=>{
             */
             function getAvailableMoves(isMax){
                 if(!isMax){
-                    return (availableMoves.white);
-                }else{
-                    return (availableMoves.black)
+                    /*
+                    for(let i = 0; i<availableMoves.white.length; i++){
+                        if(isLegalMove(availableMoves.white[i])){
+                            validMoves.push(availableMoves.white[i]);
+                        }
+                    }*/
+                    return availableMoves.white;
+                }else if (isMax){
+                    /*
+                    for(let i = 0; i<availableMoves.black.length; i++){
+                        if(isLegalMove(availableMoves.black[i])){
+                            validMoves.push(availableMoves.black[i]);
+                        }
+                    }*/
+                    return availableMoves.black;
                 }
             }
+            
             //only for evaluation purposes, this can get mess with board data if not handled properly
             let quickHistory = [];
             const quick = (()=>{
@@ -940,7 +953,6 @@ export const chessBoard =(()=>{
                     
                     //headACHEEEEEEEEE
                     //castling check
-                    refreshData();
                     if (eatChecker(newX, newY,color)){
                         quickEat =  chessBoardData[newY][newX].pieceData;
                         eatMove(newX, newY);
@@ -981,10 +993,10 @@ export const chessBoard =(()=>{
                     //undo castling
                     if (qD.id == 'king'){
                         if (qD.newX == qD.oldX + 2){
-                            undoLastMove((qD.oldX + 3), qD.oldY, (qD.oldX + 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.storeEat);
+                            undoLastMove((qD.oldX + 3), qD.oldY, (qD.oldX + 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.quickEat);
                         }
                         if(qD.newX == qD.oldX - 2){
-                            undoLastMove((qD.oldX - 4), qD.oldY, (qD.oldX - 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.storeEat);
+                            undoLastMove((qD.oldX - 4), qD.oldY, (qD.oldX - 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.quickEat);
                         }
                     }
                     refreshData();
@@ -1000,14 +1012,7 @@ export const chessBoard =(()=>{
                 for(let i = 0; i < currentMoves.length; i++){
                     let newMove = currentMoves[i];
                     quick.move(newMove);
-
-                    if(isKingInCheck() == true){
-                        quick.undo();
-                        continue;
-                    }
                     let tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
-                    //let tempValue = gameEval(snapShot());
-                    
                     quick.undo();
 
                     if(tempValue >= bestMove){
@@ -1027,10 +1032,6 @@ export const chessBoard =(()=>{
                     let bestMove = -9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
-                        if(isKingInCheck() == true){
-                            quick.undo();
-                            continue;
-                        }
                         bestMove = Math.max(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
                         quick.undo();
                         alpha = Math.max (alpha, bestMove);
@@ -1043,10 +1044,6 @@ export const chessBoard =(()=>{
                     let bestMove = 9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
-                        if(isKingInCheck() == true){
-                            quick.undo();
-                            continue;
-                        }
                         bestMove = Math.min(bestMove, miniMax((depth - 1),alpha, beta, !isMaximizer));
                         quick.undo();
                         beta = Math.min(beta, bestMove);
