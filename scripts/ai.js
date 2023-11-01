@@ -85,14 +85,13 @@ function basicEval(board){
     let totalEval = 0;
     for (let i = 0; i<8; i++){
         for(let j = 0; j<8; j++){
-            totalEval = totalEval + getPieceValue(board.whitePieces[i][j], i, j, true);
-            totalEval = totalEval + getPieceValue(board.blackPieces[i][j], i, j, false);
+            totalEval = totalEval + getPieceValue(board[i][j], i, j);
         }
     }
     return totalEval;
 }
 function reverseArray(array){
-    return array.slice().reverse();
+    return array.reverse().slice().reverse();
 }
 const pawnEvalWhite =
     [
@@ -171,8 +170,8 @@ const kingEvalWhite = [
 ];
 
 const kingEvalBlack = reverseArray(kingEvalWhite);
-function getPieceValue(piece, x, y, color) {
-    if (piece === null) {
+function getPieceValue(piece, x, y) {
+    if (piece.pieceData === null) {
         return 0;
     }
     function getAbsoluteValue(piece, isWhite, x ,y) {
@@ -187,15 +186,14 @@ function getPieceValue(piece, x, y, color) {
         } else if (piece === 'Q') {
             return 90 + evalQueen[y][x];
         } else if (piece === 'K') {
-            return 900 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
+            return 99999 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
         } else if(piece === '_'){
             return 0;
         }
-        throw "Unknown piece type: " + piece.type;
+        throw "Unknown piece type: " + piece.pieceData.notation;
     };
-
-    let absoluteValue = getAbsoluteValue(piece, color, x ,y);
-    return color? absoluteValue : -absoluteValue;
+    let absoluteValue = getAbsoluteValue(piece.pieceData.notation, piece.pieceData.color, x ,y);
+    return piece.pieceData.color? absoluteValue : -absoluteValue;
 }
 
 
