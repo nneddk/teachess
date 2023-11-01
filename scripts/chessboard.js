@@ -149,6 +149,7 @@ export const chessBoard =(()=>{
             }
 
             pieceDiv.onclick=(e) =>{
+                console.log(chessBoardData[y][x]);
                 if(chessBoardData[y][x].pieceData.color == turnCheck && !gameOver){
                     e.stopPropagation();  
                     if(movingData.piece == null){
@@ -890,14 +891,20 @@ export const chessBoard =(()=>{
         //testing
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
+            console.log('tick');
             //gameEval(snapShot(),turnCheck);
             //aiOn = true;
+            
             getAIMove();
+            refreshData();
+            //console.log(enPassantData);
+            //console.log(gameEval(snapShot()));
             //console.log(availableMoves);
             //console.log(generatePgn(getHistory()));
         }
         function snapShot(){
-            return getBoardPosition(chessBoardData);
+            //return getBoardPosition(chessBoardData);
+            return chessBoardData;
         }
         
         function aiMove(){
@@ -942,6 +949,7 @@ export const chessBoard =(()=>{
             
             //only for evaluation purposes, this can get mess with board data if not handled properly
             let quickHistory = [];
+            let quickEnPassant = [];
             const quick = (()=>{
                 function move(selectedMove){
                     let oldX = selectedMove.x, oldY = selectedMove.y,
@@ -950,17 +958,18 @@ export const chessBoard =(()=>{
                     id = selectedMove.id,
                     hasMoved = selectedMove.hasMoved, 
                     quickEat;
-                    
+                    let quickEnPassantData = quickEnPassant[quickEnPassant.length - 1];
                     //headACHEEEEEEEEE
                     //castling check
+                    
                     if (eatChecker(newX, newY,color)){
                         quickEat =  chessBoardData[newY][newX].pieceData;
                         eatMove(newX, newY);
-                    }else if((enPassantData.x == newX) && (enPassantData.y == newY)&& id == 'pawn' && enPassantData.color != color){
-                        quickEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
-                        eatMove(enPassantData.target.x, enPassantData.target.y);
+                    }else if((quickEnPassantData.x == newX) && (quickEnPassantData.y == newY)&& id == 'pawn' && quickEnPassantData.color != color){
+                        quickEat = chessBoardData[quickEnPassantData.target.y][quickEnPassantData.target.x].pieceData;
+                        eatMove(quickEnPassantData.target.x, quickEnPassantData.target.y);
                     }
-                    pieceMaker(newX, newY, id, color, (hasMoved + 1));
+                    pieceMaker(newX, newY, id, color, (hasMoved + 1));  
                     pieceUnmaker(oldX, oldY);
                     //castling check
                     if (id == 'king'){
@@ -973,7 +982,66 @@ export const chessBoard =(()=>{
                             pieceUnmaker((oldX - 4), oldY);
                         }
                     }
-                    refreshData();
+                    //enPassantData
+                    //this is for enpassant when doing quickmoves
+                    if(id == 'pawn'){
+                        if(color){
+                            if(newY == oldY - 2){
+                                quickEnPassant.push({
+                                    color:color,
+                                    target:{
+                                        x:newX,
+                                        y:newY
+                                    },
+                                    x:newX,
+                                    y:oldY + 1
+                                });
+                            }else{
+                                quickEnPassant.push({
+                                    color:color,
+                                    target:{
+                                        x:-1,
+                                        y:-1
+                                    },
+                                    x:-1,
+                                    y:-1,
+                                });
+                            }
+                        }
+                        if(!color){
+                            if(newY == oldY + 2){
+                                quickEnPassant.push({
+                                    color:color,
+                                    target:{
+                                        x:newX,
+                                        y:newY
+                                    },
+                                    x:oldX,
+                                    y:oldY - 1
+                                });
+                            }else{
+                                quickEnPassant.push({
+                                    color:color,
+                                    target:{
+                                        x:-1,
+                                        y:-1
+                                    },
+                                    x:-1,
+                                    y:-1,
+                                });
+                            }
+                        }
+                    }else{
+                        quickEnPassant.push({
+                            color:color,
+                            target:{
+                                x:-1,
+                                y:-1
+                            },
+                            x:-1,
+                            y:-1,
+                        });
+                    }
                     quickHistory.push({
                         oldX:oldX,
                         oldY:oldY,
@@ -982,14 +1050,17 @@ export const chessBoard =(()=>{
                         color:color,
                         id:id,
                         hasMoved:hasMoved,
-                        quickEat,
+                        quickEat:quickEat,
                     });
                 }
                 function undo(){
-                    refreshData();
                     //qD = quick Data
-                    let qD = quickHistory.pop()
-                    undoLastMove(qD.oldX, qD.oldY, qD.newX, qD.newY, qD.id, qD.color, qD.hasMoved, qD.quickEat);
+                    let qD = quickHistory.pop();
+                    
+                    pieceUnmaker(qD.newX, qD.newY);
+                    pieceMaker(qD.oldX, qD.oldY, qD.id, qD.color, qD.hasMoved);
+                    if(qD.quickEat)pieceMaker(qD.quickEat.x, qD.quickEat.y, qD.quickEat.id,qD.quickEat.color, qD.quickEat.hasMoved);
+                    //undoLastMove(qD.oldX, qD.oldY, qD.newX, qD.newY, qD.id, qD.color, qD.hasMoved, qD.quickEat);
                     //undo castling
                     if (qD.id == 'king'){
                         if (qD.newX == qD.oldX + 2){
@@ -999,7 +1070,7 @@ export const chessBoard =(()=>{
                             undoLastMove((qD.oldX - 4), qD.oldY, (qD.oldX - 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.quickEat);
                         }
                     }
-                    refreshData();
+                    quickEnPassant.pop();
                 }
                 
                 return {move,undo}
@@ -1011,19 +1082,24 @@ export const chessBoard =(()=>{
                 let bestMoveFound;
                 for(let i = 0; i < currentMoves.length; i++){
                     let newMove = currentMoves[i];
+                    quickEnPassant.push(enPassantData);
                     quick.move(newMove);
+                    
                     let tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
                     quick.undo();
-
                     if(tempValue >= bestMove){
                         bestMove = tempValue;
                         bestMoveFound = newMove;
                     }
                 }
+                console.log(bestMoveFound);
+                
                 return bestMoveFound;
             }
             function miniMax(depth, alpha, beta, isMaximizer){
+                refreshData();
                 if(depth === 0){
+                    if(isKingInCheck()===true) return (isMaximizer?100000:-100000); 
                     return -gameEval(snapShot()); 
                 }
                 let currentMoves = getAvailableMoves(isMaximizer); 
@@ -1057,7 +1133,6 @@ export const chessBoard =(()=>{
             }
             
             function Move(selectedMove){
-                console.log('tick');
                 //console.log(selectedMove);
                 let selectedOldCoords = [selectedMove.x, selectedMove.y],
                     selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
@@ -1643,7 +1718,6 @@ export const chessBoard =(()=>{
         movingData.piece = null;
     }
     function refreshData(){
-        
         let activePieces = [];
         availableMoves.white = [];
         availableMoves.black = []; 
