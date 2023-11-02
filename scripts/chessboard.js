@@ -913,7 +913,7 @@ export const chessBoard =(()=>{
         }
         
         function aiMove(){
-            if(aiOn) return;
+            if(!aiOn) return;
             setTimeout(function () {
                 ai();
             }, 500);
