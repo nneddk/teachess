@@ -1,6 +1,7 @@
 
 import { chessBoard } from "./chessboard.js";
 let openingMoves = [];
+
 export function setOpenings(openings){
     for (let i = 0; i< openings.length; i++){
         let tempPGN = openings[i].pgn;
