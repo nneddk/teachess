@@ -379,6 +379,7 @@ export const chessBoard =(()=>{
                             &&(rightRook.color == color)
                             &&(rightRook.hasMoved == 0)){
                                 let tempAi = aiOn;
+                                console.log(tempAi);
                                 moveDetail.action.castle = true;
                                 moveDetail.moves = 1;
                                 aiOn = false;
@@ -928,6 +929,7 @@ y
         }
         
         function aiMove(){
+            console.log('tick');
             if(!aiOn) return;
 
             ai();
@@ -1117,7 +1119,7 @@ y
                         }
                         if(qD.newX == qD.oldX - 2){
                             pieceUnmaker((qD.oldX - 1), qD.newY, quick);
-                            pieceMaker((qD.oldX + 4), qD.oldY, 'rook', qD.color, qD.hasMoved, quick);
+                            pieceMaker((qD.oldX - 4), qD.oldY, 'rook', qD.color, qD.hasMoved, quick);
                             //undoLastMove((qD.oldX - 4), qD.oldY, (qD.oldX - 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.quickEat, quick);
                         }
                     }
@@ -1153,6 +1155,7 @@ y
                         bestMoveFound = newMove;
                     }
                 }
+                console.log(bestMoveFound);
                 return bestMoveFound;
             }
             function miniMax(depth, alpha, beta, isMaximizer){
@@ -1785,10 +1788,10 @@ y
         function clickTile(){
             let oldX = movingData.oldCoords.x, oldY = movingData.oldCoords.y;
             let newX = movingData.newCoords.x, newY = movingData.newCoords.y;
+            aiOn = true;
             if(piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){
                 if(!gameOver) indicator.textContent = chessBoardData[movingData.oldCoords.y][movingData.oldCoords.x].notation+' '+
                         movingData.id+' '+' -> '+chessBoardData[newY][newX].notation;
-                aiOn = true;
                 piece.movePiece([oldX, oldY], [newX, newY], movingData.id, movingData.color, movingData.hasMoved, false, true);
                 redoData = [];
             }else if (piece.getMoveData(movingData.id, [oldX, oldY], [newX, newY],movingData.color, movingData.hasMoved)){;
@@ -1800,6 +1803,7 @@ y
                 clearInfo();
                 refreshData();  
             }
+            aiOn = false;
         }   
 
     }
