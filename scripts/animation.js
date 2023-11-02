@@ -12,7 +12,6 @@ export function playAnimation(oldTile, newTile, newPiece, castling){
     let newPosX = newPos.left;
     let posY = oldPosY;
     let posX = oldPosX;
-    console.log(newPiece);
     const piece = document.createElement('div');
     piece.classList.add('animation-piece');
     piece.classList.add((newPiece[0]?'white':'black')+'-'+newPiece[1]);
