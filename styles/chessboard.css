@@ -127,3 +127,9 @@
     background-size: 50%;
     opacity: 0.5;
 }
+
+#animation-board{
+    height: 85vmin;
+    width: 85vmin;
+    position: absolute;
+}

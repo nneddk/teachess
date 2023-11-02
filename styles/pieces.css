@@ -8,6 +8,17 @@
     background-size: 100%;
     opacity: 1;
 }
+
+.animation-piece{
+    width: 9vmin;
+    height: 9vmin;
+    position: fixed;
+    justify-self: center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    transition: all 0.25s;
+}
 .piece:hover{
     opacity: 0.8;
 }
