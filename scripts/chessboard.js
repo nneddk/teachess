@@ -1,5 +1,6 @@
 import { hideDisplay } from "./toolbar.js";
 import { setOpenings,getNextMove,gameEval, getBoardPosition } from "./ai.js";
+import { playAnimation } from "./animation.js"
 
 //opening data
 let openingData = '';
@@ -833,8 +834,11 @@ export const chessBoard =(()=>{
                 storeEat = chessBoardData[enPassantData.target.y][enPassantData.target.x].pieceData;
                 eatMove(enPassantData.target.x, enPassantData.target.y);
             }
-            pieceMaker(newX, newY, id, color, (hasMoved + 1));
+            
+            
             pieceUnmaker(oldX, oldY);
+            pieceMaker(newX, newY, id, color, (hasMoved + 1));
+            
             refreshData();
             if (isKingInCheck() == true){
 
@@ -845,6 +849,7 @@ export const chessBoard =(()=>{
                 if(moveDetail.action.eat) moveDetail.action.eat = false;
                 if(moveDetail.action.enpass) moveDetail.action.enpass = false;
             }else{
+                playAnimation(chessBoardData[oldY][oldX].tileLocation, chessBoardData[newY][newX].tileLocation, [color, id]);
                 kingCheck(color);
                 //promotion logic
                 if(moveDetail.action.eat) showEat(storeEat);
@@ -895,7 +900,7 @@ export const chessBoard =(()=>{
             //gameEval(snapShot(),turnCheck);
             //aiOn = true;
             
-            getAIMove();
+            aiMove();
             refreshData();
             //console.log(enPassantData);
             //console.log(gameEval(snapShot()));
@@ -908,9 +913,12 @@ export const chessBoard =(()=>{
         }
         
         function aiMove(){
-            return;
+            if(!aiOn) return;
+            setTimeout(function () {
+                ai();
+            }, 500);
         }
-        function getAIMove(){
+        function ai(){
             //exit if game is over or if ai is off
             
             /*
@@ -969,8 +977,31 @@ export const chessBoard =(()=>{
                         quickEat = chessBoardData[quickEnPassantData.target.y][quickEnPassantData.target.x].pieceData;
                         eatMove(quickEnPassantData.target.x, quickEnPassantData.target.y);
                     }
-                    pieceMaker(newX, newY, id, color, (hasMoved + 1));  
+                    
+                    if (id == 'pawn'){
+                        if(color){
+                            if(newY == 0){
+                                pieceMaker(newX, newY, 'queen', color, (hasMoved + 1));  
+                            }else{
+                                pieceMaker(newX, newY, id, color, (hasMoved + 1)); 
+                            }
+                            
+                        }
+                        if(!color){
+                            if(newY == 7){
+                                pieceMaker(newX, newY, 'queen', color, (hasMoved + 1)); 
+                            }else{
+                                pieceMaker(newX, newY, id, color, (hasMoved + 1));
+                            }
+                             
+                        }
+                        
+                    }else{
+                        pieceMaker(newX, newY, id, color, (hasMoved + 1));  
+                    }
                     pieceUnmaker(oldX, oldY);
+                    
+
                     //castling check
                     if (id == 'king'){
                         if(newX == oldX + 2){
@@ -1075,7 +1106,10 @@ export const chessBoard =(()=>{
                 
                 return {move,undo}
             })();
-            Move(miniMaxRoot(3,true));
+
+            //GET THE MOVE, THEN WAIT 5 SECONDS BEFORE EXECUTION 
+            let newMove = miniMaxRoot(3,true);
+            Move(newMove);
             function miniMaxRoot(depth, isMaximizer){
                 let currentMoves = getAvailableMoves(isMaximizer);
                 let bestMove = -9999;
@@ -1093,7 +1127,6 @@ export const chessBoard =(()=>{
                     }
                 }
                 console.log(bestMoveFound);
-                
                 return bestMoveFound;
             }
             function miniMax(depth, alpha, beta, isMaximizer){
@@ -1140,7 +1173,7 @@ export const chessBoard =(()=>{
                     if(getMoveData(selectedMove.id, selectedOldCoords, selectedNewCoords, selectedColor, selectedMove.hasMoved)){
                         if(!gameOver) indicator.textContent = chessBoardData[selectedOldCoords[1]][selectedOldCoords[0]].notation+' '+
                                 selectedMove.id+' '+' -> '+chessBoardData[selectedNewCoords[1]][selectedNewCoords[0]].notation;
-                        movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, false, true);
+                        movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, 'Q', true);
                     }
                     refreshData();
             }
