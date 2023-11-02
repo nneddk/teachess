@@ -187,7 +187,7 @@ function getPieceValue(piece, x, y) {
         } else if (piece === 'Q') {
             return 90 + evalQueen[y][x];
         } else if (piece === 'K') {
-            return 99999 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
+            return 900 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
         } else if(piece === '_'){
             return 0;
         }
