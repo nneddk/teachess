@@ -373,7 +373,7 @@ export const chessBoard =(()=>{
                                 aiOn = false;
                                 movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false, true);
                                 moveDetail.action.castle = true;
-                                movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved, false, false);
+                                movePiece([oldX + 3, oldY],[oldX + 1, oldY], rightRook.id, rightRook.color, hasMoved, false, false, true);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                  'king'+' '+' -> '+chessBoardData[oldY][oldX+2].notation;
                                 turnCheck = !turnCheck;
@@ -394,7 +394,7 @@ export const chessBoard =(()=>{
                                 aiOn = false;
                                 movePiece([oldX,oldY],[newX,newY],id,color, hasMoved, false, true);
                                 moveDetail.action.castle = true;
-                                movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved, false, false);
+                                movePiece([oldX - 4, oldY],[oldX - 1, oldY], leftRook.id, leftRook.color, hasMoved, false, false. true);
                                 if(!gameOver) indicator.textContent = chessBoardData[oldY][oldX].notation+' '+
                                 'king'+' '+' -> '+chessBoardData[oldY][oldX-2].notation;
                                 turnCheck = !turnCheck;
@@ -816,7 +816,7 @@ export const chessBoard =(()=>{
             chessBoardData[y][x].pieceData = null;
             chessBoardData[y][x].isEmpty = true;
         } 
-        function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote, pushData){   
+        function movePiece(oldCoords,newCoords,id,color, hasMoved, pgnPromote, pushData, castling){   
             if(gameOver) return;     
             let oldX = oldCoords[0], oldY = oldCoords[1];
             let newX = newCoords[0], newY = newCoords[1]; 
@@ -849,7 +849,7 @@ export const chessBoard =(()=>{
                 if(moveDetail.action.eat) moveDetail.action.eat = false;
                 if(moveDetail.action.enpass) moveDetail.action.enpass = false;
             }else{
-                playAnimation(chessBoardData[oldY][oldX].tileLocation, chessBoardData[newY][newX].tileLocation, [color, id]);
+                playAnimation(chessBoardData[oldY][oldX].tileLocation, chessBoardData[newY][newX].tileLocation, [color, id], castling);
                 kingCheck(color);
                 //promotion logic
                 if(moveDetail.action.eat) showEat(storeEat);
@@ -913,7 +913,7 @@ export const chessBoard =(()=>{
         }
         
         function aiMove(){
-            if(!aiOn) return;
+            if(aiOn) return;
             setTimeout(function () {
                 ai();
             }, 500);
@@ -1110,6 +1110,7 @@ export const chessBoard =(()=>{
             //GET THE MOVE, THEN WAIT 5 SECONDS BEFORE EXECUTION 
             let newMove = miniMaxRoot(3,true);
             Move(newMove);
+            
             function miniMaxRoot(depth, isMaximizer){
                 let currentMoves = getAvailableMoves(isMaximizer);
                 let bestMove = -9999;

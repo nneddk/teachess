@@ -1,7 +1,7 @@
 //this is for piece animation when moving
 const boardDiv = document.getElementById('animation-board');
-export function playAnimation(oldTile, newTile, newPiece){
-    if(boardDiv.hasChildNodes()) boardDiv.removeChild(boardDiv.lastChild);
+export function playAnimation(oldTile, newTile, newPiece, castling){
+    if(boardDiv.hasChildNodes() && !castling) boardDiv.removeChild(boardDiv.lastChild);
     newTile.style.opacity = '0';
     let oldPos = oldTile.getBoundingClientRect();
     let newPos = newTile.getBoundingClientRect();
@@ -19,16 +19,16 @@ export function playAnimation(oldTile, newTile, newPiece){
     piece.style.top = oldPosY + 'px';
     piece.style.left = oldPosX + 'px';
     boardDiv.appendChild(piece);
-    window.setTimeout(function() {
+    setTimeout(()=> {
         jump();
       }, 1); 
     function jump(){
         piece.style.top = newPosY + 3 + 'px';
         piece.style.left = newPosX + 3 +'px';
         
-        window.setTimeout(function() {
+        setTimeout(()=>{
             piece.style.opacity = '0';
-            newTile.style.opacity = '1';
+            newTile.style.opacity = '';
           }, 500);
         
     }
