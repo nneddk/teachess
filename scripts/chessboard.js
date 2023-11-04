@@ -91,6 +91,7 @@ export const chessBoard =(()=>{
             x: null,
             y: null
         };
+        let pieceCounter = 0;
         function pieceMaker(x, y, id, color, hasMoved, quick){
             let pieceData = {
                 color: color,
@@ -391,7 +392,7 @@ export const chessBoard =(()=>{
                                 turnCheck = !turnCheck;
                                 refreshData();
                                 aiOn = tempAi;
-                                if(turnCheck == aiTurn && aiOn) aiMove();
+                                if(turnCheck == aiTurn && aiOn) ai(aiOn);
                                 
 
                             }
@@ -414,7 +415,7 @@ export const chessBoard =(()=>{
                                 turnCheck = !turnCheck;
                                 refreshData();
                                 aiOn = tempAi;
-                                if(turnCheck == aiTurn && aiOn) aiMove();
+                                if(turnCheck == aiTurn && aiOn) ai(aiOn);
 y
                             }
                         }   
@@ -556,15 +557,19 @@ y
                 }else{
                     if(color){
                         boardData.threatData.whiteCheck.counter++;
+                        /*
                         boardData.threatData.whiteCheck.threats.push(chessBoardData[y][x].pieceData.id);
                         boardData.threatData.whiteCheck.coords.x.push(chessBoardData[y][x].pieceData.x);
                         boardData.threatData.whiteCheck.coords.y.push(chessBoardData[y][x].pieceData.y);
+                        */
                     }
                     if(!color){
                         boardData.threatData.blackCheck.counter++;
+                        /*
                         boardData.threatData.blackCheck.threats.push(chessBoardData[y][x].pieceData.id);
                         boardData.threatData.blackCheck.coords.x.push(chessBoardData[y][x].pieceData.x);
                         boardData.threatData.blackCheck.coords.y.push(chessBoardData[y][x].pieceData.y);
+                        */
                     }
                     if(boardData.isEmpty  || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) ){
                         if(color && id !=null&& id != 'pawn') {
@@ -865,7 +870,7 @@ y
                 if(moveDetail.action.eat) moveDetail.action.eat = false;
                 if(moveDetail.action.enpass) moveDetail.action.enpass = false;
             }else{
-                playAnimation(chessBoardData[oldY][oldX].tileLocation, chessBoardData[newY][newX].tileLocation, [color, id], castling);
+                //playAnimation(chessBoardData[oldY][oldX].tileLocation, chessBoardData[newY][newX].tileLocation, [color, id], castling);
                 kingCheck(color);
                 //promotion logic
                 if(moveDetail.action.eat) showEat(storeEat);
@@ -905,250 +910,208 @@ y
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
                 //only moves black, need to set WHERE ai is on (white/black)
-                if(turnCheck == aiTurn && aiOn) piece.aiMove();
+                if(turnCheck == aiTurn && aiOn) ai(aiOn);
                 
             }
         }
         //testing
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
-            //console.log(window.performance.memory);
+            console.log(window.performance.memory);
             //gameEval(snapShot(),turnCheck);
-            //aiOn = true;
-            ai();
+            aiOn = true;
+            ai(true, true);
             //console.log(enPassantData);
             //console.log(gameEval(snapShot()));
             //console.log(availableMoves);
             //console.log(generatePgn(getHistory()));
-            console.log(blackKing);
-            console.log(whiteKing);
+            //console.log(blackKing);
+            //console.log(whiteKing);
         }
-        function snapShot(){
-            //return getBoardPosition(chessBoardData);
-            return chessBoardData;
+        function getAvailableMoves(isMax){
+            if(!isMax) return availableMoves.white;
+            if(isMax) return availableMoves.black;
         }
-        
-        function aiMove(){
-            console.log('tick');
-            if(!aiOn) return;
-
-            ai();
-            aiOn = false;
-        }
-        function ai(){
-            let TotalMoves = 0;
-            //exit if game is over or if ai is off
-            
-            /*
-            function getNextMove(arrayOfMoves){
-                let move = [];
-                let moveEval = [];
-                //console.log(gameEval(getBoardData(), turnCheck));
-                for(let i = 0; i<arrayOfMoves.length; i++){
-                    let currentMove = evaluateMove(arrayOfMoves[i])
-                    if (currentMove){
-                        move.push(arrayOfMoves[i]);
-                        moveEval.push(currentMove);
-                    }
-                }
-            }
-            */
-            function getAvailableMoves(isMax){
-                if(!isMax){
-                    /*
-                    for(let i = 0; i<availableMoves.white.length; i++){
-                        if(isLegalMove(availableMoves.white[i])){
-                            validMoves.push(availableMoves.white[i]);
-                        }
-                    }*/
-                    return availableMoves.white;
-                }else if (isMax){
-                    /*
-                    for(let i = 0; i<availableMoves.black.length; i++){
-                        if(isLegalMove(availableMoves.black[i])){
-                            validMoves.push(availableMoves.black[i]);
-                        }
-                    }*/
-                    return availableMoves.black;
-                }
-            }
-            
-            //only for evaluation purposes, this can get mess with board data if not handled properly
+        //quick move
+        const quick = (()=>{
             let quickHistory = [];
-            let quickEnPassant = [];
-            const quick = (()=>{
-                function move(selectedMove){
-                    let oldX = selectedMove.x, oldY = selectedMove.y,
-                    newX = selectedMove.move.x, newY = selectedMove.move.y,
-                    color = chessBoardData[oldY][oldX].pieceData.color,
-                    id = selectedMove.id,
-                    hasMoved = selectedMove.hasMoved, 
-                    quickEat;
-                    let quickEnPassantData = quickEnPassant[quickEnPassant.length - 1], quick = true;
-                    //headACHEEEEEEEEE
-                    //castling check
-                    
-                    if (eatChecker(newX, newY,color)){
-                        quickEat =  chessBoardData[newY][newX].pieceData;
-                        eatMove(newX, newY, quick);
-                    }else if((quickEnPassantData.x == newX) && (quickEnPassantData.y == newY)&& id == 'pawn' && quickEnPassantData.color != color){
-                        quickEat = chessBoardData[quickEnPassantData.target.y][quickEnPassantData.target.x].pieceData;
-                        eatMove(quickEnPassantData.target.x, quickEnPassantData.target.y, quick);
-                    }
-                    
-                    if (id == 'pawn'){
-                        if(color){
-                            if(newY == 0){
-                                pieceMaker(newX, newY, 'queen', color, (hasMoved + 1), quick);  
-                            }else{
-                                pieceMaker(newX, newY, id, color, (hasMoved + 1), quick); 
-                            }
-                            
-                        }
-                        if(!color){
-                            if(newY == 7){
-                                pieceMaker(newX, newY, 'queen', color, (hasMoved + 1), quick); 
-                            }else{
-                                pieceMaker(newX, newY, id, color, (hasMoved + 1),quick);
-                            }
-                             
-                        }
-                        
-                    }else{
-                        pieceMaker(newX, newY, id, color, (hasMoved + 1), quick);  
-                    }
-                    pieceUnmaker(oldX, oldY, quick);
-                    
-
-                    //castling check
-                    if (id == 'king'){
-                        if(newX == oldX + 2){
-                            pieceMaker((oldX + 1), newY, 'rook', color, (hasMoved + 1), quick);
-                            pieceUnmaker((oldX + 3), oldY, quick);
-                        }
-                        if(newX == oldX - 2){
-                            pieceMaker((oldX - 1), newY, 'rook', color, (hasMoved + 1),quick);
-                            pieceUnmaker((oldX - 4), oldY, quick);
-                        }
-                    }
-                    //enPassantData
-                    //this is for enpassant when doing quickmoves
-                    if(id == 'pawn'){
-                        if(color){
-                            if(newY == oldY - 2){
-                                quickEnPassant.push({
-                                    color:color,
-                                    target:{
-                                        x:newX,
-                                        y:newY
-                                    },
-                                    x:newX,
-                                    y:oldY + 1
-                                });
-                            }else{
-                                quickEnPassant.push({
-                                    color:color,
-                                    target:{
-                                        x:-1,
-                                        y:-1
-                                    },
-                                    x:-1,
-                                    y:-1,
-                                });
-                            }
-                        }
-                        if(!color){
-                            if(newY == oldY + 2){
-                                quickEnPassant.push({
-                                    color:color,
-                                    target:{
-                                        x:newX,
-                                        y:newY
-                                    },
-                                    x:oldX,
-                                    y:oldY - 1
-                                });
-                            }else{
-                                quickEnPassant.push({
-                                    color:color,
-                                    target:{
-                                        x:-1,
-                                        y:-1
-                                    },
-                                    x:-1,
-                                    y:-1,
-                                });
-                            }
-                        }
-                    }else{
-                        quickEnPassant.push({
-                            color:color,
-                            target:{
-                                x:-1,
-                                y:-1
-                            },
-                            x:-1,
-                            y:-1,
-                        });
-                    }
-                    quickHistory.push({
-                        oldX:oldX,
-                        oldY:oldY,
-                        newX:newX,
-                        newY:newY,
-                        color:color,
-                        id:id,
-                        hasMoved:hasMoved,
-                        quickEat:quickEat,
-                    });
-                }
-                function undo(){
-                    //qD = quick Data
-                    let qD = quickHistory.pop();
-                    let quick = true;
-                    pieceUnmaker(qD.newX, qD.newY, quick);
-                    pieceMaker(qD.oldX, qD.oldY, qD.id, qD.color, qD.hasMoved, quick);
-                    if(qD.quickEat)pieceMaker(qD.quickEat.x, qD.quickEat.y, qD.quickEat.id,qD.quickEat.color, qD.quickEat.hasMoved, quick);
-                    //undoLastMove(qD.oldX, qD.oldY, qD.newX, qD.newY, qD.id, qD.color, qD.hasMoved, qD.quickEat);
-                    //undo castling
-                    if (qD.id == 'king'){
-                        if (qD.newX == qD.oldX + 2){
-                            pieceUnmaker((qD.oldX + 1), qD.newY, quick);
-                            pieceMaker((qD.oldX + 3), qD.oldY, 'rook', qD.color, qD.hasMoved, quick);
-                            //undoLastMove(, qD.oldY, ), qD.newY, 'rook', qD.color, qD.hasMoved, qD.quickEat, quick);
-                        }
-                        if(qD.newX == qD.oldX - 2){
-                            pieceUnmaker((qD.oldX - 1), qD.newY, quick);
-                            pieceMaker((qD.oldX - 4), qD.oldY, 'rook', qD.color, qD.hasMoved, quick);
-                            //undoLastMove((qD.oldX - 4), qD.oldY, (qD.oldX - 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.quickEat, quick);
-                        }
-                    }
-                    quickEnPassant.pop();
+            let quickEnPassant = [enPassantData];
+            function move(selectedMove){
+                let oldX = selectedMove.x, oldY = selectedMove.y,
+                newX = selectedMove.move.x, newY = selectedMove.move.y,
+                color = chessBoardData[oldY][oldX].pieceData.color,
+                id = selectedMove.id,
+                hasMoved = selectedMove.hasMoved, 
+                quickEat;
+                let quickEnPassantData = quickEnPassant[quickEnPassant.length - 1], quick = true;
+                //headACHEEEEEEEEE
+                //castling check
+                
+                if (eatChecker(newX, newY,color)){
+                    quickEat =  chessBoardData[newY][newX].pieceData;
+                    eatMove(newX, newY, quick);
+                }else if((quickEnPassantData.x == newX) && (quickEnPassantData.y == newY)&& id == 'pawn' && quickEnPassantData.color != color){
+                    quickEat = chessBoardData[quickEnPassantData.target.y][quickEnPassantData.target.x].pieceData;
+                    eatMove(quickEnPassantData.target.x, quickEnPassantData.target.y, quick);
                 }
                 
-                return {move,undo}
-            })();
+                if (id == 'pawn'){
+                    if(color){
+                        if(newY == 0){
+                            pieceMaker(newX, newY, 'queen', color, (hasMoved + 1), quick);  
+                        }else{
+                            pieceMaker(newX, newY, id, color, (hasMoved + 1), quick); 
+                        }
+                        
+                    }
+                    if(!color){
+                        if(newY == 7){
+                            pieceMaker(newX, newY, 'queen', color, (hasMoved + 1), quick); 
+                        }else{
+                            pieceMaker(newX, newY, id, color, (hasMoved + 1),quick);
+                        }
+                         
+                    }
+                    
+                }else{
+                    pieceMaker(newX, newY, id, color, (hasMoved + 1), quick);  
+                }
+                pieceUnmaker(oldX, oldY, quick);
+                
 
+                //castling check
+                if (id == 'king'){
+                    if(newX == oldX + 2){
+                        pieceMaker((oldX + 1), newY, 'rook', color, (hasMoved + 1), quick);
+                        pieceUnmaker((oldX + 3), oldY, quick);
+                    }
+                    if(newX == oldX - 2){
+                        pieceMaker((oldX - 1), newY, 'rook', color, (hasMoved + 1),quick);
+                        pieceUnmaker((oldX - 4), oldY, quick);
+                    }
+                }
+                //enPassantData
+                //this is for enpassant when doing quickmoves
+                if(id == 'pawn'){
+                    if(color){
+                        if(newY == oldY - 2){
+                            quickEnPassant.push({
+                                color:color,
+                                target:{
+                                    x:newX,
+                                    y:newY
+                                },
+                                x:newX,
+                                y:oldY + 1
+                            });
+                        }else{
+                            quickEnPassant.push({
+                                color:color,
+                                target:{
+                                    x:-1,
+                                    y:-1
+                                },
+                                x:-1,
+                                y:-1,
+                            });
+                        }
+                    }
+                    if(!color){
+                        if(newY == oldY + 2){
+                            quickEnPassant.push({
+                                color:color,
+                                target:{
+                                    x:newX,
+                                    y:newY
+                                },
+                                x:oldX,
+                                y:oldY - 1
+                            });
+                        }else{
+                            quickEnPassant.push({
+                                color:color,
+                                target:{
+                                    x:-1,
+                                    y:-1
+                                },
+                                x:-1,
+                                y:-1,
+                            });
+                        }
+                    }
+                }else{
+                    quickEnPassant.push({
+                        color:color,
+                        target:{
+                            x:-1,
+                            y:-1
+                        },
+                        x:-1,
+                        y:-1,
+                    });
+                }
+                quickHistory.push({
+                    oldX:oldX,
+                    oldY:oldY,
+                    newX:newX,
+                    newY:newY,
+                    color:color,
+                    id:id,
+                    hasMoved:hasMoved,
+                    quickEat:quickEat,
+                });
+            }
+            function undo(){
+                //qD = quick Data
+                let qD = quickHistory.pop();
+                let quick = true;
+                pieceUnmaker(qD.newX, qD.newY, quick);
+                pieceMaker(qD.oldX, qD.oldY, qD.id, qD.color, qD.hasMoved, quick);
+                if(qD.quickEat)pieceMaker(qD.quickEat.x, qD.quickEat.y, qD.quickEat.id,qD.quickEat.color, qD.quickEat.hasMoved, quick);
+                //undoLastMove(qD.oldX, qD.oldY, qD.newX, qD.newY, qD.id, qD.color, qD.hasMoved, qD.quickEat);
+                //undo castling
+                if (qD.id == 'king'){
+                    if (qD.newX == qD.oldX + 2){
+                        pieceUnmaker((qD.oldX + 1), qD.newY, quick);
+                        pieceMaker((qD.oldX + 3), qD.oldY, 'rook', qD.color, qD.hasMoved, quick);
+                        //undoLastMove(, qD.oldY, ), qD.newY, 'rook', qD.color, qD.hasMoved, qD.quickEat, quick);
+                    }
+                    if(qD.newX == qD.oldX - 2){
+                        pieceUnmaker((qD.oldX - 1), qD.newY, quick);
+                        pieceMaker((qD.oldX - 4), qD.oldY, 'rook', qD.color, qD.hasMoved, quick);
+                        //undoLastMove((qD.oldX - 4), qD.oldY, (qD.oldX - 1), qD.newY, 'rook', qD.color, qD.hasMoved, qD.quickEat, quick);
+                    }
+                }
+                quickEnPassant.pop();
+            }
+            
+            return {move,undo}
+        })();
+        function ai(aiOn, algo){
+            if(!aiOn) return;
+            if (!algo) return;
+            let TotalMoves = 0;            
+            //only for evaluation purposes, this can get mess with board data if not handled properly
+            
+            let newMove = miniMaxRoot(3,true);
+            aiMove(newMove);
+            console.log("Total # of moves evaluated: "+TotalMoves);
             //GET THE MOVE, THEN WAIT
-            
-            setTimeout(() => {
-                let newMove = miniMaxRoot(3,true);
-                Move(newMove);
-            }, 500);
-            
+
             function miniMaxRoot(depth, isMaximizer){
                 let currentMoves = getAvailableMoves(isMaximizer);
                 let bestMove = -9999;
                 let bestMoveFound;
                 for(let i = 0; i < currentMoves.length; i++){
                     let newMove = currentMoves[i];
-                    quickEnPassant.push(enPassantData);
                     quick.move(newMove);
                     refreshData();
                     let tempValue = -10000;
+                    
                     if(!isKingInCheck(isMaximizer)){
-                        tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
+                        tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer); 
                     }
+                    
                     quick.undo();
                     if(tempValue >= bestMove){
                         bestMove = tempValue;
@@ -1161,9 +1124,8 @@ y
             function miniMax(depth, alpha, beta, isMaximizer){
                 TotalMoves++;
                 refreshData();
-                
                 if(depth === 0){
-                    return -gameEval(snapShot()); 
+                    return -gameEval(getBoardData()); 
                 }
                 let currentMoves = getAvailableMoves(isMaximizer); 
                 
@@ -1171,7 +1133,11 @@ y
                     let bestMove = -9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
-                        bestMove = Math.max(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
+                        refreshData();
+                        if(!isKingInCheck(isMaximizer)){
+                            bestMove = Math.max(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
+                        }
+                        
                         quick.undo();
                         alpha = Math.max (alpha, bestMove);
                         if(beta <= alpha){
@@ -1183,7 +1149,12 @@ y
                     let bestMove = 9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
-                        bestMove = Math.min(bestMove, miniMax((depth - 1),alpha, beta, !isMaximizer));
+                        refreshData();
+                        
+                        if(!isKingInCheck(isMaximizer)){
+                            bestMove = Math.min(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
+                        }  
+                        
                         quick.undo();
                         beta = Math.min(beta, bestMove);
                         if(beta<=alpha){
@@ -1194,68 +1165,21 @@ y
                 }
 
             }
-            
-            function Move(selectedMove){
-                
-                //console.log(selectedMove);
-                let selectedOldCoords = [selectedMove.x, selectedMove.y],
-                    selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
-                    selectedColor = (turnCheck?true:false);
-                    if(getMoveData(selectedMove.id, selectedOldCoords, selectedNewCoords, selectedColor, selectedMove.hasMoved)){
-                        if(!gameOver) indicator.textContent = chessBoardData[selectedOldCoords[1]][selectedOldCoords[0]].notation+' '+
-                                selectedMove.id+' '+' -> '+chessBoardData[selectedNewCoords[1]][selectedNewCoords[0]].notation;
-                        movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, 'Q', true);
-                    }
-                    refreshData();
-                    console.log("Total # of moves evaluated: "+TotalMoves);
-            }
             refreshData(); 
-            
-            /*
-            if(turnCheck){
-               recursiveMove(availableMoves, true, 1); 
-            }else{
-                recursiveMove(availableMoves, false, 1);
-            }
-            
-            function recursiveMove(possibleMoves, color, depth){
-                let possible = possibleMoves.white;
-                if (!color) possible = possibleMoves.black 
+        }
+        function aiMove(selectedMove){
                 
-                for(let n = 0; n < possible.length; n++){
-                    let hasMoved = possible[n].hasMoved;
-                    let oldX = possible[n].x, oldY = possible[n].y;
-                    let newX = possible[n].move.x, newY = possible[n].move.y;
-                    let storeEat;
-                    hasMoved++;
-                    if (eatChecker(newX, newY,color)){
-                        storeEat =  chessBoardData[newY][newX].pieceData;
-                        eatMove(newX, newY);
-                    }
-                    pieceMaker(newX, newY, possible[n].id, color, (hasMoved + 1));
-                    pieceUnmaker(oldX, oldY);
-                    refreshData();
-                    if(depth > 0){
-                        recursiveMove(availableMoves, !color, (depth - 1));
-                    }
-                    if(depth == 0){
-                        if(isKingInCheck()){
-                            
-                            //console.log('Possible Check: '+possible[n].id,possible[n].move.x,possible[n].move.y);
-                        }
-                        if (!color){
-                            datasetCount += availableMoves.white.length;
-                        }else{
-                            datasetCount+=availableMoves.black.length;
-                        }
-                        
-                    }
-                    undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
-                    refreshData();
-                }  
-            }
-            console.log('Possible Moves at 1st depth: '+datasetCount);
-            */
+            //console.log(selectedMove);
+            let selectedOldCoords = [selectedMove.x, selectedMove.y],
+                selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
+                selectedColor = (turnCheck?true:false);
+                if(getMoveData(selectedMove.id, selectedOldCoords, selectedNewCoords, selectedColor, selectedMove.hasMoved)){
+                    if(!gameOver) indicator.textContent = chessBoardData[selectedOldCoords[1]][selectedOldCoords[0]].notation+' '+
+                            selectedMove.id+' '+' -> '+chessBoardData[selectedNewCoords[1]][selectedNewCoords[0]].notation;
+                    movePiece(selectedOldCoords, selectedNewCoords, selectedMove.id, selectedColor, selectedMove.hasMoved, 'Q', true);
+                }
+                refreshData();
+                
         }
         function kingCheck(color){
             turnCheck = !turnCheck;
@@ -1313,17 +1237,34 @@ y
         }
         function isKingInCheck(isMax){
             let x, y;
-            if(turnCheck || isMax == false){
+            if(turnCheck){
                 x = whiteKing.x;
                 y = whiteKing.y;
                 if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck.counter)){
                     return true;  
                 }
-            }else if(!turnCheck || isMax == true){
+            }
+            if(!turnCheck){
                 x = blackKing.x;
                 y = blackKing.y;
                 if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)){
                     return true;
+                }
+            }
+            if(isMax){
+                if(isMax == true){
+                    x = blackKing.x;
+                    y = blackKing.y;
+                    if((!chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.whiteCheck.counter)){
+                        return true;
+                    }
+                }
+                if(!isMax == true){
+                    x = whiteKing.x;
+                    y = whiteKing.y;
+                    if((chessBoardData[y][x].pieceData.color)&&(chessBoardData[y][x].threatData.blackCheck.counter)){
+                        return true;  
+                    }
                 }
             }
             /*
@@ -1663,7 +1604,7 @@ y
         }
             }
         }
-        return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove, undoMove, redoMove, aiMove};
+        return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove, undoMove, redoMove, aiMove, getAvailableMoves, quick};
     })();
     function makeBoard(){
         gameOver = false;
@@ -1832,6 +1773,26 @@ y
                 chessBoardData[y][x].threatData.blackCheck.threats = [];
                 chessBoardData[y][x].threatData.blackCheck.coords.x = [];
                 chessBoardData[y][x].threatData.blackCheck.coords.y = [];
+                if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
+                    activePieces.push(chessBoardData[y][x].pieceData);
+                }
+            }
+    }
+    function refreshData(){
+        let activePieces = [];
+        availableMoves.white = [];
+        availableMoves.black = []; 
+        for(let y = 0; y <8; y++){
+            for(let x = 0; x <8; x++){
+                //appbott
+                chessBoardData[y][x].threatData.whiteCheck.counter = 0;
+                chessBoardData[y][x].threatData.whiteCheck.threats = [];
+                chessBoardData[y][x].threatData.whiteCheck.coords.x = [];
+                chessBoardData[y][x].threatData.whiteCheck.coords.y = [];
+                chessBoardData[y][x].threatData.blackCheck.counter = 0;
+                chessBoardData[y][x].threatData.blackCheck.threats = [];
+                chessBoardData[y][x].threatData.blackCheck.coords.x = [];
+                chessBoardData[y][x].threatData.blackCheck.coords.y = [];
                 chessBoardData[y][x].tileLocation.classList.remove('highlighted');
                 clearInfo();
                 if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
@@ -1851,8 +1812,6 @@ y
             }
             //openingIndicator.textContent = '';
             findOpening(chessBoard.generatePgn(chessBoard.getHistory(),true));
-            
-            
 
     }
     function generateGame(){
@@ -2193,7 +2152,7 @@ y
     }
     const inputPgn = document.getElementById("input-pgn");
     function findOpening(pgn){
-        
+        //return;
         pgn = pgn.trim();
         pgn = pgn.replace(/(\r\n|\n)/gm, " ");
         moveHistoryIndicator.textContent = pgn;
@@ -2235,6 +2194,6 @@ y
         //console.log(moveIndex)
     }
 
-    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn, viewNotation, traverseHistory, getBoardData}
+    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn, viewNotation, traverseHistory, getBoardData, refreshData}
 })();
 
