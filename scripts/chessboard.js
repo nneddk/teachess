@@ -1,5 +1,5 @@
 import { hideDisplay } from "./toolbar.js";
-import { setOpenings,getNextMove,gameEval, getBoardPosition } from "./ai.js";
+import { setOpenings,gameEval } from "./ai.js";
 import { playAnimation } from "./animation.js"
 
 //opening data
@@ -674,7 +674,7 @@ y
             }*/
             }
             
-            if(id == 'king' && !isKingInCheck()){
+            if(id == 'king'){
                 if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
                     if(x + 3 <= 7){
                         if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
@@ -862,7 +862,6 @@ y
             
             refreshData();
             if (isKingInCheck() == true){
-
                 refreshData();
                 if(!gameOver) indicator.textContent = "King is in check!";
                 undoLastMove(oldX,oldY,newX,newY ,id,color, hasMoved, storeEat);
@@ -1115,9 +1114,14 @@ y
             let TotalMoves = 0;            
             //only for evaluation purposes, this can get mess with board data if not handled properly
             
-            let newMove = miniMaxRoot(3,true);
-            aiMove(newMove);
-            console.log("Total # of moves evaluated: "+TotalMoves);
+            
+            setTimeout(() => {
+                let newMove = miniMaxRoot(4,true);
+                aiMove(newMove);
+                console.log("Total # of moves evaluated: "+TotalMoves);
+            }, 100);
+            
+            
             //GET THE MOVE, THEN WAIT
 
             function miniMaxRoot(depth, isMaximizer){
@@ -1128,11 +1132,7 @@ y
                     let newMove = currentMoves[i];
                     quick.move(newMove);
                     quick.refreshData();
-                    let tempValue = -10000;
-                    
-                    if(!isKingInCheck(isMaximizer)){
-                        tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer); 
-                    }
+                    let tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
                     
                     quick.undo();
                     if(tempValue >= bestMove){
@@ -1140,11 +1140,11 @@ y
                         bestMoveFound = newMove;
                     }
                 }
-                console.log(bestMoveFound);
                 return bestMoveFound;
             }
             function miniMax(depth, alpha, beta, isMaximizer){
                 TotalMoves++;
+                quick.refreshData();
                 if(depth === 0){
                     return -gameEval(activePieces); 
                 }
@@ -1154,11 +1154,7 @@ y
                     let bestMove = -9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
-                        quick.refreshData();
-                        if(!isKingInCheck(isMaximizer)){
-                            bestMove = Math.max(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
-                        }
-                        
+                        bestMove = Math.max(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
                         quick.undo();
                         alpha = Math.max (alpha, bestMove);
                         if(beta <= alpha){
@@ -1170,12 +1166,7 @@ y
                     let bestMove = 9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
-                        quick.refreshData();
-                        
-                        if(!isKingInCheck(isMaximizer)){
-                            bestMove = Math.min(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
-                        }  
-                        
+                        bestMove = Math.min(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
                         quick.undo();
                         beta = Math.min(beta, bestMove);
                         if(beta<=alpha){
