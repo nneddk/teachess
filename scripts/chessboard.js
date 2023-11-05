@@ -917,10 +917,8 @@ y
         //testing
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
-            console.log(window.performance.memory);
+            gameEval(activePieces);
             //gameEval(snapShot(),turnCheck);
-            aiOn = true;
-            ai(true, true);
             //console.log(enPassantData);
             //console.log(gameEval(snapShot()));
             //console.log(availableMoves);
@@ -1084,12 +1082,36 @@ y
                 }
                 quickEnPassant.pop();
             }
+            function refreshData(){
+                activePieces = [];
+                availableMoves.white = [];
+                availableMoves.black = []; 
+                for(let y = 0; y <8; y++){
+                    for(let x = 0; x <8; x++){
+                        //appbott
+                        chessBoardData[y][x].threatData.whiteCheck.counter = 0;
+                        chessBoardData[y][x].threatData.whiteCheck.threats = [];
+                        chessBoardData[y][x].threatData.whiteCheck.coords.x = [];
+                        chessBoardData[y][x].threatData.whiteCheck.coords.y = [];
+                        chessBoardData[y][x].threatData.blackCheck.counter = 0;
+                        chessBoardData[y][x].threatData.blackCheck.threats = [];
+                        chessBoardData[y][x].threatData.blackCheck.coords.x = [];
+                        chessBoardData[y][x].threatData.blackCheck.coords.y = [];
+                        if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
+                            activePieces.push(chessBoardData[y][x].pieceData);
+                        }
+                    }
+                }
+                for(let i = 0; i<activePieces.length; i++){
+                        getThreatData(activePieces[i].id, activePieces[i].x, activePieces[i].y, activePieces[i].color);
+                    }
+            }
             
-            return {move,undo}
+            return {move,undo,refreshData}
         })();
         function ai(aiOn, algo){
             if(!aiOn) return;
-            if (!algo) return;
+            //if (!algo) return;
             let TotalMoves = 0;            
             //only for evaluation purposes, this can get mess with board data if not handled properly
             
@@ -1105,7 +1127,7 @@ y
                 for(let i = 0; i < currentMoves.length; i++){
                     let newMove = currentMoves[i];
                     quick.move(newMove);
-                    refreshData();
+                    quick.refreshData();
                     let tempValue = -10000;
                     
                     if(!isKingInCheck(isMaximizer)){
@@ -1123,9 +1145,8 @@ y
             }
             function miniMax(depth, alpha, beta, isMaximizer){
                 TotalMoves++;
-                refreshData();
                 if(depth === 0){
-                    return -gameEval(getBoardData()); 
+                    return -gameEval(activePieces); 
                 }
                 let currentMoves = getAvailableMoves(isMaximizer); 
                 
@@ -1133,7 +1154,7 @@ y
                     let bestMove = -9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
-                        refreshData();
+                        quick.refreshData();
                         if(!isKingInCheck(isMaximizer)){
                             bestMove = Math.max(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
                         }
@@ -1149,7 +1170,7 @@ y
                     let bestMove = 9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
-                        refreshData();
+                        quick.refreshData();
                         
                         if(!isKingInCheck(isMaximizer)){
                             bestMove = Math.min(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
@@ -1758,28 +1779,9 @@ y
         movingData.oldCoords.y = null;
         movingData.piece = null;
     }
+    let activePieces = [];
     function refreshData(){
-        let activePieces = [];
-        availableMoves.white = [];
-        availableMoves.black = []; 
-        for(let y = 0; y <8; y++){
-            for(let x = 0; x <8; x++){
-                //appbott
-                chessBoardData[y][x].threatData.whiteCheck.counter = 0;
-                chessBoardData[y][x].threatData.whiteCheck.threats = [];
-                chessBoardData[y][x].threatData.whiteCheck.coords.x = [];
-                chessBoardData[y][x].threatData.whiteCheck.coords.y = [];
-                chessBoardData[y][x].threatData.blackCheck.counter = 0;
-                chessBoardData[y][x].threatData.blackCheck.threats = [];
-                chessBoardData[y][x].threatData.blackCheck.coords.x = [];
-                chessBoardData[y][x].threatData.blackCheck.coords.y = [];
-                if (chessBoardData[y][x].pieceData != null && chessBoardData[y][x].isEmpty == false){
-                    activePieces.push(chessBoardData[y][x].pieceData);
-                }
-            }
-    }
-    function refreshData(){
-        let activePieces = [];
+        activePieces = [];
         availableMoves.white = [];
         availableMoves.black = []; 
         for(let y = 0; y <8; y++){

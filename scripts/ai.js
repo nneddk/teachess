@@ -56,12 +56,12 @@ export function getNextMove(availableMoves, pgn, turnCheck){
     }*/
     return false;
 }
-export function gameEval(board){
+export function gameEval(pieces){
     //first get board positions
     //let currentBoard = getBoardPosition(board);
     //return simpleEval(board);
     //return pestoEval(board);
-    return basicEval(board);
+    return basicEval(pieces);
     
 }
 function translateMove(currentPGN, notation){
@@ -82,12 +82,10 @@ function translateMove(currentPGN, notation){
     return translatedMoveData;
 }
 //basic Eval
-function basicEval(board){
+function basicEval(activePieces){
     let totalEval = 0;
-    for (let i = 0; i<8; i++){
-        for(let j = 0; j<8; j++){
-            totalEval = totalEval + getPieceValue(board[i][j], i, j);
-        }
+    for (let i = 0; i < activePieces.length; i++){
+        totalEval = totalEval +getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x);
     }
     return totalEval;
 }
@@ -172,7 +170,7 @@ const kingEvalWhite = [
 
 const kingEvalBlack = reverseArray(kingEvalWhite);
 function getPieceValue(piece, x, y) {
-    if (piece.pieceData === null) {
+    if (piece.id === null) {
         return 0;
     }
     function getAbsoluteValue(piece, isWhite, x ,y) {
@@ -191,10 +189,10 @@ function getPieceValue(piece, x, y) {
         } else if(piece === '_'){
             return 0;
         }
-        throw "Unknown piece type: " + piece.pieceData.notation;
+        throw "Unknown piece type: " + piece.notation;
     };
-    let absoluteValue = getAbsoluteValue(piece.pieceData.notation, piece.pieceData.color, x ,y);
-    return piece.pieceData.color? absoluteValue : -absoluteValue;
+    let absoluteValue = getAbsoluteValue(piece.notation, piece.color, x ,y);
+    return piece.color? absoluteValue : -absoluteValue;
 }
 
 
