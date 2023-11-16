@@ -11,6 +11,16 @@ At the moment, a chess UI built for educational purposes
 ## ideas
 - random opening play
 ## notes
+- remove highlight when selecting a move? (unclear)
+- add svm implementation, ideas:
+aggressive or defensive moves (neutral).
+- has a rendency to trigger stalemate.
+- because it relies on positional boards, i may need to do endgame boards as well to bring out pieces
+- slightly breaks when trading pieces (look into)
+- animation still locks up but much better than before (can go 4 depths without crashing!)
+- actual implementation may be different, working off localhost.
+- implement sounds, simple board click to increase experience
+- maybe have notations be on at all times? theyre not being used as is
 - no logic to ai moves
 - promotion logic wip
 - kingcheck logic for ai

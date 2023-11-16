@@ -858,6 +858,7 @@ y
             
             
             pieceUnmaker(oldX, oldY);
+            playAnimation((chessBoardData[oldY][oldX].tileLocation),(chessBoardData[newY][newX].tileLocation),[color,id],castling);
             pieceMaker(newX, newY, id, color, (hasMoved + 1));
             
             refreshData();
@@ -1119,7 +1120,7 @@ y
                 let newMove = miniMaxRoot(4,true);
                 aiMove(newMove);
                 console.log("Total # of moves evaluated: "+TotalMoves);
-            }, 100);
+            }, 1000);
             
             
             //GET THE MOVE, THEN WAIT
@@ -1132,7 +1133,12 @@ y
                     let newMove = currentMoves[i];
                     quick.move(newMove);
                     quick.refreshData();
-                    let tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
+                    let tempValue = -9999;
+
+                    if(!isKingInCheck(isMaximizer)){
+                        tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
+                    }
+                    
                     
                     quick.undo();
                     if(tempValue >= bestMove){
