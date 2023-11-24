@@ -57,11 +57,8 @@ export function getNextMove(availableMoves, pgn, turnCheck){
     return false;
 }
 export function gameEval(pieces){
-    //first get board positions
-    //let currentBoard = getBoardPosition(board);
-    //return simpleEval(board);
-    //return pestoEval(board);
-    return basicEval(pieces);
+    return taperedEval(pieces);
+    //return basicEval(pieces);
     
 }
 function translateMove(currentPGN, notation){
@@ -84,21 +81,21 @@ function translateMove(currentPGN, notation){
 function reverseArray(array){
     return array.slice().reverse();
 }
-/*
 function taperedEval(activePieces){
     //mg, eg, gamephase
     let totalEval = [0, 0, 0];
     let mgEval = 0;
     let egEval = 0;
     let gamePhase = 0;
-    for (let i = 0; i <     activePieces.length; i++){
+    for (let i = 0; i < activePieces.length; i++){
         totalEval = getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x);
         mgEval = mgEval + totalEval[0];
         egEval = egEval + totalEval[1];
         gamePhase = gamePhase + totalEval[2];
     }
+    return mgEval;
     let mgPhase = gamePhase;
-    if(mgPhase > 24) mgPhase = 24;
+    if(mgPhase >24) mgPhase = 24;
     let egPhase = 24 - mgPhase;
     let evalScore = (((mgEval * mgPhase) + (egEval * egPhase)) / 24);
     return evalScore;
@@ -156,6 +153,7 @@ const queenMgEvalWhite = [
     [-35,  -8,  11,   2,   8,  15,  -3,   1],
     [ -1, -18,  -9,  10, -15, -25, -31, -50]
 ];
+
 const kingMgEvalWhite = [
     [-65,  23,  16, -15, -56, -34,   2,  13],
     [29,  -1, -20,  -7,  -8,  -4, -38, -29],
@@ -276,8 +274,8 @@ const egBlackEval= [
     kingEgEvalBlack,
 ];
 const gamePhaseInc = [0,1,1,2,4,0];
-const mgPieceValue = [82, 337, 365, 477, 1025, 0];
-const egPieceValue = [94, 281, 297, 512, 936, 0];        
+const mgPieceValue = [82, 337, 365, 477, 1025, 9000];
+const egPieceValue = [94, 281, 297, 512, 936, 9000];        
 function getPieceValue(piece, x, y) {
     if (piece === null) {
         return 0;
@@ -324,7 +322,7 @@ function getPieceValue(piece, x, y) {
     let gamePhase = gamePhaseInc[pc];
     return piece.color? [mgValue , egValue, gamePhase] : [-mgValue, -egValue, gamePhase];
 }
-*/
+/*
 
 function basicEval(activePieces){
     let totalEval = 0;
@@ -335,7 +333,7 @@ function basicEval(activePieces){
     for (let i = 0; i < activePieces.length; i++){
         let pc = -1;
         totalEval = totalEval +(getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x)[0]);
-        totalEvalEg = totalEvalEg +(getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x)[0]);
+        totalEvalEg = totalEvalEg +(getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x)[1]);
         
         switch (activePieces[i].notation){
             case 'P':
@@ -375,7 +373,6 @@ const pawnEvalWhite =
         [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
     ];
-
 const pawnEvalBlack = reverseArray(pawnEvalWhite);
 
 const knightEval =
@@ -472,7 +469,7 @@ function getPieceValue(piece, x, y) {
             return 90 + evalQueen[y][x];
         } else if (piece === 'K') {
             if(eg == false) return 900 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
-            if(eg == true) return 900 + ( isWhite ? endGameKingEvalWhite[y][x] : endGameKingEvalBlack[y][x] );
+            if(eg == true) return 900 + ( isWhite ? endGameKingEvalWhite[y][x] : endGameKingEvalBlack[y][x]);
             
         } else if(piece === '_'){
             return 0;
@@ -483,3 +480,6 @@ function getPieceValue(piece, x, y) {
     let absoluteEgValue = getAbsoluteValue(piece.notation, piece.color, x ,y, true);
     return piece.color? [absoluteValue, absoluteEgValue] : [-absoluteValue, -absoluteEgValue];
 }
+
+console.log(-(-50));
+*/

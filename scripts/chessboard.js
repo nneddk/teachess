@@ -555,21 +555,22 @@ y
                     }
                     
                 }else{
+                    //DO NOT REMOVE, VERY IMPORTANT FOR PGN CHECKING
                     if(color){
                         boardData.threatData.whiteCheck.counter++;
-                        /*
+                        
                         boardData.threatData.whiteCheck.threats.push(chessBoardData[y][x].pieceData.id);
                         boardData.threatData.whiteCheck.coords.x.push(chessBoardData[y][x].pieceData.x);
                         boardData.threatData.whiteCheck.coords.y.push(chessBoardData[y][x].pieceData.y);
-                        */
+                        
                     }
                     if(!color){
                         boardData.threatData.blackCheck.counter++;
-                        /*
+                        
                         boardData.threatData.blackCheck.threats.push(chessBoardData[y][x].pieceData.id);
                         boardData.threatData.blackCheck.coords.x.push(chessBoardData[y][x].pieceData.x);
                         boardData.threatData.blackCheck.coords.y.push(chessBoardData[y][x].pieceData.y);
-                        */
+                        
                     }
                     if(boardData.isEmpty  || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) ){
                         if(color && id !=null&& id != 'pawn') {
@@ -858,7 +859,7 @@ y
             
             
             pieceUnmaker(oldX, oldY);
-            playAnimation((chessBoardData[oldY][oldX].tileLocation),(chessBoardData[newY][newX].tileLocation),[color,id],castling);
+            //playAnimation((chessBoardData[oldY][oldX].tileLocation),(chessBoardData[newY][newX].tileLocation),[color,id],castling);
             pieceMaker(newX, newY, id, color, (hasMoved + 1));
             
             refreshData();
@@ -877,13 +878,13 @@ y
                 if (id == 'pawn' && (!isKingInCheck() == true)){
                     if(color){
                         if(newY == 0){
-                            getPromotionDiv(newX, newY, color, (hasMoved + 1), pgnPromote);
+                            getPromotionDiv(newX, newY, color, (hasMoved + 1), pgnPromote, aiOn);
                             return;
                         }
                     }
                     if(!color){
                         if(newY == 7){
-                            getPromotionDiv(newX, newY, color, (hasMoved + 1),pgnPromote);
+                            getPromotionDiv(newX, newY, color, (hasMoved + 1),pgnPromote, aiOn);
                             return;
                         }
                     }
@@ -1058,6 +1059,8 @@ y
                     hasMoved:hasMoved,
                     quickEat:quickEat,
                 });
+
+                //moveDetail for SVM
             }
             function undo(){
                 //qD = quick Data
@@ -1115,17 +1118,19 @@ y
             let TotalMoves = 0;            
             //only for evaluation purposes, this can get mess with board data if not handled properly
             
-            
+            console.log('tick');
             setTimeout(() => {
                 let newMove = miniMaxRoot(4,true);
+                //console.log(newMove)
                 aiMove(newMove);
-                console.log("Total # of moves evaluated: "+TotalMoves);
             }, 1000);
             
             
             //GET THE MOVE, THEN WAIT
 
             function miniMaxRoot(depth, isMaximizer){
+                //we store the evaluated moves, see if theres "equal evaluated moves then return it"
+                let evaluatedMoves = [];
                 let currentMoves = getAvailableMoves(isMaximizer);
                 let bestMove = -9999;
                 let bestMoveFound;
@@ -1138,15 +1143,27 @@ y
                     if(!isKingInCheck(isMaximizer)){
                         tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
                     }
-                    
-                    
+                    //console.log(currentMoves[i].id+" to "+currentMoves[i].move.notation+" has value of: "+tempValue);
                     quick.undo();
+                    evaluatedMoves.push({
+                        move: newMove,
+                        value: tempValue,
+                    })
+
                     if(tempValue >= bestMove){
                         bestMove = tempValue;
                         bestMoveFound = newMove;
                     }
                 }
                 return bestMoveFound;
+                return {
+                    bestMove:{
+                        move: bestMoveFound,
+                        value:bestMove,
+                    },
+                    evaluatedMoves: evaluatedMoves
+                }
+                
             }
             function miniMax(depth, alpha, beta, isMaximizer){
                 TotalMoves++;
@@ -1518,7 +1535,8 @@ y
             }
             
         }
-        function getPromotionDiv(newX, newY, color, hasMoved, pgnPromote){
+        //rename aiOn to aiPromote so we dont get errors
+        function getPromotionDiv(newX, newY, color, hasMoved, pgnPromote, aiPromote){
             turnCheck = !turnCheck
             const promotionWrapper = document.getElementById('promotion-wrapper');
             const promotionQueen = document.getElementById('promote-queen');
@@ -1593,7 +1611,9 @@ y
                 clearMoveDetail();
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
-                if(turnCheck == aiTurn && aiOn) aiMove();
+                console.log(aiPromote);
+                console.log(aiTurn);
+                if(turnCheck == aiTurn && aiPromote) ai(aiPromote);
 
             }
             if(pgnPromote){
@@ -2081,6 +2101,7 @@ y
                             promotionPGN = moveString[identifier + 2];
                     }
                 }else{
+                    
                     if(pgnData.color){
                         for(let i = 0; i < chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.counter; i++){
                             if(chessBoardData[pgnData.newY][pgnData.newX].threatData.whiteCheck.threats[i] == pgnData.id){
@@ -2128,9 +2149,11 @@ y
             }
             pgnData.hasMoved = chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved;
             pgnData.notation = chessBoardData[pgnData.oldY][pgnData.oldX].notation;
+            
             if(translate){
                 return pgnData;
             }
+            
             try {
                 if(piece.getMoveData(pgnData.id, [pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY],pgnData.color,chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved)){
                     piece.movePiece([pgnData.oldX, pgnData.oldY], [pgnData.newX, pgnData.newY], pgnData.id, pgnData.color, chessBoardData[pgnData.oldY][pgnData.oldX].pieceData.hasMoved,promotionPGN, true);
