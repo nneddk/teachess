@@ -859,7 +859,7 @@ y
             
             
             pieceUnmaker(oldX, oldY);
-            //playAnimation((chessBoardData[oldY][oldX].tileLocation),(chessBoardData[newY][newX].tileLocation),[color,id],castling);
+            playAnimation((chessBoardData[oldY][oldX].tileLocation),(chessBoardData[newY][newX].tileLocation),[color,id],castling);
             pieceMaker(newX, newY, id, color, (hasMoved + 1));
             
             refreshData();
