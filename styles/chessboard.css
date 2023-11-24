@@ -23,7 +23,7 @@
     grid-template-columns: repeat(8,1fr);
     grid-template-rows: 1fr;
     overflow: hidden;
-    opacity: 0;
+    opacity: 1;
 }
 #y-notation{
     height:85vmin;
@@ -32,7 +32,7 @@
     grid-template-rows: repeat(8,1fr);
     grid-template-columns: 1fr;
     overflow: hidden;
-    opacity: 0;
+    opacity: 1;
 }
 .notation{
     display:flex;

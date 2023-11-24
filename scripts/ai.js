@@ -81,6 +81,7 @@ function translateMove(currentPGN, notation){
 function reverseArray(array){
     return array.slice().reverse();
 }
+
 function taperedEval(activePieces){
     //mg, eg, gamephase
     let totalEval = [0, 0, 0];
@@ -101,6 +102,7 @@ function taperedEval(activePieces){
     return evalScore;
     
 }
+
 //tapered evals 
 //mg values
 const pawnMgEvalWhite = [
@@ -273,9 +275,11 @@ const egBlackEval= [
     queenEgEvalBlack,
     kingEgEvalBlack,
 ];
+
 const gamePhaseInc = [0,1,1,2,4,0];
-const mgPieceValue = [82, 337, 365, 477, 1025, 9000];
-const egPieceValue = [94, 281, 297, 512, 936, 9000];        
+const mgPieceValue = [82, 337, 365, 477, 1025, 0];
+const egPieceValue = [94, 281, 297, 512, 936, 0]; 
+     
 function getPieceValue(piece, x, y) {
     if (piece === null) {
         return 0;
@@ -322,6 +326,7 @@ function getPieceValue(piece, x, y) {
     let gamePhase = gamePhaseInc[pc];
     return piece.color? [mgValue , egValue, gamePhase] : [-mgValue, -egValue, gamePhase];
 }
+
 /*
 
 function basicEval(activePieces){
@@ -332,7 +337,7 @@ function basicEval(activePieces){
     let gamePhase = 0;
     for (let i = 0; i < activePieces.length; i++){
         let pc = -1;
-        totalEval = totalEval +(getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x)[0]);
+        totalEval += getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x)[0];
         totalEvalEg = totalEvalEg +(getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x)[1]);
         
         switch (activePieces[i].notation){
@@ -436,7 +441,6 @@ const kingEvalWhite = [
     [  2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ],
     [  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
 ];
-
 const kingEvalBlack = reverseArray(kingEvalWhite);
 
 const endGameKingEvalWhite = [
@@ -471,15 +475,10 @@ function getPieceValue(piece, x, y) {
             if(eg == false) return 900 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
             if(eg == true) return 900 + ( isWhite ? endGameKingEvalWhite[y][x] : endGameKingEvalBlack[y][x]);
             
-        } else if(piece === '_'){
-            return 0;
         }
-        throw "Unknown piece type: " + piece.notation;
     };
     let absoluteValue = getAbsoluteValue(piece.notation, piece.color, x ,y, false);
     let absoluteEgValue = getAbsoluteValue(piece.notation, piece.color, x ,y, true);
     return piece.color? [absoluteValue, absoluteEgValue] : [-absoluteValue, -absoluteEgValue];
 }
-
-console.log(-(-50));
 */

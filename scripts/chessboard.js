@@ -38,7 +38,7 @@ export const chessBoard =(()=>{
     let moveIndex = -1;
     let moveHistory = [];
     let gameOver = false;
-    let notations = 0;
+    let notations = 1;
     let redoData = [];
     let availableMoves = {
         black:[],
@@ -978,7 +978,7 @@ y
                 pieceUnmaker(oldX, oldY, quick);
                 
 
-                //castling check
+                //castling
                 if (id == 'king'){
                     if(newX == oldX + 2){
                         pieceMaker((oldX + 1), newY, 'rook', color, (hasMoved + 1), quick);

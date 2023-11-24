@@ -1,6 +1,7 @@
 //this is for piece animation when moving
 const boardDiv = document.getElementById('animation-board');
 export function playAnimation(oldTile, newTile, newPiece, castling){
+    return;
     if(boardDiv.hasChildNodes() && !castling) boardDiv.removeChild(boardDiv.lastChild);
     newTile.style.opacity = '0';
     let oldPos = oldTile.getBoundingClientRect();
