@@ -84,17 +84,18 @@ function reverseArray(array){
 
 function taperedEval(activePieces){
     //mg, eg, gamephase
-    let totalEval = [0, 0, 0];
+    let totalEval = 0;
     let mgEval = 0;
     let egEval = 0;
     let gamePhase = 0;
     for (let i = 0; i < activePieces.length; i++){
-        totalEval = getPieceValue(activePieces[i], activePieces[i].y,activePieces[i].x);
-        mgEval = mgEval + totalEval[0];
-        egEval = egEval + totalEval[1];
-        gamePhase = gamePhase + totalEval[2];
+        if(activePieces[i].color){
+            totalEval = totalEval + getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
+        }else if(!activePieces[i].color){
+            totalEval = totalEval- getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
+        }
     }
-    return mgEval;
+    return totalEval;
     let mgPhase = gamePhase;
     if(mgPhase >24) mgPhase = 24;
     let egPhase = 24 - mgPhase;
@@ -163,8 +164,8 @@ const kingMgEvalWhite = [
     [-17, -20, -12, -27, -30, -25, -14, -36],
     [-49,  -1, -27, -39, -46, -44, -33, -51],
     [-14, -14, -22, -46, -44, -30, -15, -27],
-    [ 1,   7,  -8, -64, -43, -16,   9,   8],
-    [-15,  36,  12, -54,   8, -28,  24,  14]
+    [ 1,   7,  -8, -64, -43, -160,   9,   8],
+    [-15,  36,  12, -54,   8, -28,  60,  14]
 ];
 
 const pawnMgEvalBlack = reverseArray(pawnMgEvalWhite);
@@ -173,7 +174,7 @@ const knightMgEvalBlack = reverseArray(knightMgEvalWhite);
 const rookMgEvalBlack = reverseArray(rookMgEvalWhite);
 const queenMgEvalBlack = reverseArray(queenMgEvalWhite);
 const kingMgEvalBlack = reverseArray(kingMgEvalWhite);
-
+console.log(kingMgEvalBlack);
 const pawnEgEvalWhite = [
     [0,   0,   0,   0,   0,   0,   0,   0],
     [178, 173, 158, 134, 147, 132, 165, 187],
@@ -277,8 +278,8 @@ const egBlackEval= [
 ];
 
 const gamePhaseInc = [0,1,1,2,4,0];
-const mgPieceValue = [82, 337, 365, 477, 1025, 0];
-const egPieceValue = [94, 281, 297, 512, 936, 0]; 
+const mgPieceValue = [82, 337, 365, 477, 1025, 10000];
+const egPieceValue = [94, 281, 297, 512, 936, 10000]; 
      
 function getPieceValue(piece, x, y) {
     if (piece === null) {
@@ -324,9 +325,9 @@ function getPieceValue(piece, x, y) {
     let mgValue = getMgValue(piece.color, x, y);
     let egValue = getEgValue(piece.color, x, y);
     let gamePhase = gamePhaseInc[pc];
-    return piece.color? [mgValue , egValue, gamePhase] : [-mgValue, -egValue, gamePhase];
+    return mgValue;
 }
-
+console.log(mgWhiteEval[5][1][0]);
 /*
 
 function basicEval(activePieces){

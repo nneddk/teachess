@@ -918,7 +918,7 @@ y
         //testing
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
-            gameEval(activePieces);
+            console.log(gameEval(activePieces));
             //gameEval(snapShot(),turnCheck);
             //console.log(enPassantData);
             //console.log(gameEval(snapShot()));
@@ -1115,13 +1115,25 @@ y
         function ai(aiOn, algo){
             if(!aiOn) return;
             //if (!algo) return;
-            let TotalMoves = 0;            
+            let TotalMoves = 0;   
+            let moveSelection = [];         
             //only for evaluation purposes, this can get mess with board data if not handled properly
             
             console.log('tick');
             setTimeout(() => {
                 let newMove = miniMaxRoot(4,true);
-                //console.log(newMove)
+                /*
+                for (let i = 0; i< newMove.evaluatedMoves.length; i++){
+                    if((newMove.evaluatedMoves[i].value >= (newMove.bestMove.value - 20))&&(newMove.evaluatedMoves[i].value <= (newMove.bestMove.value + 20))){
+                        moveSelection.push(newMove.evaluatedMoves[i]);
+                    }
+                }*/
+               // console.log(newMove);
+                //console.log(moveSelection);
+                //let randomIndex = Math.floor(Math.random() * moveSelection.length);
+                //console.log(randomIndex);
+                //console.log(moveSelection[randomIndex]);
+                //aiMove(moveSelection[randomIndex].move);
                 aiMove(newMove);
             }, 1000);
             
