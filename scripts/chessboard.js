@@ -416,7 +416,6 @@ export const chessBoard =(()=>{
                                 refreshData();
                                 aiOn = tempAi;
                                 if(turnCheck == aiTurn && aiOn) ai(aiOn);
-y
                             }
                         }   
                     }
@@ -1122,19 +1121,19 @@ y
             console.log('tick');
             setTimeout(() => {
                 let newMove = miniMaxRoot(4,true);
-                /*
+                
                 for (let i = 0; i< newMove.evaluatedMoves.length; i++){
-                    if((newMove.evaluatedMoves[i].value >= (newMove.bestMove.value - 20))&&(newMove.evaluatedMoves[i].value <= (newMove.bestMove.value + 20))){
+                    if((newMove.evaluatedMoves[i].value >= (newMove.bestMove.value - 40))&&(newMove.evaluatedMoves[i].value <= (newMove.bestMove.value + 40))){
                         moveSelection.push(newMove.evaluatedMoves[i]);
                     }
-                }*/
+                }
                // console.log(newMove);
-                //console.log(moveSelection);
-                //let randomIndex = Math.floor(Math.random() * moveSelection.length);
+                console.log(moveSelection);
+                let randomIndex = Math.floor(Math.random() * moveSelection.length);
                 //console.log(randomIndex);
                 //console.log(moveSelection[randomIndex]);
-                //aiMove(moveSelection[randomIndex].move);
-                aiMove(newMove);
+                aiMove(moveSelection[randomIndex].move);
+                //aiMove(newMove);
             }, 1000);
             
             
@@ -1167,7 +1166,7 @@ y
                         bestMoveFound = newMove;
                     }
                 }
-                return bestMoveFound;
+                //return bestMoveFound;
                 return {
                     bestMove:{
                         move: bestMoveFound,
