@@ -85,16 +85,19 @@ function reverseArray(array){
 function taperedEval(activePieces){
     //mg, eg, gamephase
     let totalEval = 0;
+    let whiteEval = 0;
+    let blackEval = 0;
     let mgEval = 0;
     let egEval = 0;
     let gamePhase = 0;
     for (let i = 0; i < activePieces.length; i++){
         if(activePieces[i].color){
-            totalEval = totalEval + getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
+            whiteEval = whiteEval + getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
         }else if(!activePieces[i].color){
-            totalEval = totalEval- getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
+            blackEval = blackEval + getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
         }
     }
+    return (whiteEval - blackEval);
     return totalEval;
     let mgPhase = gamePhase;
     if(mgPhase >24) mgPhase = 24;
@@ -111,7 +114,7 @@ const pawnMgEvalWhite = [
     [98, 134,  61,  95,  68, 126, 34, -11],
     [-6,   7,  26,  31,  65,  56, 25, -20],
     [-14,  13,   6,  21,  23,  12, 17, -23],
-    [-27,  -2,  -5,  12,  17,   6, 10, -25],
+    [-27,  -2,  -5,  22,  50,   6, 10, -25],
     [-26,  -4,  -4, -10,   3,   3, 33, -12],
     [-35,  -1, -20, -23, -15,  24, 38, -22],
     [ 0,   0,   0,   0,   0,   0,  0,   0]
@@ -132,7 +135,7 @@ const bishopMgEvalWhite = [
     [-16,  37,  43,  40,  35,  50,  37,  -2],
     [ -4,   5,  19,  50,  37,  37,   7,  -2],
     [ -6,  13,  13,  26,  34,  12,  10,   4],
-    [  0,  15,  15,  15,  14,  27,  18,  10],
+    [  0,  15,  15,  0,  0,  27,  18,  10],
     [  4,  15,  16,   0,   7,  21,  33,   1],
     [-33,  -3, -14, -21, -13, -12, -39, -21]
 ];
@@ -154,7 +157,7 @@ const queenMgEvalWhite = [
     [ -9, -26,  -9, -10,  -2,  -4,   3,  -3],
     [-14,   2, -11,  -2,  -5,   2,  14,   5],
     [-35,  -8,  11,   2,   8,  15,  -3,   1],
-    [ -1, -18,  -9,  10, -15, -25, -31, -50]
+    [ -1, -18,  -9,  50, -15, -25, -31, -50]
 ];
 
 const kingMgEvalWhite = [
@@ -223,7 +226,7 @@ const queenEgEvalWhite = [
     [ -9, -26,  -9, -10,  -2,  -4,   3,  -3],
     [-14,   2, -11,  -2,  -5,   2,  14,   5],
     [-35,  -8,  11,   2,   8,  15,  -3,   1],
-    [-1, -18,  -9,  50, -15, -25, -31, -50]
+    [-1, -18,  -9,  80, -15, -25, -31, -50]
 ];
 const kingEgEvalWhite = [
     [-74, -35, -18, -18, -11,  15,   4, -17],
