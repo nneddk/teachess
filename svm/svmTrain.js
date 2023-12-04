@@ -14,7 +14,7 @@ class SVM {
         for(let i = 0; i < iterations; i++) {
 
             for(let j = 0; j < n; j++) {
-                let labelWeight = labels[j] === 1 ? 4.5 : 0.22;
+                let labelWeight = labels[j] === 1 ? 3 : 1;
                 let prediction = this.predict(data[j]);
                 if(prediction == labels[j]) {
                     if(prediction ==1) {

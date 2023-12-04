@@ -916,11 +916,32 @@ export const chessBoard =(()=>{
             }
         }
         //testing
+        let aiSide = false;
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
-            indicator.textContent = "AI has been switched to "+(turnCheck?"White!":"Black!");
-            aiTurn = turnCheck;
-            ai(true);
+            if(!confirm("This will restart the game, continue?")){
+                return;
+            }
+            aiSide = !aiSide;
+            makeBoard(aiSide);
+            generateGame();
+            enPassantData = {
+                color:null,
+                x: null,
+                y: null,
+                target:{
+                    x:null,
+                    y:null,
+                },
+            } 
+            indicator.textContent = "AI has been switched to "+(aiSide?"White!":"Black!");
+            aiTurn = aiSide;
+            if (aiSide){
+                clearInfo();
+                
+                ai(true);
+            }
+            
             /*
             
             */
@@ -1733,7 +1754,7 @@ export const chessBoard =(()=>{
         }
         return {getThreatData, getMoveData,movePiece, pieceMaker, validateMove, undoMove, redoMove, aiMove, getAvailableMoves, quick};
     })();
-    function makeBoard(){
+    function makeBoard(turn){
         gameOver = false;
         moveHistory = [];
         redoData = [];
@@ -1846,11 +1867,24 @@ export const chessBoard =(()=>{
                     clickTile();
                     piecePic.classList.remove("placement");
                 }
-                chessBoardTileDiv.append(piecePic);
-                chessBoardTileContainer.append(chessBoardTileDiv);
+                if(!turn){
+                    chessBoardTileDiv.append(piecePic);
+                    chessBoardTileContainer.append(chessBoardTileDiv);
+                }else{
+                    chessBoardTileDiv.prepend(piecePic);
+                    chessBoardTileContainer.prepend(chessBoardTileDiv);
+                }
+                
                 chessBoardTileData.push(TileData);
             }
-            gameBoard.append(chessBoardTileContainer);
+            if(!turn){
+                gameBoard.append(chessBoardTileContainer);
+                gameBoard.style.backgroundImage = "url('../assets/board/board.svg')";
+            }else{
+                gameBoard.prepend(chessBoardTileContainer);
+                gameBoard.style.backgroundImage = "url('../assets/board/flipped-board.png')";
+            }
+            
             chessBoardData.push(chessBoardTileData);
         }
         function clickTile(){
@@ -1873,7 +1907,25 @@ export const chessBoard =(()=>{
             }
             aiOn = false;
         }   
+        const yNotation = document.getElementById('y-notation');
 
+        const xNotation = document.getElementById('x-notation');
+        if(turn){
+            for(let i = 0; i<16; i+=2){
+                yNotation.childNodes[i + 1].textContent = ((i/2) + 1);
+            }
+            for(let i = 0; i<16; i+=2){
+                xNotation.childNodes[i + 1].textContent = (String.fromCharCode(104-(i/2)));
+            }
+        }
+        if(!turn){
+            for(let i = 0; i<16; i+=2){
+                yNotation.childNodes[i + 1].textContent = (8 - (i/2) );
+            }
+            for(let i = 0; i<16; i+=2){
+                xNotation.childNodes[i + 1].textContent = (String.fromCharCode(97+(i/2)));
+            }
+        }
     }
     function clearInfo(){
         movingData.color = null;
