@@ -1,6 +1,7 @@
 import { hideDisplay } from "./toolbar.js";
 import { setOpenings,gameEval } from "./ai.js";
 import { playAnimation } from "./animation.js"
+import { predictWhite, predictBlack } from "../svm/svmTrain.js";
 
 //opening data
 let openingData = '';
@@ -682,7 +683,7 @@ export const chessBoard =(()=>{
                                 if((color?chessBoardData[y][x+1].threatData.blackCheck.counter == 0:chessBoardData[y][x+1].threatData.whiteCheck.counter == 0 )
                                     && (color?chessBoardData[y][x+2].threatData.blackCheck.counter == 0:chessBoardData[y][x+2].threatData.whiteCheck.counter == 0)){
                                         if(chessBoardData[y][x+1].isEmpty && chessBoardData[y][x+2].isEmpty){
-                                            if(color){
+                                            if(color && chessBoardData[y][x].threatData.blackCheck.counter == 0){
                                                 availableMoves.white.push({
                                                     id:id,
                                                     x:x,
@@ -690,7 +691,7 @@ export const chessBoard =(()=>{
                                                     hasMoved:chessBoardData[y][x].pieceData.hasMoved,
                                                     move: chessBoardData[y][x+2]
                                                 });
-                                            }if(!color){
+                                            }if(!color && chessBoardData[y][x+1].threatData.whiteCheck.counter == 0){
                                                 availableMoves.black.push({
                                                     id:id,
                                                     x:x,
@@ -711,7 +712,7 @@ export const chessBoard =(()=>{
                                 if((color?chessBoardData[y][x-1].threatData.blackCheck.counter == 0:chessBoardData[y][x-1].threatData.whiteCheck.counter == 0 )
                                     && (color?chessBoardData[y][x-2].threatData.blackCheck.counter == 0:chessBoardData[y][x-2].threatData.whiteCheck.counter == 0)){
                                         if(chessBoardData[y][x-1].isEmpty && chessBoardData[y][x-2].isEmpty && chessBoardData[y][x-3].isEmpty){
-                                            if(color){
+                                            if(color && chessBoardData[y][x+1].threatData.blackCheck.counter == 0){
                                                 availableMoves.white.push({
                                                     id:id,
                                                     x:x,
@@ -719,7 +720,7 @@ export const chessBoard =(()=>{
                                                     hasMoved:chessBoardData[y][x].pieceData.hasMoved,
                                                     move: chessBoardData[y][x-2]
                                                 });
-                                            }if(!color){
+                                            }if(!color && chessBoardData[y][x+1].threatData.whiteCheck.counter == 0){
                                                 availableMoves.black.push({
                                                     id:id,
                                                     x:x,
@@ -917,7 +918,12 @@ export const chessBoard =(()=>{
         //testing
         const algoBtn = document.getElementById("algo-btn");
         algoBtn.onclick = () =>{
-            console.log(gameEval(activePieces));
+            indicator.textContent = "AI has been switched to "+(turnCheck?"White!":"Black!");
+            aiTurn = turnCheck;
+            ai(true);
+            /*
+            
+            */
             //gameEval(snapShot(),turnCheck);
             //console.log(enPassantData);
             //console.log(gameEval(snapShot()));
@@ -1118,50 +1124,122 @@ export const chessBoard =(()=>{
             let moveSelection = [];         
             //only for evaluation purposes, this can get mess with board data if not handled properly
             
-            console.log('tick');
+
             setTimeout(() => {
-                let newMove = miniMaxRoot(4,true);
-                
+                let newMove;
+                if(!aiTurn){
+                    newMove = blackRoot(4, !aiTurn);
+                }else{
+                    newMove = whiteRoot(4, !aiTurn);
+                }
                 for (let i = 0; i< newMove.evaluatedMoves.length; i++){
-                    if((newMove.evaluatedMoves[i].value >= (newMove.bestMove.value - 40))&&(newMove.evaluatedMoves[i].value <= (newMove.bestMove.value + 40))){
+                    if((newMove.evaluatedMoves[i].value >= (newMove.bestMove.value - 20)) && (newMove.evaluatedMoves[i].value <= (newMove.bestMove.value + 20))){
                         moveSelection.push(newMove.evaluatedMoves[i]);
                     }
                 }
-               // console.log(newMove);
-                console.log(moveSelection);
                 let randomIndex = Math.floor(Math.random() * moveSelection.length);
                 //console.log(randomIndex);
                 //console.log(moveSelection[randomIndex]);
                 aiMove(moveSelection[randomIndex].move);
                 //aiMove(newMove);
             }, 1000);
-            
+            function trueValue(tempValue, whiteSVM, blackSVM, isMaximizer){
+                let trueValue = tempValue;
+                //this function multiplies the move with the multipliers
+                //for black, x0.8 will be applied to NEUTRAL moves i.e w:0, b:0
+                //x0.8 on top of that for WHITE winning moves o.e w:1, b:0
+                //x1.1 for TRUE NEUTRAL moves i.e w:1, b:1
+                //and x1.2 for black for BLACK winning moves i.e w:0, b:1
+                //vice versa for white
+
+                //black multiplier
+                if(!whiteSVM && !blackSVM) trueValue = trueValue * 0.8;
+                if(whiteSVM && blackSVM) trueValue  = trueValue * 1.1;
+                if(isMaximizer){
+                    if(whiteSVM && !blackSVM) trueValue = trueValue * 0.8;
+                    if(!whiteSVM && blackSVM) trueValue = trueValue * 1.2;
+                    //white multiplier
+                }else if(!isMaximizer){
+                    if(whiteSVM && !blackSVM) trueValue = trueValue * 1.2;
+                    if(!whiteSVM && blackSVM) trueValue = trueValue * 0.8;
+                }
+                return trueValue;
+            }
+           
             
             //GET THE MOVE, THEN WAIT
 
-            function miniMaxRoot(depth, isMaximizer){
+            function blackRoot(depth, isMaximizer){
                 //we store the evaluated moves, see if theres "equal evaluated moves then return it"
                 let evaluatedMoves = [];
                 let currentMoves = getAvailableMoves(isMaximizer);
-                let bestMove = -9999;
+                let bestMove = -99999;
                 let bestMoveFound;
                 for(let i = 0; i < currentMoves.length; i++){
                     let newMove = currentMoves[i];
                     quick.move(newMove);
                     quick.refreshData();
-                    let tempValue = -9999;
+                    let tempValue = -999999;
 
                     if(!isKingInCheck(isMaximizer)){
                         tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
                     }
                     //console.log(currentMoves[i].id+" to "+currentMoves[i].move.notation+" has value of: "+tempValue);
+
+                    let whiteSVM = predictWhite(activePieces);
+                    let blackSVM = predictBlack(activePieces);
                     quick.undo();
+                    tempValue = trueValue(tempValue, whiteSVM, blackSVM, isMaximizer);
                     evaluatedMoves.push({
                         move: newMove,
                         value: tempValue,
+                        w:whiteSVM,
+                        b:blackSVM,
+                        
                     })
-
+                    
                     if(tempValue >= bestMove){
+                        bestMove = tempValue;
+                        bestMoveFound = newMove;
+                    }
+                }
+                //return bestMoveFound;
+                return {
+                    bestMove:{
+                        move: bestMoveFound,
+                        value:bestMove,
+                    },
+                    evaluatedMoves: evaluatedMoves
+                }
+                
+            }
+            function whiteRoot(depth, isMaximizer){
+                //we store the evaluated moves, see if theres "equal evaluated moves then return it"
+                let evaluatedMoves = [];
+                let currentMoves = getAvailableMoves(isMaximizer);
+                let bestMove = 99999;
+                let bestMoveFound;
+                for(let i = 0; i < currentMoves.length; i++){
+                    let newMove = currentMoves[i];
+                    quick.move(newMove);
+                    quick.refreshData();
+                    let tempValue = 999999;
+
+                    if(!isKingInCheck(isMaximizer)){
+                        tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
+                    }
+                    //console.log(currentMoves[i].id+" to "+currentMoves[i].move.notation+" has value of: "+tempValue);
+                    let whiteSVM = predictWhite(activePieces);
+                    let blackSVM = predictBlack(activePieces);
+                    quick.undo();
+                    tempValue = trueValue(tempValue, whiteSVM, blackSVM, isMaximizer);
+                    evaluatedMoves.push({
+                        move: newMove,
+                        value: tempValue,
+                        w:whiteSVM,
+                        b:blackSVM,
+                    })
+                    if(tempValue <= bestMove){
                         bestMove = tempValue;
                         bestMoveFound = newMove;
                     }

@@ -1,4 +1,3 @@
-
 import { chessBoard } from "./chessboard.js";
 let openingMoves = [];
 
@@ -114,9 +113,9 @@ const pawnMgEvalWhite = [
     [98, 134,  61,  95,  68, 126, 34, -11],
     [-6,   7,  26,  31,  65,  56, 25, -20],
     [-14,  13,   6,  21,  23,  12, 17, -23],
-    [-27,  -2,  -5,  22,  50,   6, 10, -25],
+    [-27,  -2,  -5,  22,  60,   6, 10, -25],
     [-26,  -4,  -4, -10,   3,   3, 33, -12],
-    [-35,  -1, -20, -23, -15,  24, 38, -22],
+    [-35,  -1, -20, -23, -45,  24, 38, -22],
     [ 0,   0,   0,   0,   0,   0,  0,   0]
 ];
 const knightMgEvalWhite = [
@@ -127,7 +126,7 @@ const knightMgEvalWhite = [
     [-13,   4,  16,  13,  28,  19,  21,   -8],
     [-23,  -9,  12,  10,  19,  17,  25,  -16],
     [-29, -53, -12,  -3,  -1,  18, -14,  -19],
-    [-105, -21, -58, -33, -17, -28, -19,  -23]
+    [-105, -21, -58, -33, -17, -28, -8,  -23]
 ];
 const bishopMgEvalWhite = [
     [-29,   4, -82, -37, -25, -42,   7,  -8],
@@ -135,7 +134,7 @@ const bishopMgEvalWhite = [
     [-16,  37,  43,  40,  35,  50,  37,  -2],
     [ -4,   5,  19,  50,  37,  37,   7,  -2],
     [ -6,  13,  13,  26,  34,  12,  10,   4],
-    [  0,  15,  15,  0,  0,  27,  18,  10],
+    [  0,  15,  15,  -20,  -12,  27,  18,  10],
     [  4,  15,  16,   0,   7,  21,  33,   1],
     [-33,  -3, -14, -21, -13, -12, -39, -21]
 ];
@@ -157,7 +156,7 @@ const queenMgEvalWhite = [
     [ -9, -26,  -9, -10,  -2,  -4,   3,  -3],
     [-14,   2, -11,  -2,  -5,   2,  14,   5],
     [-35,  -8,  11,   2,   8,  15,  -3,   1],
-    [ -1, -18,  -9,  50, -15, -25, -31, -50]
+    [ -1, -18,  -9,  100, -15, -25, -31, -50]
 ];
 
 const kingMgEvalWhite = [
@@ -177,7 +176,6 @@ const knightMgEvalBlack = reverseArray(knightMgEvalWhite);
 const rookMgEvalBlack = reverseArray(rookMgEvalWhite);
 const queenMgEvalBlack = reverseArray(queenMgEvalWhite);
 const kingMgEvalBlack = reverseArray(kingMgEvalWhite);
-console.log(kingMgEvalBlack);
 const pawnEgEvalWhite = [
     [0,   0,   0,   0,   0,   0,   0,   0],
     [178, 173, 158, 134, 147, 132, 165, 187],
@@ -330,7 +328,6 @@ function getPieceValue(piece, x, y) {
     let gamePhase = gamePhaseInc[pc];
     return mgValue;
 }
-console.log(mgWhiteEval[5][1][0]);
 /*
 
 function basicEval(activePieces){

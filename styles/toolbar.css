@@ -190,6 +190,7 @@
     font-family: 'TooMuchInk',monospace;
     color:white;
     font-size: 2vmin;
+    width: 80px;
 }
 #download-btn{
     background-image: url('../assets/logos/share.svg');
