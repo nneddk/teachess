@@ -1879,10 +1879,12 @@ export const chessBoard =(()=>{
             }
             if(!turn){
                 gameBoard.append(chessBoardTileContainer);
-                gameBoard.style.backgroundImage = "url('../assets/board/board.svg')";
+                gameBoard.classList.add("normal");
+                gameBoard.classList.remove("inverted");
             }else{
                 gameBoard.prepend(chessBoardTileContainer);
-                gameBoard.style.backgroundImage = "url('../assets/board/flipped-board.png')";
+                gameBoard.classList.add("inverted");
+                gameBoard.classList.remove("normal");
             }
             
             chessBoardData.push(chessBoardTileData);

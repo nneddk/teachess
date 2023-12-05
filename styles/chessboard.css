@@ -60,7 +60,6 @@
     background-size: 300%;
 }
 #game-board{
-    background-image: url('../assets/board/board.svg');
     background-position: center;
     background-repeat: no-repeat;
     background-size: 101%;
@@ -71,6 +70,12 @@
     grid-template-rows: repeat(8, 1fr);
 
     z-index: 0;
+}
+.inverted{
+    background-image: url('../assets/board/flipped-board.png');
+}
+.normal{
+    background-image: url('../assets/board/board.svg');
 }
 .tile-container{
     display:grid;
