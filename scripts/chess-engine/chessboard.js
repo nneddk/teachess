@@ -921,16 +921,16 @@ export const chessBoard =(()=>{
         
         const switchBtn = document.getElementById("switch-btn");
         const aiBtn = document.getElementById("ai-btn");
+        let switchEnabled = true;
         aiBtn.onclick = ()=>{
+            if (!switchEnabled) return;
             aiEnabled++;
             aiEnabled += aiSide;
             aiEnabled = aiEnabled%3;
-            console.log(aiEnabled);
-            
-            
-            if (aiEnabled!=2){
+            if (aiEnabled!=2 && switchEnabled){
                 indicator.textContent = "AI has been switched on to "+(aiEnabled?"White!":"Black!");
                 aiTurn = aiEnabled;
+                switchEnabled = false;
                 if(aiEnabled == 1){
                     clearInfo();
                     ai(true);
@@ -938,6 +938,9 @@ export const chessBoard =(()=>{
                     clearInfo();
                     ai(true);
                 }
+                setTimeout(() => {
+                    switchEnabled = true
+                }, 1000);
             }else{
                 indicator.textContent = "AI has been turned off!";
             }
