@@ -80,6 +80,8 @@ export const chessBoard =(()=>{
             promote: false,
         }
     }
+    let aiSide = 0;
+    let aiEnabled = 2;
     //1 for white, 0 for black;
     let turnCheck = true;
     const piece = (()=>{
@@ -916,13 +918,35 @@ export const chessBoard =(()=>{
             }
         }
         //testing
-        let aiSide = false;
-        const algoBtn = document.getElementById("algo-btn");
-        algoBtn.onclick = () =>{
+        
+        const switchBtn = document.getElementById("switch-btn");
+        const aiBtn = document.getElementById("ai-btn");
+        aiBtn.onclick = ()=>{
+            aiEnabled++;
+            aiEnabled += aiSide;
+            aiEnabled = aiEnabled%3;
+            console.log(aiEnabled);
+            
+            
+            if (aiEnabled!=2){
+                indicator.textContent = "AI has been switched on to "+(aiEnabled?"White!":"Black!");
+                aiTurn = aiEnabled;
+                if(aiEnabled == 1){
+                    clearInfo();
+                    ai(true);
+                }else{
+                    clearInfo();
+                    ai(true);
+                }
+            }else{
+                indicator.textContent = "AI has been turned off!";
+            }
+        }
+        switchBtn.onclick = () =>{
             if(!confirm("This will restart the game, continue?")){
                 return;
             }
-            aiSide = !aiSide;
+            changeSettings();
             makeBoard(aiSide);
             generateGame();
             enPassantData = {
@@ -934,6 +958,7 @@ export const chessBoard =(()=>{
                     y:null,
                 },
             } 
+            /*
             indicator.textContent = "AI has been switched to "+(aiSide?"White!":"Black!");
             aiTurn = aiSide;
             if (aiSide){
@@ -941,7 +966,7 @@ export const chessBoard =(()=>{
                 
                 ai(true);
             }
-            
+            */
             /*
             
             */
@@ -1139,6 +1164,7 @@ export const chessBoard =(()=>{
             return {move,undo,refreshData}
         })();
         function ai(aiOn, algo){
+            if(aiEnabled == 2) return;
             if(!aiOn) return;
             //if (!algo) return;
             let TotalMoves = 0;   
@@ -1874,9 +1900,8 @@ export const chessBoard =(()=>{
                     chessBoardTileDiv.prepend(piecePic);
                     chessBoardTileContainer.prepend(chessBoardTileDiv);
                 }
-                
                 chessBoardTileData.push(TileData);
-            }
+            }   
             if(!turn){
                 gameBoard.append(chessBoardTileContainer);
                 gameBoard.classList.add("normal");
@@ -2007,6 +2032,22 @@ export const chessBoard =(()=>{
         piece.pieceMaker(1,7,'knight',true,0, false);
         piece.pieceMaker(6,0,'knight',false,0, false);
         piece.pieceMaker(6,7,'knight',true,0, false);
+        refreshData();
+    }
+    function generateImgGame(array, turn){
+        turnCheck = turn;
+        const capturedWhitePiecesDiv = document.getElementById("captured-white-holder");
+        const capturedBlackPiecesDiv = document.getElementById("captured-black-holder");
+        while(capturedWhitePiecesDiv.hasChildNodes()) capturedWhitePiecesDiv.removeChild(capturedWhitePiecesDiv.lastChild);
+        while(capturedBlackPiecesDiv.hasChildNodes()) capturedBlackPiecesDiv.removeChild(capturedBlackPiecesDiv.lastChild);
+        indicator.textContent = 'Teachess';
+        for(let i = 0; i < 8; i++){
+            for(let j = 0; j<8; j++){
+                if((array[i][j]).piece !=null){
+                    piece.pieceMaker(j,i,array[i][j].piece,array[i][j].color, 0, false);
+                }
+            }
+        }
         refreshData();
     }
     function viewNotation(){
@@ -2358,7 +2399,10 @@ export const chessBoard =(()=>{
         }
         //console.log(moveIndex)
     }
-
-    return{makeBoard,generateGame,getHistory, generatePgn, translatePgn, viewNotation, traverseHistory, getBoardData, refreshData}
+    function changeSettings(){
+        aiSide = !aiSide;
+        aiEnabled = 2;
+    }
+    return{makeBoard,generateGame,getHistory, generatePgn, generateImgGame, translatePgn, viewNotation, traverseHistory, getBoardData, refreshData, changeSettings}
 })();
 

@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--cleans up various browser styles-->
-    <link rel = "stylesheet" href ="./styles/clean.css">
-    <link rel = "stylesheet" href ="./styles/index.css">
-    <link rel = "stylesheet" href ="./styles/chessboard.css">
-    <link rel = "stylesheet" href ="./styles/pieces.css">
-    <link rel = "stylesheet" href ="./styles/toolbar.css">
-    <script type = "module" src = "./scripts/chessboard.js" defer></script>
-    <script type = "module" src = "./scripts/toolbar.js" defer></script>
-    <script type = "module" src = "./scripts/index.js" defer></script>
-    <script type = "module" src = "./scripts/ai.js" defer></script>
-    <script type = "module" src = "./scripts/animation.js" defer></script>
-    <script type = "module" src = "./svm/svmTrain.js" defer></script>
-    <script type = "module" src = "./svm/parseData.js" defer></script>
+    <link rel = "stylesheet" href ="./assets/styles/clean.css">
+    <link rel = "stylesheet" href ="./assets/styles/index.css">
+    <link rel = "stylesheet" href ="./assets/styles/chessboard.css">
+    <link rel = "stylesheet" href ="./assets/styles/pieces.css">
+    <link rel = "stylesheet" href ="./assets/styles/toolbar.css">
+    <script type = "module" src = "./scripts/chess-engine/chessboard.js" defer></script>
+    <script type = "module" src = "./scripts/chess-engine/toolbar.js" defer></script>
+    <script type = "module" src = "./scripts/chess-engine/index.js" defer></script>
+    <script type = "module" src = "./scripts/chess-engine/ai.js" defer></script>
+    <script type = "module" src = "./scripts/chess-engine/animation.js" defer></script>
+    <script type = "module" src = "./scripts/svm/svmTrain.js" defer></script>
+    <script type = "module" src = "./scripts/svm/parseData.js" defer></script>
+    <script type = "module" src = "./scripts/image-recog/imageRecog.js" defer></script>
+    <script type = "module" src = "./scripts/image-recog/parseData.js" defer></script>
+    <script type = "module" src = "./scripts/image-recog/svmTrain.js" defer></script>
     <title>Teachess</title>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
 </head>
@@ -29,6 +32,18 @@
             <button class = "btn" id = "promote-knight"type="button"></button>
         </div>
             
+    </div>
+    <div id = "generate-wrapper" class = "wrapper">
+        Click Pieces to Change Them!
+        <div id = "load-board">
+
+        </div>
+        <div class ='load-btn'>
+            <button class = "btn" id = "turn-pick-btn" type = "button"> side to move</button>
+            <button class="btn" id = "pic-board-btn" type = "button">confirm</button>
+            <button class="btn" id = "cancel-board-btn" type = "button">cancel</button>
+        </div>
+        
     </div>
     <div class = "content">
         <div class = "main-board">
@@ -72,9 +87,12 @@
                 <div id = "indicator"> Teachess</div>
                 <div id = "opening-indicator"></div>
                 <div id = "move-history-holder">
+                    <input type="file" id="image-loader" name="image-loader" style="display: none;"/>
                     <textarea id = "move-history" readonly= "true" placeholder="Moves will appear here..." spellcheck="false"></textarea>
-                    <textarea id = "input-pgn" placeholder="Leave blank for default board" spellcheck="false"></textarea>
+                    <textarea id = "input-pgn" placeholder="Leave blank for default board/loading image" spellcheck="false"></textarea>
+                    <button class = "btn" id = "upload-btn" type = "button">upload</button> 
                     <button class = "btn" id = "generate-btn" type = "button">generate</button> 
+                    <button class = "btn" id = "side-btn" type = "button">side</button>
                 </div>
                 
                 <div class = "traversal-btn-holder">
@@ -91,7 +109,8 @@
                     <button class ="btn" id ="notation-btn" type="button"title = "Notations"></button>
                     <button class="btn" id ="download-btn" type="button" title = "Share"></button>
                     <button class ="btn" id = "reset-btn" type="button"title = "Load"></button>
-                    <button class ="btn" id ="algo-btn" type ="button">switch ai</button>
+                    <button class ="btn" id ="switch-btn" type ="button">switch</button>
+                    <button class ="btn" id ="ai-btn" type ="button">ai</button>
                 </div>
             </div>
         </div>

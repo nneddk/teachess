@@ -1,0 +1,62 @@
+.piece{
+    position: absolute;
+    width: 9vmin;
+    height: 9vmin;
+    justify-self: center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    opacity: 1;
+}
+
+.animation-piece{
+    width: 9vmin;
+    height: 9vmin;
+    position: fixed;
+    justify-self: center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    transition: all 0.5s ;
+}
+.piece:hover{
+    opacity: 0.8;
+}
+.white-king{
+    background-image: url(../pieces/white-pieces/white-king.svg);  
+}
+.white-queen{
+    background-image: url(../pieces/white-pieces/white-queen.svg);
+}
+.white-bishop{
+    background-image: url(../pieces/white-pieces/white-bishop.svg);
+}
+.white-rook{
+    background-image: url(../pieces/white-pieces/white-rook.svg);
+}
+.white-knight{
+    background-image: url(../pieces/white-pieces/white-knight.svg);
+}
+.white-pawn{
+    background-image: url(../pieces/white-pieces/white-pawn.svg);
+}
+
+
+.black-king{
+    background-image: url(../pieces/black-pieces/black-king.svg);    
+}
+.black-queen{
+    background-image: url(../pieces/black-pieces/black-queen.svg);
+}
+.black-bishop{
+    background-image: url(../pieces/black-pieces/black-bishop.svg);
+}
+.black-rook{
+    background-image: url(../pieces/black-pieces/black-rook.svg);
+}
+.black-knight{
+    background-image: url(../pieces/black-pieces/black-knight.svg);
+}
+.black-pawn{
+    background-image: url(../pieces/black-pieces/black-pawn.svg);
+}
