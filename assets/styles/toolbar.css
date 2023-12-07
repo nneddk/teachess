@@ -76,14 +76,13 @@
 }
 #ai-btn:hover{
     color:black;
+    transform: scale(1.1);
 }
 #switch-btn{
-    font-family: 'TooMuchInk',monospace ;
-    color:white;
-    transition: all 0.3s;
+    background-image: url('../logos/flipside.svg');
 }
 #switch-btn:hover{
-    color:black;
+    transform: scale(1.1);
 }
 #side-btn{
     display: none;
@@ -214,7 +213,6 @@
     justify-content: center;
     align-items: center;
     margin-top: 0;
-    gap:10px;
 }
 .misc-btn-holder>.btn{
     background-position: center;

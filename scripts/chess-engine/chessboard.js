@@ -2,7 +2,7 @@ import { hideDisplay } from "./toolbar.js";
 import { setOpenings,gameEval } from "./ai.js";
 import { playAnimation } from "./animation.js"
 import { predictWhite, predictBlack } from "../svm/svmTrain.js";
-
+const aiBtn = document.getElementById("ai-btn");
 //opening data
 let openingData = '';
 async function translate(){
@@ -162,6 +162,7 @@ export const chessBoard =(()=>{
                 }
     
                 pieceDiv.onclick=(e) =>{
+                    console.log(chessBoardData[y][x])
                     if(chessBoardData[y][x].pieceData.color == turnCheck && !gameOver){
                         e.stopPropagation();  
                         if(movingData.piece == null){
@@ -920,7 +921,6 @@ export const chessBoard =(()=>{
         //testing
         
         const switchBtn = document.getElementById("switch-btn");
-        const aiBtn = document.getElementById("ai-btn");
         let switchEnabled = true;
         aiBtn.onclick = ()=>{
             if (!switchEnabled) return;
@@ -929,12 +929,11 @@ export const chessBoard =(()=>{
             aiEnabled = aiEnabled%3;
             if (aiEnabled!=2 && switchEnabled){
                 indicator.textContent = "AI has been switched on to "+(aiEnabled?"White!":"Black!");
+                aiBtn.textContent = "";
+                aiBtn.style.backgroundImage = "url('../../assets/logos/"+(aiEnabled?"white":"black")+ ".svg')";
                 aiTurn = aiEnabled;
                 switchEnabled = false;
-                if(aiEnabled == 1){
-                    clearInfo();
-                    ai(true);
-                }else{
+                if(aiEnabled == turnCheck){
                     clearInfo();
                     ai(true);
                 }
@@ -943,6 +942,7 @@ export const chessBoard =(()=>{
                 }, 1000);
             }else{
                 indicator.textContent = "AI has been turned off!";
+                aiBtn.style.backgroundImage = "";
             }
         }
         switchBtn.onclick = () =>{
@@ -1907,12 +1907,8 @@ export const chessBoard =(()=>{
             }   
             if(!turn){
                 gameBoard.append(chessBoardTileContainer);
-                gameBoard.classList.add("normal");
-                gameBoard.classList.remove("inverted");
             }else{
                 gameBoard.prepend(chessBoardTileContainer);
-                gameBoard.classList.add("inverted");
-                gameBoard.classList.remove("normal");
             }
             
             chessBoardData.push(chessBoardTileData);
@@ -2405,6 +2401,8 @@ export const chessBoard =(()=>{
     function changeSettings(){
         aiSide = !aiSide;
         aiEnabled = 2;
+        aiBtn.style.backgroundImage = "";
+        aiBtn.textContent = "ai";
     }
     return{makeBoard,generateGame,getHistory, generatePgn, generateImgGame, translatePgn, viewNotation, traverseHistory, getBoardData, refreshData, changeSettings}
 })();
