@@ -162,7 +162,6 @@ export const chessBoard =(()=>{
                 }
     
                 pieceDiv.onclick=(e) =>{
-                    console.log(chessBoardData[y][x])
                     if(chessBoardData[y][x].pieceData.color == turnCheck && !gameOver){
                         e.stopPropagation();  
                         if(movingData.piece == null){
@@ -377,6 +376,7 @@ export const chessBoard =(()=>{
                      ((newX == oldX + 2 && oldY == newY)||(newX == oldX - 2 && oldY == newY)) 
                      && (color?chessBoardData[oldY][oldX].threatData.blackCheck.counter == 0:chessBoardData[oldY][oldX].threatData.whiteCheck.counter == 0)
                         &&(color?chessBoardData[newY][newX].threatData.blackCheck.counter == 0:chessBoardData[newY][newX].threatData.whiteCheck.counter == 0)){
+
                         if(chessBoardData[oldY][oldX + 3].pieceData != null &&chessBoardData[oldY][oldX + 3].pieceData.id == 'rook'
                         && (color?chessBoardData[oldY][oldX + 1].threatData.blackCheck.counter == 0:chessBoardData[oldY][oldX + 1].threatData.whiteCheck.counter == 0)){
                             let rightRook = chessBoardData[oldY][oldX + 3].pieceData;
@@ -384,7 +384,6 @@ export const chessBoard =(()=>{
                             &&(rightRook.color == color)
                             &&(rightRook.hasMoved == 0)){
                                 let tempAi = aiOn;
-                                console.log(tempAi);
                                 moveDetail.action.castle = true;
                                 moveDetail.moves = 1;
                                 aiOn = false;
@@ -1187,10 +1186,14 @@ export const chessBoard =(()=>{
                         moveSelection.push(newMove.evaluatedMoves[i]);
                     }
                 }
+                console.log(moveSelection);
+                //important to clear out threats etc for castling
+                refreshData();
                 let randomIndex = Math.floor(Math.random() * moveSelection.length);
                 //console.log(randomIndex);
                 //console.log(moveSelection[randomIndex]);
                 aiMove(moveSelection[randomIndex].move);
+                //console.log(moveSelection[randomIndex].move);
                 //aiMove(newMove);
             }, 1000);
             function trueValue(tempValue, whiteSVM, blackSVM, isMaximizer){
@@ -1342,8 +1345,6 @@ export const chessBoard =(()=>{
             refreshData(); 
         }
         function aiMove(selectedMove){
-                
-            //console.log(selectedMove);
             let selectedOldCoords = [selectedMove.x, selectedMove.y],
                 selectedNewCoords = [selectedMove.move.x, selectedMove.move.y],
                 selectedColor = (turnCheck?true:false);
@@ -1750,8 +1751,6 @@ export const chessBoard =(()=>{
                 clearMoveDetail();
                 turnCheck = !turnCheck;
                 enPassant(null, null, null, null ,enPassantData.color);
-                console.log(aiPromote);
-                console.log(aiTurn);
                 if(turnCheck == aiTurn && aiPromote) ai(aiPromote);
 
             }
