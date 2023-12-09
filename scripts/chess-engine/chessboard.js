@@ -1182,32 +1182,28 @@ export const chessBoard =(()=>{
                     newMove = whiteRoot(4, !aiTurn);
                 }
                 for (let i = 0; i< newMove.evaluatedMoves.length; i++){
-                    if((newMove.evaluatedMoves[i].value >= (newMove.bestMove.value - 20)) && (newMove.evaluatedMoves[i].value <= (newMove.bestMove.value + 20))){
+                    if((newMove.evaluatedMoves[i].value >= (newMove.bestMove.value - 10)) && (newMove.evaluatedMoves[i].value <= (newMove.bestMove.value + 10))){
                         moveSelection.push(newMove.evaluatedMoves[i]);
                     }
                 }
+                console.log(newMove);
                 console.log(moveSelection);
                 //important to clear out threats etc for castling
                 refreshData();
                 let randomIndex = Math.floor(Math.random() * moveSelection.length);
                 //console.log(randomIndex);
                 //console.log(moveSelection[randomIndex]);
-                aiMove(moveSelection[randomIndex].move);
+                //aiMove(moveSelection[randomIndex].move);
                 //console.log(moveSelection[randomIndex].move);
-                //aiMove(newMove);
+                aiMove(newMove.bestMove.move);
             }, 1000);
             function trueValue(tempValue, whiteSVM, blackSVM, isMaximizer){
                 let trueValue = tempValue;
                 //this function multiplies the move with the multipliers
-                //for black, x0.8 will be applied to NEUTRAL moves i.e w:0, b:0
-                //x0.8 on top of that for WHITE winning moves o.e w:1, b:0
-                //x1.1 for TRUE NEUTRAL moves i.e w:1, b:1
-                //and x1.2 for black for BLACK winning moves i.e w:0, b:1
-                //vice versa for white
-
                 //black multiplier
                 if(!whiteSVM && !blackSVM) trueValue = trueValue * 0.8;
-                if(whiteSVM && blackSVM) trueValue  = trueValue * 1.1;
+                if(whiteSVM && blackSVM) trueValue  = trueValue * 1.0;
+
                 if(isMaximizer){
                     if(whiteSVM && !blackSVM) trueValue = trueValue * 0.8;
                     if(!whiteSVM && blackSVM) trueValue = trueValue * 1.2;

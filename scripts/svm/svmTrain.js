@@ -5,16 +5,18 @@ class SVM {
         this.bias = 0;
         //TP true positives FP false positives, TN true negatives, FN false negatives
         this.confusionMatrix = {TP: 0, FP: 0, TN: 0, FN: 0};
+        this.dataset = [];
     }
 
     train(data, labels, learningRate = 0.1, iterations = 1000) {
         let n = data.length;
         this.weights = new Array(data[0].length * data[0][0].length).fill(0);
+        this.dataset = data;
         
         for(let i = 0; i < iterations; i++) {
 
             for(let j = 0; j < n; j++) {
-                let labelWeight = labels[j] === 1 ? 3 : 0.1;
+                let labelWeight = labels[j] === 1 ? 3 : 0.05;
                 let prediction = this.predict(data[j]);
                 if(prediction == labels[j]) {
                     if(prediction ==1) {
@@ -53,8 +55,9 @@ class SVM {
         let precision = this.confusionMatrix.TP / (this.confusionMatrix.TP + this.confusionMatrix.FP);
         let recall = this.confusionMatrix.TP / (this.confusionMatrix.TP + this.confusionMatrix.FN);
         let f1Score = 2 * (precision * recall) / (precision + recall);
-        return {precision, recall, f1Score, confusionMatrix: this.confusionMatrix};
+        return {precision, recall, f1Score, confusionMatrix: this.confusionMatrix, dataset: this.dataset};
     }
+
 }
 //converts board data into usable format
 function convertBoard(pieces){
@@ -103,6 +106,7 @@ let white = await readWhite();
 let whiteData = white[0];
 let whiteLabels = white[1];
 whiteSVM.train(whiteData, whiteLabels);
+
 console.log(whiteSVM.getMetrics());
 export function predictWhite(pieces){
     let board = convertBoard(pieces);

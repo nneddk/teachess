@@ -86,16 +86,6 @@ img {
     background-color: white;
     color:black;
 }
-.white-preview{
-    background-color: rgba(255, 255, 255, 0.4);
-    border-radius: 5px;
-    border:solid 5px rgba(255, 255, 255, 0.1);
-}
-.black-preview{
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 5px;
-    border:solid 5px rgba(0, 0, 0, 0.1);
-}
 #cancel-generate-btn:hover{
     color:black;
     background-color: white;

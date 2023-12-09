@@ -414,5 +414,6 @@ function buildBoard(board){
         }
         evaluatedBoard.push(tempXArray);
     }
+    console.log(evaluatedBoard);
     return evaluatedBoard;
 }
