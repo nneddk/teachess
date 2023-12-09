@@ -1196,9 +1196,9 @@ export const chessBoard =(()=>{
                 let randomIndex = Math.floor(Math.random() * moveSelection.length);
                 //console.log(randomIndex);
                 //console.log(moveSelection[randomIndex]);
-                //aiMove(moveSelection[randomIndex].move);
+                aiMove(moveSelection[randomIndex].move);
                 //console.log(moveSelection[randomIndex].move);
-                aiMove(newMove.bestMove.move);
+                //aiMove(newMove.bestMove.move);
             }, 1000);
             function trueValue(tempValue, whiteSVM, blackSVM, isMaximizer){
                 let trueValue = tempValue;
