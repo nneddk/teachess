@@ -1,5 +1,5 @@
 import { hideDisplay } from "./toolbar.js";
-import { setOpenings,gameEval } from "./ai.js";
+import { setOpenings,gameEval, getNextMove } from "./ai.js";
 import { playAnimation } from "./animation.js"
 import { predictWhite, predictBlack } from "../svm/svmTrain.js";
 const aiBtn = document.getElementById("ai-btn");
@@ -1172,9 +1172,12 @@ export const chessBoard =(()=>{
             let TotalMoves = 0;   
             let moveSelection = [];         
             //only for evaluation purposes, this can get mess with board data if not handled properly
-            
-
+            let openingAI = getNextMove(generatePgn(getHistory(),true));
             setTimeout(() => {
+                if(openingAI){
+                    aiMove(openingAI);
+                    return;
+                }
                 let newMove;
                 if(!aiTurn){
                     newMove = blackRoot(4, !aiTurn);

@@ -5,7 +5,6 @@ class SVM {
         this.bias = 0;
         //TP true positives FP false positives, TN true negatives, FN false negatives
         this.confusionMatrix = {TP: 0, FP: 0, TN: 0, FN: 0};
-        this.dataset = [];
     }
 
     train(data, labels, learningRate = 0.1, iterations = 1000) {
@@ -55,7 +54,7 @@ class SVM {
         let precision = this.confusionMatrix.TP / (this.confusionMatrix.TP + this.confusionMatrix.FP);
         let recall = this.confusionMatrix.TP / (this.confusionMatrix.TP + this.confusionMatrix.FN);
         let f1Score = 2 * (precision * recall) / (precision + recall);
-        return {precision, recall, f1Score, confusionMatrix: this.confusionMatrix, dataset: this.dataset};
+        return {precision, recall, f1Score, confusionMatrix: this.confusionMatrix};
     }
 
 }

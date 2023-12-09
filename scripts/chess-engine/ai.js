@@ -44,15 +44,14 @@ function openingCheck(currentPGN){
     return false;
 }
 
-export function getNextMove(availableMoves, pgn, turnCheck){
+export function getNextMove(pgn){
     //check if openings are viable
     //console.log(availableMoves);
     //gameEval(chessBoard.getBoardData(), turnCheck, availableMoves);
-    /*
     let openingMove = openingCheck(pgn);
     if(openingMove){
         return openingMove;
-    }*/
+    }
     return false;
 }
 export function gameEval(pieces){
@@ -91,12 +90,12 @@ function taperedEval(activePieces){
     let gamePhase = 0;
     for (let i = 0; i < activePieces.length; i++){
         if(activePieces[i].color){
-            whiteEval = whiteEval + getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
+            mgEval += (getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y)).mgValue;
         }else if(!activePieces[i].color){
-            blackEval = blackEval + getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
+            mgEval -= (getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y)).mgValue;
         }
     }
-    return (whiteEval - blackEval);
+    return (mgEval);
     return totalEval;
     let mgPhase = gamePhase;
     if(mgPhase >24) mgPhase = 24;
@@ -326,7 +325,7 @@ function getPieceValue(piece, x, y) {
     let mgValue = getMgValue(piece.color, x, y);
     let egValue = getEgValue(piece.color, x, y);
     let gamePhase = gamePhaseInc[pc];
-    return mgValue;
+    return {mgValue, egValue, gamePhase};
 }
 /*
 
