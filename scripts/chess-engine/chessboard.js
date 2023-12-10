@@ -162,7 +162,6 @@ export const chessBoard =(()=>{
                 }
     
                 pieceDiv.onclick=(e) =>{
-                    console.log(chessBoardData[y][x]);
                     if(chessBoardData[y][x].pieceData.color == turnCheck && !gameOver){
                         e.stopPropagation();  
                         if(movingData.piece == null){
@@ -597,7 +596,7 @@ export const chessBoard =(()=>{
                             });
                         }  
                     }
-                    if(boardData.isEmpty &&id != 'pawn' || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) && id == 'king' ){
+                    if(boardData.isEmpty &&id == 'king' || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) && id == 'king' ){
                         if(color && id !=null && (boardData.threatData.blackCheck.counter == 0)) {
                             availableMoves.white.push({
                                 id:id,
@@ -1200,8 +1199,8 @@ export const chessBoard =(()=>{
             let openingAI = getNextMove(generatePgn(getHistory(),true));
             setTimeout(() => {
                 if(openingAI){
-                    aiMove(openingAI);
-                    return;
+                    //aiMove(openingAI);
+                    //return;
                 }
                 let newMove;
                 if(!aiTurn){
@@ -1214,14 +1213,13 @@ export const chessBoard =(()=>{
                         moveSelection.push(newMove.evaluatedMoves[i]);
                     }
                 }
-                console.log(newMove);
-                console.log(moveSelection);
                 //important to clear out threats etc for castling
                 refreshData();
                 let randomIndex = Math.floor(Math.random() * moveSelection.length);
                 //console.log(TotalMoves);
                 //console.log(randomIndex);
                 //console.log(moveSelection[randomIndex]);
+                console.log(TotalMoves);
                 aiMove(moveSelection[randomIndex].move);
                 //console.log(moveSelection[randomIndex].move);
                 //aiMove(newMove.bestMove.move);
