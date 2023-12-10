@@ -12,7 +12,7 @@ async function readWhite(){
     });
     for(let i = 0; i<tempData.length; i++){
         //exits out neutral openings
-        if(i > 2){
+        if(i > 3){
             if(i%2==0){
                 boardPosition.push(tempData[i]);
             }else{
@@ -58,7 +58,7 @@ async function readBlack(){
     });
     for(let i = 0; i<tempData.length; i++){
         //exits the neutral openings
-        if(i > 2){
+        if(i > 3){
             if(i%2==0){
                 boardPosition.push(tempData[i]);
             }else{
@@ -102,7 +102,7 @@ async function readTestWhite(){
     });
     for(let i = 0; i<tempData.length; i++){
         //exits out neutral openings
-        if(i > 2){
+        if(i > 3){
             if(i%2==0){
                 boardPosition.push(tempData[i]);
             }else{
@@ -146,7 +146,7 @@ async function readTestBlack(){
     });
     for(let i = 0; i<tempData.length; i++){
         //exits the neutral openings
-        if(i > 2){
+        if(i > 3){
             if(i%2==0){
                 boardPosition.push(tempData[i]);
             }else{
