@@ -89,14 +89,18 @@ function taperedEval(activePieces){
     let egEval = 0;
     let gamePhase = 0;
     for (let i = 0; i < activePieces.length; i++){
+        let evalPiece = getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y);
         if(activePieces[i].color){
-            mgEval += (getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y)).mgValue;
+            mgEval += evalPiece.mgValue;
+            egEval += evalPiece.egValue;
         }else if(!activePieces[i].color){
-            mgEval -= (getPieceValue(activePieces[i], activePieces[i].x,activePieces[i].y)).mgValue;
+            mgEval -= evalPiece.mgValue;
+            egEval -= evalPiece.egValue;
         }
+        gamePhase += evalPiece.gamePhase
     }
-    return (mgEval);
-    return totalEval;
+    //console.log(gamePhase);
+    //return mgEval;
     let mgPhase = gamePhase;
     if(mgPhase >24) mgPhase = 24;
     let egPhase = 24 - mgPhase;

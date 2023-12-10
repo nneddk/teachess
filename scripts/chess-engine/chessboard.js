@@ -162,6 +162,7 @@ export const chessBoard =(()=>{
                 }
     
                 pieceDiv.onclick=(e) =>{
+                    console.log(chessBoardData[y][x]);
                     if(chessBoardData[y][x].pieceData.color == turnCheck && !gameOver){
                         e.stopPropagation();  
                         if(movingData.piece == null){
@@ -575,7 +576,7 @@ export const chessBoard =(()=>{
                         
                     }
                     if(boardData.isEmpty  || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) ){
-                        if(color && id !=null&& id != 'pawn') {
+                        if(color && id !=null&& id != 'pawn'&& id != 'king') {
                             availableMoves.white.push({
                                 id:id,
                                 x:x,
@@ -585,7 +586,7 @@ export const chessBoard =(()=>{
                             });
             
                         }
-                        if(!color && id != null && id != 'pawn'){
+                        if(!color && id != null && id != 'pawn' && id != 'king'){
                             
                             availableMoves.black.push({
                                 id:id,
@@ -596,7 +597,29 @@ export const chessBoard =(()=>{
                             });
                         }  
                     }
-                    if (((boardData.pieceData !=null) &&(boardData.pieceData.color == !color)||(boardData.x == enPassantData.x && boardData.y == enPassantData.y && enPassantData.color != color)) && id == 'pawn'){
+                    if(boardData.isEmpty &&id != 'pawn' || ((boardData.pieceData !=null)&&(boardData.pieceData.color == !color)) && id == 'king' ){
+                        if(color && id !=null && (boardData.threatData.blackCheck.counter == 0)) {
+                            availableMoves.white.push({
+                                id:id,
+                                x:x,
+                                y:y,
+                                hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                                move : boardData,
+                            });
+            
+                        }
+                        if(!color && id != null&& (boardData.threatData.whiteCheck.counter == 0)){
+                            
+                            availableMoves.black.push({
+                                id:id,
+                                x:x,
+                                y:y,
+                                hasMoved: chessBoardData[y][x].pieceData.hasMoved,
+                                move : boardData,
+                            });
+                        }  
+                    }
+                    if (!boardData.isEmpty && ((boardData.pieceData !=null) &&(boardData.pieceData.color == !color)||(boardData.x == enPassantData.x && boardData.y == enPassantData.y && enPassantData.color != color)) && id == 'pawn'){
                         if(color) {
                             availableMoves.white.push({
                                 id:id,
@@ -678,6 +701,7 @@ export const chessBoard =(()=>{
             }
             
             if(id == 'king'){
+                
                 if(!chessBoardData[y][x].isEmpty && chessBoardData[y][x].pieceData.hasMoved == 0){
                     if(x + 3 <= 7){
                         if(!chessBoardData[y][x+3].isEmpty && chessBoardData[y][x+3].pieceData.hasMoved == 0){
@@ -984,6 +1008,7 @@ export const chessBoard =(()=>{
             if(!isMax) return availableMoves.white;
             if(isMax) return availableMoves.black;
         }
+        
         //quick move
         const quick = (()=>{
             let quickHistory = [];
@@ -1194,6 +1219,7 @@ export const chessBoard =(()=>{
                 //important to clear out threats etc for castling
                 refreshData();
                 let randomIndex = Math.floor(Math.random() * moveSelection.length);
+                //console.log(TotalMoves);
                 //console.log(randomIndex);
                 //console.log(moveSelection[randomIndex]);
                 aiMove(moveSelection[randomIndex].move);
@@ -1217,7 +1243,21 @@ export const chessBoard =(()=>{
                 }
                 return trueValue;
             }
-           
+            function isMate(moves, color){
+                if(color){
+                    if(moves.length == 0 && chessBoardData[whiteKing.y][whiteKing.x].threatData.blackCheck.counter > 0)   return true;
+                    if(moves.length == 0 && chessBoardData[whiteKing.y][whiteKing.x].threatData.blackCheck.counter == 0)   return false;
+                    for(let i = 0; i <moves.length; i++){
+                        if(moves.id != 'king') return false;
+                    }
+                }else{
+                    if(moves.length == 0 && chessBoardData[blackKing.y][blackKing.x].threatData.whiteCheck.counter > 0)   return true;
+                    if(moves.length == 0 && chessBoardData[blackKing.y][blackKing.x].threatData.whiteCheck.counter == 0)   return false;
+                    for(let i = 0; i <moves.length; i++){
+                        if(moves.id != 'king') return false;
+                    }
+                }
+            }
             
             //GET THE MOVE, THEN WAIT
 
@@ -1232,9 +1272,9 @@ export const chessBoard =(()=>{
                     quick.move(newMove);
                     quick.refreshData();
                     let tempValue = -999999;
-
                     if(!isKingInCheck(isMaximizer)){
                         tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
+                        if (isMate(getAvailableMoves(!isMaximizer), isMaximizer)) tempValue = 99999;
                     }
                     //console.log(currentMoves[i].id+" to "+currentMoves[i].move.notation+" has value of: "+tempValue);
 
@@ -1279,6 +1319,7 @@ export const chessBoard =(()=>{
 
                     if(!isKingInCheck(isMaximizer)){
                         tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
+                        if (isMate(getAvailableMoves(!isMaximizer), isMaximizer)) tempValue = -99999;
                     }
                     //console.log(currentMoves[i].id+" to "+currentMoves[i].move.notation+" has value of: "+tempValue);
                     let whiteSVM = predictWhite(activePieces);
@@ -1309,17 +1350,20 @@ export const chessBoard =(()=>{
             function miniMax(depth, alpha, beta, isMaximizer){
                 TotalMoves++;
                 quick.refreshData();
+                
                 if(depth === 0){
                     return -gameEval(activePieces); 
                 }
                 let currentMoves = getAvailableMoves(isMaximizer); 
                 
                 if(isMaximizer){
+                    
                     let bestMove = -9999;
                     for(let i = 0; i < currentMoves.length; i++){
                         quick.move(currentMoves[i]);
                         bestMove = Math.max(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
                         quick.undo();
+                        
                         alpha = Math.max (alpha, bestMove);
                         if(beta <= alpha){
                             return bestMove;
@@ -1332,10 +1376,12 @@ export const chessBoard =(()=>{
                         quick.move(currentMoves[i]);
                         bestMove = Math.min(bestMove, miniMax((depth - 1), alpha, beta, !isMaximizer));
                         quick.undo();
+                        
                         beta = Math.min(beta, bestMove);
                         if(beta<=alpha){
                             return bestMove;
                         }
+                        
                     }
                     return bestMove;
                 }
@@ -1464,56 +1510,87 @@ export const chessBoard =(()=>{
             return false;
         }
         function checkmateChecker(color, possible, stalemate){
-            for(let n = 0; n < possible.length; n++){
-                let hasMoved = possible[n].hasMoved;
-                let oldX = possible[n].x, oldY = possible[n].y;
-                let newX = possible[n].move.x, newY = possible[n].move.y;
-                let storeEat;
-                hasMoved++;
-                if (eatChecker(newX, newY,color)){
-                    storeEat =  chessBoardData[newY][newX].pieceData;
-                    eatMove(newX, newY);
+            if(possible.length == 0){
+                let numberOfMoves = 0;
+                    refreshData();
+                        if ((moveHistory.length + 1) % 2 == 0){
+                            numberOfMoves = (moveHistory.length + 1) / 2;
+                        }else if ((moveHistory.length + 1) % 2 == 1) {
+                            numberOfMoves = Math.floor((moveHistory.length + 1)/2) + 1
+                        }
+                        winIndicator.style.display = 'block';
+                if(color == stalemate){
+                    moveDetail.action.mate = 'draw';
+                    indicator.textContent =' stalemate in '+numberOfMoves+' moves';
+                    winIndicator.classList.add( (color?'white':'black')+'-turn');
+                    turnCheck = !turnCheck;
+                    refreshData();
+                        
+                }else{
+                    moveDetail.action.mate = true;
+                    indicator.textContent = (color?'black':'white')+" wins in "+numberOfMoves+' moves';
+                    winIndicator.textContent = 'Checkmate'
+                    winIndicator.classList.add('checkmate');
+                    turnCheck = !turnCheck;
+                    refreshData();
                 }
-                pieceMaker(newX, newY, possible[n].id, color, (hasMoved + 1));
-                pieceUnmaker(oldX, oldY);
-                refreshData();
-                if (isKingInCheck() == false){
+                gameOver = true;
+            }else if(possible.length > 0){
+                for(let n = 0; n < possible.length; n++){
+                    let hasMoved = possible[n].hasMoved;
+                    let oldX = possible[n].x, oldY = possible[n].y;
+                    let newX = possible[n].move.x, newY = possible[n].move.y;
+                    let storeEat;
+                    hasMoved++;
+                    if (eatChecker(newX, newY,color)){
+                        storeEat =  chessBoardData[newY][newX].pieceData;
+                        eatMove(newX, newY);
+                    }
+                    pieceMaker(newX, newY, possible[n].id, color, (hasMoved + 1));
+                    pieceUnmaker(oldX, oldY);
+                    refreshData();
+                    
+                    if (isKingInCheck() == false && n != possible.length - 1){
+                        undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
+                        refreshData(); 
+                        break;
+                    }
+                    if(n == possible.length -1 && isKingInCheck()){
+                        let numberOfMoves = 0;
+    
+                        if ((moveHistory.length + 1) % 2 == 0){
+                            numberOfMoves = (moveHistory.length + 1) / 2;
+                        }else if ((moveHistory.length + 1) % 2 == 1) {
+                            numberOfMoves = Math.floor((moveHistory.length + 1)/2) + 1
+                        }
+                        
+                        winIndicator.style.display = 'block';
+                        if(stalemate != null) {
+                            moveDetail.action.mate = 'draw';
+                            indicator.textContent =' stalemate in '+numberOfMoves+' moves';
+                            winIndicator.classList.add('black-turn');
+                            turnCheck = !turnCheck;
+                            refreshData();
+                        }else{
+
+                            moveDetail.action.mate = true;
+                            indicator.textContent = (color?'black':'white')+" wins in "+numberOfMoves+' moves';
+                            winIndicator.textContent = 'Checkmate'
+                            winIndicator.classList.add('checkmate');
+                            turnCheck = !turnCheck;
+                            refreshData();
+                        }
+                        
+                        gameOver = true;
+    
+                    } 
+                    
                     undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
-                    refreshData(); 
-                    break;
-                }
-                if(n == possible.length -1 && isKingInCheck()){
-                    let numberOfMoves = 0;
-
-                    if ((moveHistory.length + 1) % 2 == 0){
-                        numberOfMoves = (moveHistory.length + 1) / 2;
-                    }else if ((moveHistory.length + 1) % 2 == 1) {
-                        numberOfMoves = Math.floor((moveHistory.length + 1)/2) + 1
-                    }
-                    
-                    winIndicator.style.display = 'block';
-                    if(stalemate != null) {
-                        moveDetail.action.mate = 'draw';
-                        indicator.textContent =' stalemate in '+numberOfMoves+' moves';
-                        winIndicator.classList.add('black-turn');
-                        turnCheck = !turnCheck;
-                        refreshData();
-                    }else{
-                        moveDetail.action.mate = true;
-                        indicator.textContent = (color?'black':'white')+" wins in "+numberOfMoves+' moves';
-                        winIndicator.textContent = 'Checkmate'
-                        winIndicator.classList.add('checkmate');
-                        turnCheck = !turnCheck;
-                        refreshData();
-                    }
-                    
-                    gameOver = true;
-
-                } 
-                
-                undoLastMove(oldX, oldY, newX, newY, possible[n].id, color, (hasMoved - 1), storeEat);
-                refreshData();
-            }  
+                    refreshData();
+                }  
+            }
+            
+            
         }
         const validateMove =(()=>{
             function horizontalChecker(oldX, newX, y){
