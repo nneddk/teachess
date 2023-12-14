@@ -91,11 +91,9 @@ uploadBtn.onclick = ()=>{
 }
 imageLoader.oninput = () =>{
     setTimeout(() => {
-       boardImgLoad(identifyPieces()); 
-    }, 50);
-    
-}
-function handleImage(e){
+       //console.log(identifyPieces());
+        boardImgLoad(identifyPieces()); 
+    }, 500);
     
 }
 const loadBoardDiv = document.getElementById("load-board");

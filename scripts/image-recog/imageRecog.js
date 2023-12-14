@@ -344,7 +344,6 @@ export function identifyPieces(){
         }
         result.push(resultRow);
     }
-    
     return result;
 }
 
