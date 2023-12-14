@@ -983,25 +983,6 @@ export const chessBoard =(()=>{
                     y:null,
                 },
             } 
-            /*
-            indicator.textContent = "AI has been switched to "+(aiSide?"White!":"Black!");
-            aiTurn = aiSide;
-            if (aiSide){
-                clearInfo();
-                
-                ai(true);
-            }
-            */
-            /*
-            
-            */
-            //gameEval(snapShot(),turnCheck);
-            //console.log(enPassantData);
-            //console.log(gameEval(snapShot()));
-            //console.log(availableMoves);
-            //console.log(generatePgn(getHistory()));
-            //console.log(blackKing);
-            //console.log(whiteKing);
         }
         function getAvailableMoves(isMax){
             if(!isMax) return availableMoves.white;
@@ -1216,13 +1197,7 @@ export const chessBoard =(()=>{
                 //important to clear out threats etc for castling
                 refreshData();
                 let randomIndex = Math.floor(Math.random() * moveSelection.length);
-                //console.log(TotalMoves);
-                //console.log(randomIndex);
-                //console.log(moveSelection[randomIndex]);
-                console.log(TotalMoves);
                 aiMove(moveSelection[randomIndex].move);
-                //console.log(moveSelection[randomIndex].move);
-                //aiMove(newMove.bestMove.move);
             }, 1000);
             function trueValue(tempValue, whiteSVM, blackSVM, isMaximizer){
                 let trueValue = tempValue;
@@ -1274,8 +1249,6 @@ export const chessBoard =(()=>{
                         tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
                         if (isMate(getAvailableMoves(!isMaximizer), isMaximizer)) tempValue = 99999;
                     }
-                    //console.log(currentMoves[i].id+" to "+currentMoves[i].move.notation+" has value of: "+tempValue);
-
                     let whiteSVM = predictWhite(activePieces);
                     let blackSVM = predictBlack(activePieces);
                     quick.undo();
@@ -1319,7 +1292,6 @@ export const chessBoard =(()=>{
                         tempValue = miniMax((depth - 1),-10000, 10000, !isMaximizer);
                         if (isMate(getAvailableMoves(!isMaximizer), isMaximizer)) tempValue = -99999;
                     }
-                    //console.log(currentMoves[i].id+" to "+currentMoves[i].move.notation+" has value of: "+tempValue);
                     let whiteSVM = predictWhite(activePieces);
                     let blackSVM = predictBlack(activePieces);
                     quick.undo();
@@ -2469,7 +2441,6 @@ export const chessBoard =(()=>{
             default:
                 break;
         }
-        //console.log(moveIndex)
     }
     function changeSettings(){
         aiSide = !aiSide;

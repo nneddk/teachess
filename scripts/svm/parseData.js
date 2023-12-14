@@ -40,8 +40,6 @@ async function readWhite(){
         }
         tempArray.push(boardArray);
     }
-    console.log("White: "+goodMoves);
-    console.log(notGoodMoves);
     return[tempArray,boardLabel];
 }
 
@@ -86,8 +84,6 @@ async function readBlack(){
         }
         tempArray.push(boardArray);
     }
-    console.log("Black: "+goodMoves);
-    console.log(notGoodMoves);
     return[tempArray,boardLabel];
 }
 

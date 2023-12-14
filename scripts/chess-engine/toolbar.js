@@ -1,5 +1,5 @@
 import { chessBoard } from "./chessboard.js";
-import { loadBoard } from "../image-recog/imageRecog.js";
+import { identifyPieces } from "../image-recog/imageRecog.js";
 const resetBtn = document.getElementById('reset-btn');
 const downloadBtn = document.getElementById('download-btn');
 
@@ -85,24 +85,18 @@ sideBtn.onclick = ()=>{
     }
     
 }
-let imageLoader = document.getElementById('image-loader');
+let imageLoader = document.getElementById('pic-board');
 uploadBtn.onclick = ()=>{
     imageLoader.click();
 }
-imageLoader.onchange = (e) =>{
-    handleImage(e);
+imageLoader.oninput = () =>{
+    setTimeout(() => {
+       boardImgLoad(identifyPieces()); 
+    }, 50);
+    
 }
 function handleImage(e){
-    let reader = new FileReader();
-    reader.onload = function(event){
-        let img = new Image();
-        img.onload = function(){
-            indicator.textContent = "Image Data Can't be Loaded :(";
-            boardImgLoad(loadBoard(img));
-        }
-        img.src = event.target.result;
-    }
-    reader.readAsDataURL(e.target.files[0]); 
+    
 }
 const loadBoardDiv = document.getElementById("load-board");
 const loadWrapper = document.getElementById("generate-wrapper");
@@ -199,9 +193,6 @@ downloadBtn.onclick = () =>{
     }else{
         indicator.textContent = 'No Moves Recorded';
     }
-    
-    //console.log(chessBoard.generatePgn(chessBoard.getHistory(),true));
-    //downloadBtn.setAttribute("href",downloadPgn(generatePgn(chessBoard.getHistory('moveHistory'))));
 }
 notationBtn.onclick = () =>{
     let notationValue = chessBoard.viewNotation();

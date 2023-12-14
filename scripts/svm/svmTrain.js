@@ -105,8 +105,6 @@ let white = await readWhite();
 let whiteData = white[0];
 let whiteLabels = white[1];
 whiteSVM.train(whiteData, whiteLabels);
-
-console.log(whiteSVM.getMetrics());
 export function predictWhite(pieces){
     let board = convertBoard(pieces);
     return (whiteSVM.predict(board));
@@ -117,12 +115,11 @@ let black = await readBlack();
 let blackData = black[0];
 let blackLabels = black[1];
 blackSVM.train(blackData, blackLabels);
-console.log(blackSVM.getMetrics());
 export function predictBlack(pieces){
     let board = convertBoard(pieces);
     return (blackSVM.predict(board));
 }
-
+/*
 //current accuracy
 function whiteAccuracy(data, labels) {
     let correct = 0;
@@ -159,3 +156,4 @@ let testBlack = await readTestBlack();
 let testBlackData = testBlack[0];
 let testBlackLabels = testBlack[1]
 console.log("Black Accuracy: " + blackAccuracy(testBlackData, testBlackLabels));
+*/

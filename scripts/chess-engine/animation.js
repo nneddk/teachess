@@ -82,6 +82,4 @@ export function playAnimation(oldTile, newTile, newPiece, castling){
             }
         }
     }
-    console.log(oldPosY, oldPosX);;
-    console.log(newPosY, newPosX);
 }

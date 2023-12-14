@@ -87,20 +87,22 @@
                 <div id = "indicator"> Teachess</div>
                 <div id = "opening-indicator"></div>
                 <div id = "move-history-holder">
-                    <input type="file" id="image-loader" name="image-loader" style="display: none;"/>
+                    <input type="file" id="pic-board" accept="image/png, image/jpeg" name="image-loader" style="display: none;"/>
                     <textarea id = "move-history" readonly= "true" placeholder="Moves will appear here..." spellcheck="false"></textarea>
                     <textarea id = "input-pgn" placeholder="Leave blank for default board/loading image" spellcheck="false"></textarea>
                     <button class = "btn" id = "upload-btn" type = "button">upload</button> 
                     <button class = "btn" id = "generate-btn" type = "button">generate</button> 
                     <button class = "btn" id = "side-btn" type = "button">side</button>
                 </div>
-                
+                <canvas id= "canvas1" style="display: none;"></canvas>
+
                 <div class = "traversal-btn-holder">
                     <button class ="btn left" id = "first-move-btn" type = "button"> &lt;&lt;</button>
                     <button class ="btn" id = "undo-btn" type = "button">&lt;</button>
                     <button class ="btn" id = "redo-btn" type = "button">&gt; </button>
                     <button class ="btn right" id = "last-move-btn" type = "button">&gt;&gt; </button>
                 </div>
+                
                 <div class = "captured-pieces">
                     <div id = "captured-white-holder"></div>
                     <div id = "captured-black-holder"></div>
