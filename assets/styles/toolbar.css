@@ -282,3 +282,12 @@
 .captured-piece:hover{
     transform: scale(1.3);
 }
+@media only screen and (max-width: 815px) {
+    .toolbar-holder{
+        justify-self: center;
+        width:85vmin;
+    }
+    .toolbar{
+        width:100%;
+    }
+  }

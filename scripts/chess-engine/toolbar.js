@@ -102,6 +102,7 @@ let editedBoard = [];
 function boardImgLoad(array){
     editedBoard = [];
     loadWrapper.style.zIndex = "10";
+    loadWrapper.style.display = "absolute";
     indicator.textContent = "Teachess";
     let piece = [
         null,
@@ -157,6 +158,7 @@ const cancelBtn = document.getElementById("cancel-board-btn");
 cancelBtn.onclick = ()=>{
     hideDisplay();
     loadWrapper.style.zIndex = "-10";
+    loadWrapper.style.display = "none";
     imgLoaded = false;
     editedBoard = [];
 }
@@ -166,7 +168,7 @@ let imgLoaded = false;
 let turnImg = true;
 loadBtn.onclick = () =>{
     indicator.textContent = "Board Data Ready!"
-    loadWrapper.style.zIndex = "-10";
+    loadWrapper.style.display = "none";
     imgLoaded = true;
 }
 turnBtn.onclick = ()=>{

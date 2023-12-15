@@ -60,3 +60,10 @@
 .black-pawn{
     background-image: url(../pieces/black-pieces/black-pawn.svg);
 }
+@media only screen and (max-width: 815px) {
+    .piece{
+        position: absolute;
+        justify-self: normal;
+        z-index: 10;
+    }
+  }

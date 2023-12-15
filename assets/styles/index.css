@@ -7,7 +7,13 @@ body, html{
     margin: 0;
     font-size: 15px;
     overflow-x: hidden;
-    overflow-y:hidden
+    overflow-y:hidden;
+    background-image: url('../board/bg.svg');
+
+    background-color: rgb(100,100,100);
+    background-position: center;
+    background-size: 50%;
+    background-blend-mode: multiply;
 }
 *{
     -webkit-user-select: none; /* Safari */
@@ -42,6 +48,7 @@ img {
     gap: 1vh;
     z-index: -10;
     font-size:2vmin;
+    display:none;
     
 }  
 #load-board{
@@ -130,9 +137,19 @@ img {
     justify-content: center;
     align-items: center;
     gap:5vmin;
-    background-image: url('../board/bg.svg');
-    background-color: rgb(100,100,100);
-    background-position: center;
-    background-size: 50%;
-    background-blend-mode: multiply;
+    
 }
+@media only screen and (max-width: 815px) {
+    body, html{
+        overflow-y: visible;
+    }
+    .content{
+        padding: 20px;
+        display:grid;
+        grid-template-rows: 1fr 1fr;
+        height:100%;
+    }
+    #load-board{
+        align-self: center;
+    }
+  }

@@ -133,3 +133,9 @@
     width: 85vmin;
     position: absolute;
 }
+@media only screen and (max-width: 815px) {
+    .tile{
+        position: relative;
+        
+    }
+  }
