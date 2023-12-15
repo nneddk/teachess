@@ -1,4 +1,5 @@
 import { readWhite,readBlack, readTestWhite, readTestBlack } from "./parseData.js";
+import { chessBoard } from "../chess-engine/chessboard.js";
 class SVM {
     constructor() {
         this.weights = [];
@@ -119,6 +120,9 @@ export function predictBlack(pieces){
     let board = convertBoard(pieces);
     return (blackSVM.predict(board));
 }
+chessBoard.makeBoard();
+chessBoard.generateGame();
+chessBoard.refreshData();
 /*
 //current accuracy
 function whiteAccuracy(data, labels) {

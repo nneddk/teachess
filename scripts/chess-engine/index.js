@@ -1,7 +1,6 @@
 import { chessBoard } from "./chessboard.js";
 /* create's the board and populates it on load*/
-chessBoard.makeBoard();
-chessBoard.generateGame();
+
 //for compiling openings only, make sure to comment out!
 /*
 let openingData = '';
